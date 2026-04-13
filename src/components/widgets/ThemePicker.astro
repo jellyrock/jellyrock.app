@@ -1,0 +1,90 @@
+---
+import { loadThemes } from '~/utils/themes';
+
+const themes = await loadThemes();
+---
+
+<div class="relative inline-block">
+  <button
+    id="theme-picker-btn"
+    class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-[var(--jr-text-secondary)] hover:text-[var(--jr-text-primary)] hover:bg-[var(--jr-bg-secondary)] transition-colors"
+    aria-label="Switch theme"
+  >
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+    </svg>
+    <span id="theme-picker-label">Theme</span>
+  </button>
+
+  <div
+    id="theme-picker-menu"
+    class="hidden absolute right-0 z-50 mt-1 w-44 rounded-lg border border-[var(--jr-text-disabled)] bg-[var(--jr-bg-secondary)] shadow-lg overflow-hidden"
+  >
+    {themes.map((theme) => (
+      <button
+        class="theme-option w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[var(--jr-text-secondary)] hover:text-[var(--jr-text-primary)] hover:bg-[var(--jr-bg-primary)] transition-colors text-left"
+        data-theme-id={theme.id}
+        data-primary={theme.colors.primary}
+        data-secondary={theme.colors.secondary}
+        data-bg-primary={theme.colors.backgroundPrimary}
+        data-bg-secondary={theme.colors.backgroundSecondary}
+        data-text-primary={theme.colors.textPrimary}
+        data-text-secondary={theme.colors.textSecondary}
+        data-text-disabled={theme.colors.textDisabled}
+      >
+        <span
+          class="inline-block w-3 h-3 rounded-full shrink-0"
+          style={`background: linear-gradient(135deg, #${theme.colors.primary} 50%, #${theme.colors.secondary} 50%)`}
+        />
+        {theme.title}
+      </button>
+    ))}
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    const btn = document.getElementById('theme-picker-btn');
+    const menu = document.getElementById('theme-picker-menu');
+    const label = document.getElementById('theme-picker-label');
+    const root = document.documentElement;
+
+    function applyTheme(el) {
+      root.style.setProperty('--jr-primary', '#' + el.dataset.primary);
+      root.style.setProperty('--jr-secondary', '#' + el.dataset.secondary);
+      root.style.setProperty('--jr-bg-primary', '#' + el.dataset.bgPrimary);
+      root.style.setProperty('--jr-bg-secondary', '#' + el.dataset.bgSecondary);
+      root.style.setProperty('--jr-text-primary', '#' + el.dataset.textPrimary);
+      root.style.setProperty('--jr-text-secondary', '#' + el.dataset.textSecondary);
+      root.style.setProperty('--jr-text-disabled', '#' + el.dataset.textDisabled);
+      label.textContent = el.textContent.trim();
+      localStorage.setItem('jr-theme', el.dataset.themeId);
+    }
+
+    // Restore saved theme
+    var saved = localStorage.getItem('jr-theme');
+    if (saved) {
+      var el = document.querySelector('[data-theme-id="' + saved + '"]');
+      if (el) applyTheme(el);
+    }
+
+    // Toggle menu
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menu.classList.toggle('hidden');
+    });
+
+    // Theme selection
+    document.querySelectorAll('.theme-option').forEach(function (el) {
+      el.addEventListener('click', function () {
+        applyTheme(el);
+        menu.classList.add('hidden');
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', function () {
+      menu.classList.add('hidden');
+    });
+  })();
+</script>

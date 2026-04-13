@@ -1,63 +1,75 @@
 ---
 import '@fontsource-variable/inter';
-
-// 'DM Sans'
-// Nunito
-// Dosis
-// Outfit
-// Roboto
-// Literata
-// 'IBM Plex Sans'
-// Karla
-// Poppins
-// 'Fira Sans'
-// 'Libre Franklin'
-// Inconsolata
-// Raleway
-// Oswald
-// 'Space Grotesk'
-// Urbanist
+import '@fontsource/barlow/800.css';
+import '@fontsource/barlow/900.css';
 ---
 
 <style is:inline>
   :root {
+    /* JellyRock theme CSS variables — set by theme picker, defaults to JellyRock theme */
+    --jr-primary: #8B5CF6;
+    --jr-secondary: #3B82F6;
+    --jr-bg-primary: #0D1117;
+    --jr-bg-secondary: #161B22;
+    --jr-text-primary: #F0F0F0;
+    --jr-text-secondary: #A8A8A8;
+    --jr-text-disabled: #4A4A4A;
+
+    /* Map JellyRock vars to AstroWind vars */
     --aw-font-sans: 'Inter Variable';
     --aw-font-serif: 'Inter Variable';
-    --aw-font-heading: 'Inter Variable';
+    --aw-font-heading: 'Barlow', sans-serif;
 
-    --aw-color-primary: rgb(1 97 239);
-    --aw-color-secondary: rgb(1 84 207);
-    --aw-color-accent: rgb(109 40 217);
+    --aw-color-primary: var(--jr-primary);
+    --aw-color-secondary: var(--jr-secondary);
+    --aw-color-accent: var(--jr-secondary);
 
-    --aw-color-text-heading: rgb(0 0 0);
-    --aw-color-text-default: rgb(16 16 16);
-    --aw-color-text-muted: rgb(16 16 16 / 66%);
-    --aw-color-bg-page: rgb(255 255 255);
-
-    --aw-color-bg-page-dark: rgb(3 6 32);
+    --aw-color-text-heading: var(--jr-text-primary);
+    --aw-color-text-default: var(--jr-text-primary);
+    --aw-color-text-muted: var(--jr-text-secondary);
+    --aw-color-bg-page: var(--jr-bg-primary);
+    --aw-color-bg-page-dark: var(--jr-bg-primary);
 
     ::selection {
-      background-color: lavender;
+      background-color: var(--jr-primary);
+      color: white;
     }
   }
 
+  /* JellyRock is dark-only */
   .dark {
     --aw-font-sans: 'Inter Variable';
     --aw-font-serif: 'Inter Variable';
-    --aw-font-heading: 'Inter Variable';
+    --aw-font-heading: 'Barlow', sans-serif;
 
-    --aw-color-primary: rgb(1 97 239);
-    --aw-color-secondary: rgb(1 84 207);
-    --aw-color-accent: rgb(109 40 217);
+    --aw-color-primary: var(--jr-primary);
+    --aw-color-secondary: var(--jr-secondary);
+    --aw-color-accent: var(--jr-secondary);
 
-    --aw-color-text-heading: rgb(247, 248, 248);
-    --aw-color-text-default: rgb(229 236 246);
-    --aw-color-text-muted: rgb(229 236 246 / 66%);
-    --aw-color-bg-page: rgb(3 6 32);
+    --aw-color-text-heading: var(--jr-text-primary);
+    --aw-color-text-default: var(--jr-text-primary);
+    --aw-color-text-muted: var(--jr-text-secondary);
+    --aw-color-bg-page: var(--jr-bg-primary);
 
     ::selection {
-      background-color: black;
-      color: snow;
+      background-color: var(--jr-primary);
+      color: white;
     }
+  }
+
+  /* Inline links use blue, lighten on hover */
+  article a, .prose a, p a, li > a:not([class]) {
+    color: var(--jr-secondary);
+  }
+  article a:hover, .prose a:hover, p a:hover, li > a:not([class]):hover {
+    color: color-mix(in srgb, var(--jr-secondary) 75%, white);
+  }
+
+  /* Gradient: always primary (purple) → secondary (blue), left to right */
+  .text-accent {
+    background: linear-gradient(135deg, var(--jr-primary), var(--jr-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 </style>

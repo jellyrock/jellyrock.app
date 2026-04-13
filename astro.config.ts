@@ -12,8 +12,19 @@ import compress from 'astro-compress';
 import type { AstroIntegration } from 'astro';
 
 import astrowind from './vendor/integration';
+import { fetchAssets } from './src/utils/assets';
 
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
+
+// Fetch JellyRock branding assets from GitHub at build time
+const jellyrockAssets: () => AstroIntegration = () => ({
+  name: 'jellyrock-assets',
+  hooks: {
+    'astro:config:setup': async () => {
+      await fetchAssets();
+    },
+  },
+});
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -25,6 +36,7 @@ export default defineConfig({
   output: 'static',
 
   integrations: [
+    jellyrockAssets(),
     tailwind({
       applyBaseStyles: false,
     }),

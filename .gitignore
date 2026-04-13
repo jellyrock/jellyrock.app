@@ -22,3 +22,7 @@ pnpm-debug.log*
 pnpm-lock.yaml
 
 .astro
+
+# Fetched from jellyrock repo at build time
+src/assets/images/jellyrock/
+.jellyrock-repo/
