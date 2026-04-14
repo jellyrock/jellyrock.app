@@ -1,0 +1,74 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import HeroText from '~/components/widgets/HeroText.astro';
+import Steps from '~/components/widgets/Steps.astro';
+
+const metadata = {
+  title: 'Install JellyRock',
+};
+
+const rokuStoreUrl = 'https://channelstore.roku.com/details/232f9e82db11ce628e3fe7e01382a330:a85d6e9e520567806e8dae1c0cabadd5/jellyrock';
+---
+
+<Layout metadata={metadata}>
+  <HeroText>
+    <Fragment slot="title">
+      Install <span class="text-accent">JellyRock</span>
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      There are two ways to install JellyRock on your Roku device.
+    </Fragment>
+  </HeroText>
+
+  <Steps
+    title="Option 1: Install from the web"
+    subtitle="Use the Roku Channel Store website to install JellyRock on all devices linked to your Roku account."
+    items={[
+      {
+        title: 'Visit the Channel Store',
+        description:
+          `Go to the <a href="${rokuStoreUrl}" target="_blank" class="text-accent underline">JellyRock Channel Store page</a> and click "Add Channel".`,
+        icon: 'tabler:world-www',
+      },
+      {
+        title: 'Sign in with your Roku account',
+        description:
+          'Log in with the same email address linked to your Roku device(s).',
+        icon: 'tabler:login',
+      },
+      {
+        title: 'Installed on all devices',
+        description:
+          'JellyRock will automatically appear on every Roku device linked to that account.',
+        icon: 'tabler:check',
+      },
+    ]}
+  />
+
+  <Steps
+    title="Option 2: Install directly on your Roku"
+    subtitle="Search for JellyRock right from your Roku device. Your device is already signed in to your Roku account from initial setup."
+    isReversed
+    items={[
+      {
+        title: 'Go to Home',
+        description:
+          'Press the Home button on your Roku remote.',
+        icon: 'tabler:home',
+      },
+      {
+        title: 'Open Search',
+        description:
+          'Select "Search" from the home screen menu.',
+        icon: 'tabler:search',
+      },
+      {
+        title: 'Search for "JellyRock"',
+        description:
+          'Type "JellyRock" and select it from the results. Click "Add Channel" to install.',
+        icon: 'tabler:download',
+      },
+    ]}
+  />
+</Layout>

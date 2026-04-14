@@ -1,9 +1,12 @@
 ---
+import { Image } from 'astro:assets';
 import Layout from '~/layouts/PageLayout.astro';
 
 import Hero from '~/components/widgets/Hero.astro';
 import Features from '~/components/widgets/Features.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
+
+import { features, HOMEPAGE_FEATURE_COUNT } from '~/data/features';
 
 const metadata = {
   title: 'JellyRock — A Jellyfin client for Roku',
@@ -15,15 +18,23 @@ const screenshotGlobs = import.meta.glob<{ default: ImageMetadata }>(
   '../assets/images/jellyrock/screenshots/*.png',
   { eager: true }
 );
-const screenshots = Object.entries(screenshotGlobs).map(([filepath, mod]) => ({
+const allScreenshots = Object.entries(screenshotGlobs).map(([filepath, mod]) => ({
   name: filepath.split('/').pop()?.replace('.png', '') ?? '',
   src: mod.default,
 }));
 
 // Pick a hero screenshot (prefer 'home', fallback to first)
-const heroScreenshot = screenshots.find((s) => s.name === 'home') || screenshots[0];
-// Remaining screenshots for the gallery
-const galleryScreenshots = screenshots.filter((s) => s !== heroScreenshot);
+const heroScreenshot = allScreenshots.find((s) => s.name === 'home') || allScreenshots[0];
+// Show up to 6 screenshots in the gallery (excluding hero)
+const HOMEPAGE_SCREENSHOT_COUNT = 4;
+const galleryScreenshots = allScreenshots
+  .filter((s) => s !== heroScreenshot)
+  .slice(0, HOMEPAGE_SCREENSHOT_COUNT);
+const hasMoreScreenshots = allScreenshots.length > HOMEPAGE_SCREENSHOT_COUNT + 1;
+
+// Show first N features on homepage
+const homepageFeatures = features.slice(0, HOMEPAGE_FEATURE_COUNT);
+const hasMoreFeatures = features.length > HOMEPAGE_FEATURE_COUNT;
 ---
 
 <Layout metadata={metadata}>
@@ -31,10 +42,9 @@ const galleryScreenshots = screenshots.filter((s) => s !== heroScreenshot);
     actions={[
       {
         variant: 'primary',
-        text: 'Try the Demo',
-        href: 'https://demo.jellyrock.app',
-        target: '_blank',
-        icon: 'tabler:player-play',
+        text: 'Install',
+        href: '/install',
+        icon: 'tabler:download',
       },
       {
         text: 'View Source',
@@ -60,45 +70,16 @@ const galleryScreenshots = screenshots.filter((s) => s !== heroScreenshot);
     tagline="Features"
     title="Why JellyRock?"
     subtitle="Built by the community, for the community. JellyRock focuses on stability, performance, and a great user experience."
-    items={[
-      {
-        title: 'Direct Play Priority',
-        description:
-          'Plays your media directly whenever possible, avoiding unnecessary transcoding for the best quality and lowest server load.',
-        icon: 'tabler:player-play',
-      },
-      {
-        title: 'Subtitle Support',
-        description:
-          'Full support for external and embedded subtitles including SRT, VTT, and ASS formats with custom rendering.',
-        icon: 'tabler:text-caption',
-      },
-      {
-        title: 'Trickplay Thumbnails',
-        description:
-          'Preview thumbnails while scrubbing through video, making it easy to find the exact moment you want.',
-        icon: 'tabler:photo-scan',
-      },
-      {
-        title: 'Cinema Mode',
-        description:
-          'Play custom intros before your movies and shows for an authentic theater experience at home.',
-        icon: 'tabler:movie',
-      },
-      {
-        title: 'Themeable Interface',
-        description:
-          'Choose from multiple built-in color themes or create your own custom theme to match your style.',
-        icon: 'tabler:palette',
-      },
-      {
-        title: 'Free & Open Source',
-        description:
-          'No ads, no tracking, no subscriptions. Community-driven development with full transparency.',
-        icon: 'tabler:heart-handshake',
-      },
-    ]}
+    items={homepageFeatures}
   />
+
+  {hasMoreFeatures && (
+    <div class="text-center -mt-8 mb-12">
+      <a href="/features" class="btn">
+        View all features
+      </a>
+    </div>
+  )}
 
   <!-- Screenshot Gallery -->
   {galleryScreenshots.length > 0 && (
@@ -112,16 +93,24 @@ const galleryScreenshots = screenshots.filter((s) => s !== heroScreenshot);
         </p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {galleryScreenshots.map((screenshot) => (
-            <img
-              src={screenshot.src.src}
+            <Image
+              src={screenshot.src}
               alt={`JellyRock ${screenshot.name} screen`}
-              class="rounded-lg shadow-lg w-full"
-              width={screenshot.src.width}
-              height={screenshot.src.height}
+              class="rounded-lg shadow-lg w-full cursor-zoom-in"
+              data-zoomable
               loading="lazy"
+              widths={[480, 800, 1200]}
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
           ))}
         </div>
+        {hasMoreScreenshots && (
+          <div class="text-center mt-8">
+            <a href="/screenshots" class="btn">
+              View all screenshots
+            </a>
+          </div>
+        )}
       </div>
     </section>
   )}
@@ -130,25 +119,30 @@ const galleryScreenshots = screenshots.filter((s) => s !== heroScreenshot);
     actions={[
       {
         variant: 'primary',
-        text: 'Try the Demo',
-        href: 'https://demo.jellyrock.app',
-        target: '_blank',
-        icon: 'tabler:player-play',
+        text: 'Install',
+        href: '/install',
+        icon: 'tabler:download',
       },
       {
         text: 'Support Development',
-        href: 'https://github.com/sponsors/cewert',
-        target: '_blank',
+        href: '/donate',
         icon: 'tabler:heart',
       },
     ]}
   >
     <Fragment slot="title">
-      Ready to try <span class="text-primary">JellyRock</span>?
+      Ready to try <span class="text-accent">JellyRock</span>?
     </Fragment>
 
     <Fragment slot="subtitle">
-      Free and open source. Try the browser demo instantly, or install it on your Roku from the Channel Store.
+      Free and open source. Install JellyRock on your Roku from the Channel Store — no account required.
     </Fragment>
   </CallToAction>
 </Layout>
+
+<script>
+  import mediumZoom from 'medium-zoom';
+  mediumZoom('[data-zoomable]', {
+    background: 'rgba(0, 0, 0, 0.9)',
+  });
+</script>

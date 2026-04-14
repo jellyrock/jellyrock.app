@@ -36,20 +36,11 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
         <div class="mb-2">
           <a class="inline-block font-bold text-xl" href={getHomePermalink()}>{SITE?.name}</a>
         </div>
-        <div class="text-sm text-muted flex gap-1">
-          {
-            secondaryLinks.map(({ text, href }, index) => (
-              <>
-                {index !== 0 ? ' · ' : ''}
-                <a
-                  class="text-muted hover:text-gray-700 dark:text-gray-400 hover:underline transition duration-150 ease-in-out"
-                  href={href}
-                  set:html={text}
-                />
-              </>
-            ))
-          }
-        </div>
+        <p class="text-sm text-muted dark:text-gray-400 max-w-md">
+          A free, open source Jellyfin client for Roku devices. Forked from the legacy
+          jellyfin-roku app v2.2.5 and developed with a focus on stability, performance,
+          and a great viewing experience. No ads, no tracking, no subscriptions.
+        </p>
       </div>
       {
         links.map(({ title, links }) => (
@@ -96,7 +87,7 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
         )
       }
 
-      <div class="text-sm mr-4 dark:text-muted">
+      <div class="text-sm dark:text-muted text-center w-full">
         <Fragment set:html={footNote} />
       </div>
     </div>

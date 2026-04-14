@@ -1,0 +1,26 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import HeroText from '~/components/widgets/HeroText.astro';
+import Features from '~/components/widgets/Features.astro';
+import { features } from '~/data/features';
+
+const metadata = {
+  title: 'Features',
+};
+---
+
+<Layout metadata={metadata}>
+  <HeroText>
+    <Fragment slot="title">
+      All <span class="text-accent">Features</span>
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      Everything JellyRock offers — built for stability, performance, and a great user experience.
+    </Fragment>
+  </HeroText>
+
+  <Features
+    items={features}
+  />
+</Layout>
