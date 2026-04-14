@@ -1,10 +1,8 @@
 ---
 import Layout from '~/layouts/Layout.astro';
-import Header from '~/components/widgets/Header.astro';
-import Footer from '~/components/widgets/Footer.astro';
-import Announcement from '~/components/widgets/Announcement.astro';
-
-import { headerData, footerData } from '~/navigation';
+import SiteHeader from '~/shared-ui/components/SiteHeader.astro';
+import SiteFooter from '~/shared-ui/components/SiteFooter.astro';
+import '~/shared-ui/tokens.css';
 
 import type { MetaData } from '~/types';
 
@@ -13,16 +11,17 @@ export interface Props {
 }
 
 const { metadata } = Astro.props;
+const currentUrl = Astro.url.toString();
 ---
 
 <Layout metadata={metadata}>
   <slot name="header">
-    <Header {...headerData} isSticky />
+    <SiteHeader currentUrl={currentUrl} />
   </slot>
   <main>
     <slot />
   </main>
   <slot name="footer">
-    <Footer {...footerData} />
+    <SiteFooter />
   </slot>
 </Layout>

@@ -13,15 +13,17 @@ import type { AstroIntegration } from 'astro';
 
 import astrowind from './vendor/integration';
 import { fetchAssets } from './src/utils/assets';
+import { fetchSharedUi } from './src/utils/fetch-shared-ui';
 
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
 
-// Fetch JellyRock branding assets from GitHub at build time
+// Fetch JellyRock branding assets + shared-ui from GitHub at build time
 const jellyrockAssets: () => AstroIntegration = () => ({
   name: 'jellyrock-assets',
   hooks: {
     'astro:config:setup': async () => {
       await fetchAssets();
+      await fetchSharedUi();
     },
   },
 });

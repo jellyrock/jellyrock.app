@@ -26,3 +26,7 @@ pnpm-lock.yaml
 # Fetched from jellyrock repo at build time
 src/assets/images/jellyrock/
 .jellyrock-repo/
+
+# Fetched from shared-ui repo at build time
+src/shared-ui
+.shared-ui-repo/
