@@ -1,7 +1,17 @@
 {
-  "name": "@onwidget/astrowind",
-  "version": "1.0.0-beta.52",
-  "description": "AstroWind: A free template using Astro 5.0 and Tailwind CSS. Astro starter theme.",
+  "name": "jellyrock.app",
+  "version": "1.0.0",
+  "description": "Marketing and landing site for JellyRock, a Jellyfin client for Roku.",
+  "license": "MIT",
+  "author": "Charles Ewert",
+  "homepage": "https://jellyrock.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jellyrock/jellyrock.app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jellyrock/jellyrock.app/issues"
+  },
   "type": "module",
   "private": true,
   "engines": {
