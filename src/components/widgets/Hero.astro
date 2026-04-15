@@ -47,10 +47,7 @@ const {
         <div class="max-w-3xl mx-auto">
           {
             subtitle && (
-              <p
-                class="text-xl text-muted mb-6 dark:text-slate-300 motion-safe:animate-fade"
-                set:html={subtitle}
-              />
+              <p class="text-xl text-muted mb-6 dark:text-slate-300 motion-safe:animate-fade" set:html={subtitle} />
             )
           }
           {
@@ -71,9 +68,7 @@ const {
         </div>
         {content && <Fragment set:html={content} />}
       </div>
-      <div
-        class="motion-safe:animate-fade"
-      >
+      <div class="motion-safe:animate-fade">
         {
           image && (
             <div class="relative m-auto max-w-5xl">

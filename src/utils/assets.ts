@@ -23,14 +23,8 @@ export async function fetchAssets(): Promise<void> {
 
   // Shallow clone with sparse checkout (only the folders we need)
   if (!fs.existsSync(CLONE_DIR)) {
-    execSync(
-      `git clone --depth 1 --filter=blob:none --sparse ${REPO_URL} ${CLONE_DIR}`,
-      { stdio: 'inherit' }
-    );
-    execSync(
-      `git -C ${CLONE_DIR} sparse-checkout set ${Object.keys(COPY_MAP).join(' ')}`,
-      { stdio: 'inherit' }
-    );
+    execSync(`git clone --depth 1 --filter=blob:none --sparse ${REPO_URL} ${CLONE_DIR}`, { stdio: 'inherit' });
+    execSync(`git -C ${CLONE_DIR} sparse-checkout set ${Object.keys(COPY_MAP).join(' ')}`, { stdio: 'inherit' });
   }
 
   // Copy directories to assets

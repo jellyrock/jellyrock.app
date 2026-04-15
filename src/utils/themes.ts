@@ -38,9 +38,7 @@ function findThemeSettings(entries: SettingsEntry[]): SettingsOption[] | null {
 }
 
 export async function loadThemes(): Promise<Theme[]> {
-  const response = await fetch(
-    'https://raw.githubusercontent.com/jellyrock/jellyrock/main/settings/settings.json'
-  );
+  const response = await fetch('https://raw.githubusercontent.com/jellyrock/jellyrock/main/settings/settings.json');
   const settings = await response.json();
 
   const themeOptions = findThemeSettings(settings);

@@ -66,9 +66,7 @@ export const footerData = {
     },
   ],
   secondaryLinks: [],
-  socialLinks: [
-    { ariaLabel: 'GitHub', icon: 'tabler:brand-github', href: 'https://github.com/jellyrock/jellyrock' },
-  ],
+  socialLinks: [{ ariaLabel: 'GitHub', icon: 'tabler:brand-github', href: 'https://github.com/jellyrock/jellyrock' }],
   footNote: `
     The <a class="dark:text-muted underline" href="https://github.com/jellyrock/jellyrock">JellyRock Roku app</a>
     is free and open source, licensed under GPL-2.0.

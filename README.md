@@ -9,16 +9,16 @@ a Jellyfin client for Roku. Deployed at **[jellyrock.app](https://jellyrock.app)
 
 ## Tech stack
 
-| Piece     | Choice | Why |
-| --------- | ------ | --- |
-| Framework | [Astro 5](https://astro.build/) | Static-first, islands architecture, great DX. |
-| Styling | [Tailwind CSS 3](https://tailwindcss.com/) | Utility-first, matches starter template. |
-| Starter | Forked from [AstroWind](https://github.com/arthelokyo/astrowind) | Good opinionated defaults; we stripped blog/pricing/services/landing variants. |
-| Icons | [`astro-icon`](https://github.com/natemoo-re/astro-icon) with Tabler + Flat Color sets | Inline SVGs, zero runtime cost. |
-| Images | Astro `<Image>` + `sharp` | Build-time optimization + responsive `srcset`. |
-| Shared UI | [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui) | Header/footer/tokens shared with docs + API reference sites. |
-| Analytics | [Umami](https://analytics.jellyrock.app) (self-hosted) | Privacy-respecting; see [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro). |
-| Hosting | Caddy `file_server` on the JellyRock VPS | See [`jellyrock/infra`](https://github.com/jellyrock/infra). |
+| Piece     | Choice                                                                                 | Why                                                                                                       |
+| --------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Framework | [Astro 5](https://astro.build/)                                                        | Static-first, islands architecture, great DX.                                                             |
+| Styling   | [Tailwind CSS 3](https://tailwindcss.com/)                                             | Utility-first, matches starter template.                                                                  |
+| Starter   | Forked from [AstroWind](https://github.com/arthelokyo/astrowind)                       | Good opinionated defaults; we stripped blog/pricing/services/landing variants.                            |
+| Icons     | [`astro-icon`](https://github.com/natemoo-re/astro-icon) with Tabler + Flat Color sets | Inline SVGs, zero runtime cost.                                                                           |
+| Images    | Astro `<Image>` + `sharp`                                                              | Build-time optimization + responsive `srcset`.                                                            |
+| Shared UI | [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui)                        | Header/footer/tokens shared with docs + API reference sites.                                              |
+| Analytics | [Umami](https://analytics.jellyrock.app) (self-hosted)                                 | Privacy-respecting; see [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro). |
+| Hosting   | Caddy `file_server` on the JellyRock VPS                                               | See [`jellyrock/infra`](https://github.com/jellyrock/infra).                                              |
 
 > [!NOTE]
 > The `Dockerfile`, `netlify.toml`, `vercel.json`, and `nginx/` dir are legacy
@@ -62,16 +62,16 @@ If `../shared-ui/` is not present, the build clones it from GitHub. See
 
 ## Updating content
 
-| Task | File(s) |
-|---|---|
-| Edit hero, install steps, CTAs | [`src/pages/index.astro`](src/pages/index.astro), [`src/pages/install.astro`](src/pages/install.astro) |
-| Edit features list | [`src/data/features.ts`](src/data/features.ts) — single source of truth, rendered on `/features` and the home page |
-| Add/replace screenshots | Drop `.png` in [`src/assets/images/jellyrock/screenshots/`](src/assets/images/jellyrock/screenshots/). They are auto-discovered via `import.meta.glob` in [`src/pages/screenshots.astro`](src/pages/screenshots.astro) |
-| Change screenshot sort order | Filenames are sorted alphabetically by glob. Prefix with `01-`, `02-`, ... to force order, or sort in code — see [`src/pages/screenshots.astro:10`](src/pages/screenshots.astro#L10) |
-| Update donate / contact / privacy / terms | [`src/pages/donate.astro`](src/pages/donate.astro), [`src/pages/contact.astro`](src/pages/contact.astro), [`src/pages/privacy.md`](src/pages/privacy.md), [`src/pages/terms.md`](src/pages/terms.md) |
-| Swap Umami website ID | [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro) |
-| Change header/footer links | Edit in [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui) (affects all sites) |
-| Update branding assets | [`src/assets/images/jellyrock/branding/`](src/assets/images/jellyrock/branding/) |
+| Task                                      | File(s)                                                                                                                                                                                                                |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Edit hero, install steps, CTAs            | [`src/pages/index.astro`](src/pages/index.astro), [`src/pages/install.astro`](src/pages/install.astro)                                                                                                                 |
+| Edit features list                        | [`src/data/features.ts`](src/data/features.ts) — single source of truth, rendered on `/features` and the home page                                                                                                     |
+| Add/replace screenshots                   | Drop `.png` in [`src/assets/images/jellyrock/screenshots/`](src/assets/images/jellyrock/screenshots/). They are auto-discovered via `import.meta.glob` in [`src/pages/screenshots.astro`](src/pages/screenshots.astro) |
+| Change screenshot sort order              | Filenames are sorted alphabetically by glob. Prefix with `01-`, `02-`, ... to force order, or sort in code — see [`src/pages/screenshots.astro:10`](src/pages/screenshots.astro#L10)                                   |
+| Update donate / contact / privacy / terms | [`src/pages/donate.astro`](src/pages/donate.astro), [`src/pages/contact.astro`](src/pages/contact.astro), [`src/pages/privacy.md`](src/pages/privacy.md), [`src/pages/terms.md`](src/pages/terms.md)                   |
+| Swap Umami website ID                     | [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro)                                                                                                                                       |
+| Change header/footer links                | Edit in [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui) (affects all sites)                                                                                                                            |
+| Update branding assets                    | [`src/assets/images/jellyrock/branding/`](src/assets/images/jellyrock/branding/)                                                                                                                                       |
 
 ### Adding short videos (future)
 

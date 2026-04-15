@@ -26,40 +26,34 @@ export const features: Feature[] = [
   },
   {
     title: 'Trickplay Thumbnails',
-    description:
-      'Preview thumbnails while scrubbing through video, making it easy to find the exact moment you want.',
+    description: 'Preview thumbnails while scrubbing through video, making it easy to find the exact moment you want.',
     icon: 'tabler:photo-scan',
   },
   {
     title: 'Cinema Mode',
-    description:
-      'Play custom intros before your movies and shows for an authentic theater experience at home.',
+    description: 'Play custom intros before your movies and shows for an authentic theater experience at home.',
     icon: 'tabler:movie',
   },
   {
     title: 'Voice Search',
-    description:
-      'Use your Roku remote to search your library by voice, right from the home screen.',
+    description: 'Use your Roku remote to search your library by voice, right from the home screen.',
     icon: 'tabler:microphone',
   },
   {
     title: 'Favorites Tab',
-    description:
-      'Quick access to your favorited movies, shows, and music directly from the home screen.',
+    description: 'Quick access to your favorited movies, shows, and music directly from the home screen.',
     icon: 'tabler:star',
   },
 
   // Media support
   {
     title: 'Full Dolby Vision Support',
-    description:
-      'Enjoy Dolby Vision content on compatible Roku devices with full HDR metadata passthrough.',
+    description: 'Enjoy Dolby Vision content on compatible Roku devices with full HDR metadata passthrough.',
     icon: 'tabler:video',
   },
   {
     title: 'Preserve Dolby Vision in MKV',
-    description:
-      'Keep Dolby Vision metadata intact when streaming MKV files, ensuring the best picture quality.',
+    description: 'Keep Dolby Vision metadata intact when streaming MKV files, ensuring the best picture quality.',
     icon: 'tabler:file-check',
   },
   {
@@ -76,20 +70,17 @@ export const features: Feature[] = [
   },
   {
     title: 'Music Playback',
-    description:
-      'Browse and play your music library with album art, artist info, and queue management.',
+    description: 'Browse and play your music library with album art, artist info, and queue management.',
     icon: 'tabler:music',
   },
   {
     title: 'Chapter Navigation',
-    description:
-      'Jump between chapters during playback for quick navigation through movies and shows.',
+    description: 'Jump between chapters during playback for quick navigation through movies and shows.',
     icon: 'tabler:list-numbers',
   },
   {
     title: 'Collections & Playlists',
-    description:
-      'Browse and play your curated collections and playlists organized in your Jellyfin library.',
+    description: 'Browse and play your curated collections and playlists organized in your Jellyfin library.',
     icon: 'tabler:playlist',
   },
 
@@ -102,8 +93,7 @@ export const features: Feature[] = [
   },
   {
     title: 'Silky-Smooth UI',
-    description:
-      'All API requests moved off the render thread means the interface never stutters while loading data.',
+    description: 'All API requests moved off the render thread means the interface never stutters while loading data.',
     icon: 'tabler:device-desktop-analytics',
   },
 
@@ -116,8 +106,7 @@ export const features: Feature[] = [
   },
   {
     title: '9 Built-in Themes',
-    description:
-      'Choose from JellyRock, Emerald, Ember, Rose, Ocean, Dusk, Midnight, High Contrast, and more.',
+    description: 'Choose from JellyRock, Emerald, Ember, Rose, Ocean, Dusk, Midnight, High Contrast, and more.',
     icon: 'tabler:palette',
   },
   {
@@ -128,14 +117,12 @@ export const features: Feature[] = [
   },
   {
     title: 'Multi-User Support',
-    description:
-      'Switch between Jellyfin user profiles right from the home screen with avatar selection.',
+    description: 'Switch between Jellyfin user profiles right from the home screen with avatar selection.',
     icon: 'tabler:users',
   },
   {
     title: 'Parental Controls',
-    description:
-      'Respect your Jellyfin server parental rating settings to keep content age-appropriate.',
+    description: 'Respect your Jellyfin server parental rating settings to keep content age-appropriate.',
     icon: 'tabler:shield-check',
   },
 

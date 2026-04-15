@@ -13,44 +13,44 @@ const CLONE_DIR = path.resolve('.shared-ui-repo');
  * from GitHub (CI).
  */
 export async function fetchSharedUi(): Promise<void> {
-	const destDir = path.resolve('src/shared-ui');
-	const sibling = path.resolve('..', 'shared-ui');
-	const hasSibling = fs.existsSync(path.join(sibling, 'nav.ts'));
+  const destDir = path.resolve('src/shared-ui');
+  const sibling = path.resolve('..', 'shared-ui');
+  const hasSibling = fs.existsSync(path.join(sibling, 'nav.ts'));
 
-	// Dev-mode with sibling: symlink so edits in shared-ui/ propagate immediately
-	if (hasSibling) {
-		const isSymlink = fs.existsSync(destDir) && fs.lstatSync(destDir).isSymbolicLink();
-		const pointsCorrectly = isSymlink && fs.readlinkSync(destDir) === sibling;
-		if (pointsCorrectly) return;
+  // Dev-mode with sibling: symlink so edits in shared-ui/ propagate immediately
+  if (hasSibling) {
+    const isSymlink = fs.existsSync(destDir) && fs.lstatSync(destDir).isSymbolicLink();
+    const pointsCorrectly = isSymlink && fs.readlinkSync(destDir) === sibling;
+    if (pointsCorrectly) return;
 
-		if (fs.existsSync(destDir)) {
-			fs.rmSync(destDir, { recursive: true, force: true });
-		}
-		fs.symlinkSync(sibling, destDir, 'dir');
-		console.log('Linked src/shared-ui → ../shared-ui (dev mode)');
-		return;
-	}
+    if (fs.existsSync(destDir)) {
+      fs.rmSync(destDir, { recursive: true, force: true });
+    }
+    fs.symlinkSync(sibling, destDir, 'dir');
+    console.log('Linked src/shared-ui → ../shared-ui (dev mode)');
+    return;
+  }
 
-	// CI/prod: clone from GitHub and copy files
-	if (fs.existsSync(destDir) && fs.existsSync(path.join(destDir, 'nav.ts'))) {
-		return; // already fetched
-	}
+  // CI/prod: clone from GitHub and copy files
+  if (fs.existsSync(destDir) && fs.existsSync(path.join(destDir, 'nav.ts'))) {
+    return; // already fetched
+  }
 
-	console.log('Fetching shared-ui from GitHub...');
-	if (!fs.existsSync(CLONE_DIR)) {
-		execSync(`git clone --depth 1 ${REPO_URL} ${CLONE_DIR}`, { stdio: 'inherit' });
-	}
+  console.log('Fetching shared-ui from GitHub...');
+  if (!fs.existsSync(CLONE_DIR)) {
+    execSync(`git clone --depth 1 ${REPO_URL} ${CLONE_DIR}`, { stdio: 'inherit' });
+  }
 
-	fs.mkdirSync(destDir, { recursive: true });
-	const toCopy = ['nav.ts', 'tokens.css', 'components'];
-	for (const name of toCopy) {
-		const src = path.join(CLONE_DIR, name);
-		const dest = path.join(destDir, name);
-		if (fs.existsSync(src)) {
-			fs.cpSync(src, dest, { recursive: true });
-		}
-	}
+  fs.mkdirSync(destDir, { recursive: true });
+  const toCopy = ['nav.ts', 'tokens.css', 'components'];
+  for (const name of toCopy) {
+    const src = path.join(CLONE_DIR, name);
+    const dest = path.join(destDir, name);
+    if (fs.existsSync(src)) {
+      fs.cpSync(src, dest, { recursive: true });
+    }
+  }
 
-	fs.rmSync(CLONE_DIR, { recursive: true, force: true });
-	console.log('shared-ui ready.');
+  fs.rmSync(CLONE_DIR, { recursive: true, force: true });
+  console.log('shared-ui ready.');
 }

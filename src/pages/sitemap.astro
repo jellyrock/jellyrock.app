@@ -3,103 +3,108 @@ import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
 
 const metadata = {
-	title: 'Sitemap',
+  title: 'Sitemap',
 };
 
 interface PageLink {
-	text: string;
-	href: string;
-	description?: string;
-	icon?: 'heart';
+  text: string;
+  href: string;
+  description?: string;
+  icon?: 'heart';
 }
 
 interface Section {
-	title: string;
-	pages: PageLink[];
+  title: string;
+  pages: PageLink[];
 }
 
 /** Mirrors the footer's section structure for consistency. */
 const sections: Section[] = [
-	{
-		title: 'Main',
-		pages: [
-			{ text: 'Home', href: '/', description: 'Project landing page.' },
-			{ text: 'Install', href: '/install', description: 'Install JellyRock on your Roku.' },
-			{ text: 'Features', href: '/features', description: 'All features JellyRock offers.' },
-			{ text: 'Screenshots', href: '/screenshots', description: 'See JellyRock on a real Roku.' },
-			{ text: 'Contact', href: '/contact', description: 'Reach out to the project.' },
-		],
-	},
-	{
-		title: 'Documentation',
-		pages: [
-			{ text: 'User Docs', href: 'https://docs.jellyrock.app', description: 'Using the JellyRock app.' },
-			{ text: 'Dev Docs', href: 'https://dev.jellyrock.app', description: 'Contributing to JellyRock.' },
-			{ text: 'API Reference', href: 'https://api.jellyrock.app', description: 'Auto-generated code docs.' },
-		],
-	},
-	{
-		title: 'Community',
-		pages: [
-			{ text: 'Source Code', href: 'https://github.com/jellyrock/jellyrock', description: 'GitHub repository.' },
-			{ text: 'Matrix Chat', href: 'https://matrix.to/#/#jellyrock-app:matrix.org', description: 'Real-time community chat.' },
-			{ text: 'Translate', href: 'https://translate.jellyrock.app', description: 'Translate JellyRock to your language.' },
-			{ text: 'Donate', href: '/donate', description: 'Sponsor JellyRock contributors.', icon: 'heart' },
-		],
-	},
-	{
-		title: 'Legal',
-		pages: [
-			{ text: 'Privacy Policy', href: '/privacy', description: 'What data we collect (spoiler: almost none).' },
-			{ text: 'Terms of Use', href: '/terms', description: 'Usage terms and branding.' },
-		],
-	},
+  {
+    title: 'Main',
+    pages: [
+      { text: 'Home', href: '/', description: 'Project landing page.' },
+      { text: 'Install', href: '/install', description: 'Install JellyRock on your Roku.' },
+      { text: 'Features', href: '/features', description: 'All features JellyRock offers.' },
+      { text: 'Screenshots', href: '/screenshots', description: 'See JellyRock on a real Roku.' },
+      { text: 'Contact', href: '/contact', description: 'Reach out to the project.' },
+    ],
+  },
+  {
+    title: 'Documentation',
+    pages: [
+      { text: 'User Docs', href: 'https://docs.jellyrock.app', description: 'Using the JellyRock app.' },
+      { text: 'Dev Docs', href: 'https://dev.jellyrock.app', description: 'Contributing to JellyRock.' },
+      { text: 'API Reference', href: 'https://api.jellyrock.app', description: 'Auto-generated code docs.' },
+    ],
+  },
+  {
+    title: 'Community',
+    pages: [
+      { text: 'Source Code', href: 'https://github.com/jellyrock/jellyrock', description: 'GitHub repository.' },
+      {
+        text: 'Matrix Chat',
+        href: 'https://matrix.to/#/#jellyrock-app:matrix.org',
+        description: 'Real-time community chat.',
+      },
+      {
+        text: 'Translate',
+        href: 'https://translate.jellyrock.app',
+        description: 'Translate JellyRock to your language.',
+      },
+      { text: 'Donate', href: '/donate', description: 'Sponsor JellyRock contributors.', icon: 'heart' },
+    ],
+  },
+  {
+    title: 'Legal',
+    pages: [
+      { text: 'Privacy Policy', href: '/privacy', description: 'What data we collect (spoiler: almost none).' },
+      { text: 'Terms of Use', href: '/terms', description: 'Usage terms and branding.' },
+    ],
+  },
 ];
 ---
 
 <Layout metadata={metadata}>
-	<HeroText>
-		<Fragment slot="title">Sitemap</Fragment>
-		<Fragment slot="subtitle">
-			Every page on the JellyRock project.
-		</Fragment>
-	</HeroText>
+  <HeroText>
+    <Fragment slot="title">Sitemap</Fragment>
+    <Fragment slot="subtitle"> Every page on the JellyRock project. </Fragment>
+  </HeroText>
 
-	<section class="px-4 pb-20">
-		<div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-			{sections.map((section) => (
-				<div>
-					<h2
-						class="text-xl font-bold mb-4 font-heading"
-						style="color: var(--jr-text-primary)"
-					>
-						{section.title}
-					</h2>
-					<ul class="space-y-3">
-						{section.pages.map((page) => (
-							<li>
-								<a
-									href={page.href}
-									class="inline-flex items-center gap-2 hover:underline"
-									style="color: var(--jr-secondary)"
-								>
-									{page.text}
-									{page.icon === 'heart' && (
-										<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-											<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-										</svg>
-									)}
-								</a>
-								{page.description && (
-									<p class="text-sm mt-1" style="color: var(--jr-text-secondary)">
-										{page.description}
-									</p>
-								)}
-							</li>
-						))}
-					</ul>
-				</div>
-			))}
-		</div>
-	</section>
+  <section class="px-4 pb-20">
+    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+      {
+        sections.map((section) => (
+          <div>
+            <h2 class="text-xl font-bold mb-4 font-heading" style="color: var(--jr-text-primary)">
+              {section.title}
+            </h2>
+            <ul class="space-y-3">
+              {section.pages.map((page) => (
+                <li>
+                  <a
+                    href={page.href}
+                    class="inline-flex items-center gap-2 hover:underline"
+                    style="color: var(--jr-secondary)"
+                  >
+                    {page.text}
+                    {page.icon === 'heart' && (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                      </svg>
+                    )}
+                  </a>
+                  {page.description && (
+                    <p class="text-sm mt-1" style="color: var(--jr-text-secondary)">
+                      {page.description}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
 </Layout>

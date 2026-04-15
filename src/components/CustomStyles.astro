@@ -7,13 +7,13 @@ import '@fontsource/barlow/900.css';
 <style is:inline>
   :root {
     /* JellyRock theme CSS variables — set by theme picker, defaults to JellyRock theme */
-    --jr-primary: #8B5CF6;
-    --jr-secondary: #3B82F6;
-    --jr-bg-primary: #0D1117;
-    --jr-bg-secondary: #161B22;
-    --jr-text-primary: #F0F0F0;
-    --jr-text-secondary: #A8A8A8;
-    --jr-text-disabled: #4A4A4A;
+    --jr-primary: #8b5cf6;
+    --jr-secondary: #3b82f6;
+    --jr-bg-primary: #0d1117;
+    --jr-bg-secondary: #161b22;
+    --jr-text-primary: #f0f0f0;
+    --jr-text-secondary: #a8a8a8;
+    --jr-text-disabled: #4a4a4a;
 
     /* Map JellyRock vars to AstroWind vars */
     --aw-font-sans: 'Inter Variable';
@@ -58,10 +58,16 @@ import '@fontsource/barlow/900.css';
   }
 
   /* Inline links use blue, lighten on hover */
-  article a, .prose a, p a, li > a:not([class]) {
+  article a,
+  .prose a,
+  p a,
+  li > a:not([class]) {
     color: var(--jr-secondary);
   }
-  article a:hover, .prose a:hover, p a:hover, li > a:not([class]):hover {
+  article a:hover,
+  .prose a:hover,
+  p a:hover,
+  li > a:not([class]):hover {
     color: color-mix(in srgb, var(--jr-secondary) 75%, white);
   }
 

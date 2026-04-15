@@ -7,7 +7,8 @@ const metadata = {
   title: 'Install JellyRock',
 };
 
-const rokuStoreUrl = 'https://channelstore.roku.com/details/232f9e82db11ce628e3fe7e01382a330:a85d6e9e520567806e8dae1c0cabadd5/jellyrock';
+const rokuStoreUrl =
+  'https://channelstore.roku.com/details/232f9e82db11ce628e3fe7e01382a330:a85d6e9e520567806e8dae1c0cabadd5/jellyrock';
 ---
 
 <Layout metadata={metadata}>
@@ -16,9 +17,7 @@ const rokuStoreUrl = 'https://channelstore.roku.com/details/232f9e82db11ce628e3f
       Install <span class="text-accent">JellyRock</span>
     </Fragment>
 
-    <Fragment slot="subtitle">
-      There are two ways to install JellyRock on your Roku device.
-    </Fragment>
+    <Fragment slot="subtitle"> There are two ways to install JellyRock on your Roku device. </Fragment>
   </HeroText>
 
   <Steps
@@ -27,20 +26,17 @@ const rokuStoreUrl = 'https://channelstore.roku.com/details/232f9e82db11ce628e3f
     items={[
       {
         title: 'Visit the Channel Store',
-        description:
-          `Go to the <a href="${rokuStoreUrl}" target="_blank" class="text-accent underline">JellyRock Channel Store page</a> and click "Add Channel".`,
+        description: `Go to the <a href="${rokuStoreUrl}" target="_blank" class="text-accent underline">JellyRock Channel Store page</a> and click "Add Channel".`,
         icon: 'tabler:world-www',
       },
       {
         title: 'Sign in with your Roku account',
-        description:
-          'Log in with the same email address linked to your Roku device(s).',
+        description: 'Log in with the same email address linked to your Roku device(s).',
         icon: 'tabler:login',
       },
       {
         title: 'Installed on all devices',
-        description:
-          'JellyRock will automatically appear on every Roku device linked to that account.',
+        description: 'JellyRock will automatically appear on every Roku device linked to that account.',
         icon: 'tabler:check',
       },
     ]}
@@ -53,20 +49,17 @@ const rokuStoreUrl = 'https://channelstore.roku.com/details/232f9e82db11ce628e3f
     items={[
       {
         title: 'Go to Home',
-        description:
-          'Press the Home button on your Roku remote.',
+        description: 'Press the Home button on your Roku remote.',
         icon: 'tabler:home',
       },
       {
         title: 'Open Search',
-        description:
-          'Select "Search" from the home screen menu.',
+        description: 'Select "Search" from the home screen menu.',
         icon: 'tabler:search',
       },
       {
         title: 'Search for "JellyRock"',
-        description:
-          'Type "JellyRock" and select it from the results. Click "Add Channel" to install.',
+        description: 'Type "JellyRock" and select it from the results. Click "Add Channel" to install.',
         icon: 'tabler:download',
       },
     ]}

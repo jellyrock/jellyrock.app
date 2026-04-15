@@ -14,10 +14,9 @@ const metadata = {
 };
 
 // Dynamically import all screenshots from the fetched assets
-const screenshotGlobs = import.meta.glob<{ default: ImageMetadata }>(
-  '../assets/images/jellyrock/screenshots/*.png',
-  { eager: true }
-);
+const screenshotGlobs = import.meta.glob<{ default: ImageMetadata }>('../assets/images/jellyrock/screenshots/*.png', {
+  eager: true,
+});
 const allScreenshots = Object.entries(screenshotGlobs).map(([filepath, mod]) => ({
   name: filepath.split('/').pop()?.replace('.png', '') ?? '',
   src: mod.default,
@@ -27,9 +26,7 @@ const allScreenshots = Object.entries(screenshotGlobs).map(([filepath, mod]) => 
 const heroScreenshot = allScreenshots.find((s) => s.name === 'home') || allScreenshots[0];
 // Show up to 6 screenshots in the gallery (excluding hero)
 const HOMEPAGE_SCREENSHOT_COUNT = 4;
-const galleryScreenshots = allScreenshots
-  .filter((s) => s !== heroScreenshot)
-  .slice(0, HOMEPAGE_SCREENSHOT_COUNT);
+const galleryScreenshots = allScreenshots.filter((s) => s !== heroScreenshot).slice(0, HOMEPAGE_SCREENSHOT_COUNT);
 const hasMoreScreenshots = allScreenshots.length > HOMEPAGE_SCREENSHOT_COUNT + 1;
 
 // Show first N features on homepage
@@ -60,8 +57,8 @@ const hasMoreFeatures = features.length > HOMEPAGE_FEATURE_COUNT;
     </Fragment>
 
     <Fragment slot="subtitle">
-      <span class="font-semibold">JellyRock</span> is a free, open source Jellyfin client for Roku devices.
-      Stream your movies, shows, music, and more — no subscriptions, no tracking, no compromise.
+      <span class="font-semibold">JellyRock</span> is a free, open source Jellyfin client for Roku devices. Stream your movies,
+      shows, music, and more — no subscriptions, no tracking, no compromise.
     </Fragment>
   </Hero>
 
@@ -73,47 +70,51 @@ const hasMoreFeatures = features.length > HOMEPAGE_FEATURE_COUNT;
     items={homepageFeatures}
   />
 
-  {hasMoreFeatures && (
-    <div class="text-center -mt-8 mb-12">
-      <a href="/features" class="btn">
-        View all features
-      </a>
-    </div>
-  )}
+  {
+    hasMoreFeatures && (
+      <div class="text-center -mt-8 mb-12">
+        <a href="/features" class="btn">
+          View all features
+        </a>
+      </div>
+    )
+  }
 
   <!-- Screenshot Gallery -->
-  {galleryScreenshots.length > 0 && (
-    <section class="py-16 px-4" style="background-color: var(--jr-bg-secondary)">
-      <div class="max-w-6xl mx-auto">
-        <h2 class="text-3xl font-bold text-center mb-2 font-heading" style="color: var(--jr-text-primary)">
-          See JellyRock in action
-        </h2>
-        <p class="text-center mb-10" style="color: var(--jr-text-secondary)">
-          Designed for the big screen — optimized for Roku's 10-foot interface
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {galleryScreenshots.map((screenshot) => (
-            <Image
-              src={screenshot.src}
-              alt={`JellyRock ${screenshot.name} screen`}
-              class="rounded-lg shadow-lg w-full cursor-zoom-in"
-              data-zoomable
-              loading="lazy"
-              widths={[480, 800, 1200]}
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          ))}
-        </div>
-        {hasMoreScreenshots && (
-          <div class="text-center mt-8">
-            <a href="/screenshots" class="btn">
-              View all screenshots
-            </a>
+  {
+    galleryScreenshots.length > 0 && (
+      <section class="py-16 px-4" style="background-color: var(--jr-bg-secondary)">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="text-3xl font-bold text-center mb-2 font-heading" style="color: var(--jr-text-primary)">
+            See JellyRock in action
+          </h2>
+          <p class="text-center mb-10" style="color: var(--jr-text-secondary)">
+            Designed for the big screen — optimized for Roku's 10-foot interface
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {galleryScreenshots.map((screenshot) => (
+              <Image
+                src={screenshot.src}
+                alt={`JellyRock ${screenshot.name} screen`}
+                class="rounded-lg shadow-lg w-full cursor-zoom-in"
+                data-zoomable
+                loading="lazy"
+                widths={[480, 800, 1200]}
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            ))}
           </div>
-        )}
-      </div>
-    </section>
-  )}
+          {hasMoreScreenshots && (
+            <div class="text-center mt-8">
+              <a href="/screenshots" class="btn">
+                View all screenshots
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
 
   <CallToAction
     actions={[
