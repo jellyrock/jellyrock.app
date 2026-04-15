@@ -5,7 +5,6 @@ export interface Feature {
 }
 
 export const features: Feature[] = [
-  // User-experience headliners
   {
     title: 'Direct Play Priority',
     description:
@@ -13,10 +12,58 @@ export const features: Feature[] = [
     icon: 'tabler:player-play',
   },
   {
+    title: 'Blazing Fast & Silky Smooth',
+    description:
+      'Extensive optimizations make JellyRock noticeably faster than the original Roku client, and moving all API requests off the render thread means the interface never stutters while loading data.',
+    icon: 'tabler:rocket',
+  },
+  {
+    title: 'Full Dolby Vision Support',
+    description:
+      'Watch Dolby Vision content on compatible Roku devices. MKV files are automatically repackaged on the fly so Dolby Vision keeps working, no re-encoding required.',
+    icon: 'tabler:video',
+  },
+  {
     title: 'New On-Screen Display',
     description:
-      'A redesigned OSD with chapter navigation, audio and subtitle track switching, and playback info all in one place.',
+      'A redesigned OSD with chapter navigation, video/audio/subtitle track switching, and playback info all in one place.',
     icon: 'tabler:layout-dashboard',
+  },
+  {
+    title: 'Favorites Tab',
+    description: 'Quick access to all your favorited content — every media type JellyRock supports — directly from the home screen.',
+    icon: 'tabler:star',
+  },
+  {
+    title: 'Live TV & DVR',
+    description:
+      'Browse the channel guide, tune in live, and schedule recordings of upcoming programs without leaving JellyRock.',
+    icon: 'tabler:device-tv',
+  },
+  {
+    title: 'Surround Sound Preservation',
+    description:
+      'Intelligent audio transcoding keeps your multichannel surround sound intact when the original codec needs conversion.',
+    icon: 'tabler:speakerphone',
+  },
+  
+  {
+    title: 'Unified Item Details',
+    description:
+      'One beautifully-designed details page for everything — movies, shows, seasons, episodes, music, and more.',
+    icon: 'tabler:info-circle',
+  },
+  {
+    title: 'Themes for Every Taste',
+    description:
+      'Pick from 9 built-in themes — JellyRock, JellyRock (Black), Emerald, Ember, Rose, Ocean, Dusk, Midnight, and High Contrast — or build your own with any 6-digit hex colors.',
+    icon: 'tabler:palette',
+  },
+  {
+    title: '99 Language Translations',
+    description:
+      'Custom translation system supports 99 languages, far beyond the ~12 languages supported by Roku OS and the official Jellyfin client.',
+    icon: 'tabler:language',
   },
   {
     title: 'Media Segments (Intro Skipper)',
@@ -30,117 +77,11 @@ export const features: Feature[] = [
     icon: 'tabler:photo-scan',
   },
   {
-    title: 'Cinema Mode',
-    description: 'Play custom intros before your movies and shows for an authentic theater experience at home.',
-    icon: 'tabler:movie',
-  },
-  {
-    title: 'Voice Search',
-    description: 'Use your Roku remote to search your library by voice, right from the home screen.',
-    icon: 'tabler:microphone',
-  },
-  {
-    title: 'Favorites Tab',
-    description: 'Quick access to your favorited movies, shows, and music directly from the home screen.',
-    icon: 'tabler:star',
-  },
-
-  // Media support
-  {
-    title: 'Full Dolby Vision Support',
-    description: 'Enjoy Dolby Vision content on compatible Roku devices with full HDR metadata passthrough.',
-    icon: 'tabler:video',
-  },
-  {
-    title: 'Preserve Dolby Vision in MKV',
-    description: 'Keep Dolby Vision metadata intact when streaming MKV files, ensuring the best picture quality.',
-    icon: 'tabler:file-check',
-  },
-  {
-    title: 'Surround Sound Preservation',
-    description:
-      'Intelligent audio transcoding keeps your multichannel surround sound intact when the original codec needs conversion.',
-    icon: 'tabler:speakerphone',
-  },
-  {
-    title: 'Subtitle Support',
-    description:
-      'Full support for external and embedded subtitles including SRT, VTT, and ASS formats with custom rendering.',
-    icon: 'tabler:text-caption',
-  },
-  {
-    title: 'Music Playback',
-    description: 'Browse and play your music library with album art, artist info, and queue management.',
-    icon: 'tabler:music',
-  },
-  {
-    title: 'Chapter Navigation',
-    description: 'Jump between chapters during playback for quick navigation through movies and shows.',
-    icon: 'tabler:list-numbers',
-  },
-  {
-    title: 'Collections & Playlists',
-    description: 'Browse and play your curated collections and playlists organized in your Jellyfin library.',
-    icon: 'tabler:playlist',
-  },
-
-  // Performance & architecture
-  {
-    title: 'Blazing Fast Performance',
-    description:
-      'Extensive under-the-hood optimizations make JellyRock noticeably faster than the original Roku client.',
-    icon: 'tabler:rocket',
-  },
-  {
-    title: 'Silky-Smooth UI',
-    description: 'All API requests moved off the render thread means the interface never stutters while loading data.',
-    icon: 'tabler:device-desktop-analytics',
-  },
-
-  // Personalization
-  {
-    title: 'Unified Item Details',
-    description:
-      'One beautifully-designed details page for everything — movies, shows, seasons, episodes, music, and more.',
-    icon: 'tabler:info-circle',
-  },
-  {
-    title: '9 Built-in Themes',
-    description: 'Choose from JellyRock, Emerald, Ember, Rose, Ocean, Dusk, Midnight, High Contrast, and more.',
-    icon: 'tabler:palette',
-  },
-  {
-    title: 'Custom Themes',
-    description:
-      'Not feeling the built-ins? Build your own theme with any 6-digit hex colors for a fully personalized look.',
-    icon: 'tabler:color-picker',
-  },
-  {
-    title: 'Multi-User Support',
-    description: 'Switch between Jellyfin user profiles right from the home screen with avatar selection.',
-    icon: 'tabler:users',
-  },
-  {
-    title: 'Parental Controls',
-    description: 'Respect your Jellyfin server parental rating settings to keep content age-appropriate.',
-    icon: 'tabler:shield-check',
-  },
-
-  // Internationalization
-  {
-    title: '99 Language Translations',
-    description:
-      'Custom translation system supports 99 languages, far beyond the ~12 languages supported by Roku OS and the official Jellyfin client.',
-    icon: 'tabler:language',
-  },
-  {
     title: 'Self-Hosted Weblate',
     description:
       'Translations are managed through our own Weblate instance at translate.jellyrock.app — contribute in your language!',
     icon: 'tabler:world',
   },
-
-  // Ethos
   {
     title: 'Free & Open Source',
     description:
@@ -150,4 +91,4 @@ export const features: Feature[] = [
 ];
 
 /** Number of features to show on the homepage */
-export const HOMEPAGE_FEATURE_COUNT = 10;
+export const HOMEPAGE_FEATURE_COUNT = 6;
