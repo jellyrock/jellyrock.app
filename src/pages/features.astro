@@ -1,7 +1,7 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
-import Features from '~/components/widgets/Features.astro';
+import FeaturesWidget from '~/components/widgets/Features.astro';
 import { features } from '~/data/features';
 
 const metadata = {
@@ -20,7 +20,7 @@ const metadata = {
     </Fragment>
   </HeroText>
 
-  <Features
+  <FeaturesWidget
     items={features}
   />
 </Layout>

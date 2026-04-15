@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Charles Ewert and JellyRock contributors
+Copyright (c) 2026 Charles Ewert and JellyRock contributors  
 Copyright (c) 2023 onWidget (AstroWind template)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
