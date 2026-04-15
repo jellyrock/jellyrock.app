@@ -1,8 +1,8 @@
 # jellyrock.app
 
-[![Homepage](https://img.shields.io/badge/homepage-jellyrock.app-4f46e5 "Homepage")](https://jellyrock.app)
-[![License](https://img.shields.io/github/license/jellyrock/jellyrock.app "License")](./LICENSE.md)
-[![build](https://img.shields.io/github/actions/workflow/status/jellyrock/jellyrock.app/deploy.yml?logo=github&branch=main "build")](https://github.com/jellyrock/jellyrock.app/actions/workflows/deploy.yml?query=branch%3Amain)
+[![Homepage](https://img.shields.io/badge/homepage-jellyrock.app-4f46e5 'Homepage')](https://jellyrock.app)
+[![License](https://img.shields.io/github/license/jellyrock/jellyrock.app 'License')](./LICENSE.md)
+[![build](https://img.shields.io/github/actions/workflow/status/jellyrock/jellyrock.app/deploy.yml?logo=github&branch=main 'build')](https://github.com/jellyrock/jellyrock.app/actions/workflows/deploy.yml?query=branch%3Amain)
 
 Marketing + landing site for [JellyRock](https://github.com/jellyrock/jellyrock),
 a Jellyfin client for Roku. Deployed at **[jellyrock.app](https://jellyrock.app)**.
