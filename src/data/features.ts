@@ -31,7 +31,8 @@ export const features: Feature[] = [
   },
   {
     title: 'Favorites Tab',
-    description: 'Quick access to all your favorited content — every media type JellyRock supports — directly from the home screen.',
+    description:
+      'Quick access to all your favorited content — every media type JellyRock supports — directly from the home screen.',
     icon: 'tabler:star',
   },
   {
@@ -46,7 +47,7 @@ export const features: Feature[] = [
       'Intelligent audio transcoding keeps your multichannel surround sound intact when the original codec needs conversion.',
     icon: 'tabler:speakerphone',
   },
-  
+
   {
     title: 'Unified Item Details',
     description:
