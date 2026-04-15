@@ -46,9 +46,6 @@ Required repo secrets (org-level, shared with sibling deploy repos):
 ## Local development
 
 ```bash
-# Optional: clone shared-ui as a sibling so dev uses a live symlink
-git clone https://github.com/jellyrock/shared-ui.git ../shared-ui
-
 npm ci
 npm run dev              # http://localhost:4321
 npm run build            # production build → dist/
@@ -57,8 +54,28 @@ npm run check            # astro-check + eslint + prettier
 npm run fix              # eslint --fix + prettier --write
 ```
 
-If `../shared-ui/` is not present, the build clones it from GitHub. See
-[`scripts/`](scripts/) for the fetch logic.
+On the first build, [`src/utils/fetch-shared-ui.ts`](src/utils/fetch-shared-ui.ts)
+shallow-clones [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui)
+into `src/shared-ui/`. No setup required — this is the same path CI uses.
+
+### Iterating on shared-ui locally (opt-in)
+
+If you're actively editing `shared-ui` (nav data, tokens, the header/footer
+components) and want edits to hot-reload in this site without a
+commit-push-rebuild cycle, clone it as a sibling directory:
+
+```bash
+git clone https://github.com/jellyrock/shared-ui.git ../shared-ui
+```
+
+When `../shared-ui/` exists, the fetch script symlinks `src/shared-ui/` to it
+instead of cloning. Vite then picks up every save instantly. Remove the sibling
+(or `rm -rf src/shared-ui`) to go back to the clone-from-GitHub default.
+
+> [!CAUTION]
+> The symlink points at your local working tree — you can ship a build
+> referencing shared-ui commits that aren't pushed yet. Always push
+> `shared-ui` before pushing consumer sites that depend on the change.
 
 ## Updating content
 
