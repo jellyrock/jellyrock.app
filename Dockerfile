@@ -10,7 +10,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-FROM nginx:stable-alpine@sha256:c819f83c54b0361f5557601bf5eb4943d09360e7a7fdf426afc466570f45874d AS deploy
+FROM nginx:stable-alpine@sha256:ca19b13430b7e5f22033669fca004b2e4b02e53851207ee6f076f00f8cd3fb94 AS deploy
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
