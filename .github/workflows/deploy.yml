@@ -57,3 +57,36 @@ jobs:
             -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes" \
             dist/ \
             "${VPS_USER}@${VPS_HOST}:/opt/jellyrock/homepage/"
+
+      # Deploy heartbeat (ADR-0005). Values passed via env, never inlined into
+      # the script, to avoid commit-message shell injection. No-op until the
+      # GOTIFY_URL secret is set.
+      - name: Notify Gotify on success
+        if: success()
+        env:
+          GOTIFY_URL: ${{ secrets.GOTIFY_URL }}
+          REPO: ${{ github.event.repository.name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -z "$GOTIFY_URL" ] && { echo "GOTIFY_URL unset — skipping"; exit 0; }
+          curl -fsS -m 10 "$GOTIFY_URL" \
+            -F "priority=3" \
+            -F "title=${REPO} deploy ok" \
+            -F "message=Commit: ${COMMIT_MSG}
+          Run: ${RUN_URL}" || true
+
+      - name: Notify Gotify on failure
+        if: failure()
+        env:
+          GOTIFY_URL: ${{ secrets.GOTIFY_URL }}
+          REPO: ${{ github.event.repository.name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -z "$GOTIFY_URL" ] && exit 0
+          curl -fsS -m 10 "$GOTIFY_URL" \
+            -F "priority=8" \
+            -F "title=${REPO} deploy FAILED" \
+            -F "message=Commit: ${COMMIT_MSG}
+          Run: ${RUN_URL}" || true
