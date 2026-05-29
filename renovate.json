@@ -1,4 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>jellyrock/.github//renovate/default"]
+  "extends": ["github>jellyrock/.github//renovate/default"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the pinned shared-ui release that fetch-shared-ui.ts clones at build time. Patch bumps auto-merge on green CI via the org preset; minor/major land in the Monday review batch.",
+      "fileMatch": ["^src/utils/fetch-shared-ui\\.ts$"],
+      "matchStrings": [
+        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s*\\n\\s*const SHARED_UI_REF = '(?<currentValue>[^']+)'"
+      ]
+    }
+  ]
 }
