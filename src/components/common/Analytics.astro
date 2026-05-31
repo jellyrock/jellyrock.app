@@ -1,7 +1,10 @@
 ---
-// Umami analytics (self-hosted at analytics.jellyrock.app).
+// Umami analytics (self-hosted), served first-party via the same-origin /_a
+// reverse-proxy (ADR-0006) so the page CSP can stay strict `script-src 'self'`
+// and the tracker isn't a blockable third-party request.
 // Privacy-respecting, no cookies, no personal data collection.
 const UMAMI_WEBSITE_ID = '9a5f731a-1f13-43b5-8d5c-2f9efcae3e48';
 ---
 
-<script is:inline defer src="https://analytics.jellyrock.app/script.js" data-website-id={UMAMI_WEBSITE_ID}></script>
+<script is:inline defer src="/_a/script.js" data-website-id={UMAMI_WEBSITE_ID} data-host-url="https://jellyrock.app/_a"
+></script>
