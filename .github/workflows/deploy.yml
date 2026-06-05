@@ -3,6 +3,12 @@ name: Deploy Homepage
 on:
   push:
     branches: [main]
+  # Fired by the upstream jellyrock repo when content the site renders at
+  # build time changes (currently docs/screenshots; see issue #1). Those
+  # assets are gitignored and pulled fresh on every build, so a rebuild is
+  # all that's needed to pick them up.
+  repository_dispatch:
+    types: [content-update]
   workflow_dispatch:
 
 concurrency:
@@ -66,7 +72,7 @@ jobs:
         env:
           GOTIFY_URL: ${{ secrets.GOTIFY_URL }}
           REPO: ${{ github.event.repository.name }}
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_MSG: ${{ github.event.head_commit.message || github.event.client_payload.reason || 'manual / upstream trigger' }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -z "$GOTIFY_URL" ] && { echo "GOTIFY_URL unset — skipping"; exit 0; }
@@ -81,7 +87,7 @@ jobs:
         env:
           GOTIFY_URL: ${{ secrets.GOTIFY_URL }}
           REPO: ${{ github.event.repository.name }}
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_MSG: ${{ github.event.head_commit.message || github.event.client_payload.reason || 'manual / upstream trigger' }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -z "$GOTIFY_URL" ] && exit 0
