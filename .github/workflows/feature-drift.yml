@@ -1,0 +1,47 @@
+name: Feature drift watch
+
+# Cheap, deterministic, zero-token watcher: once a day it compares the last
+# audited upstream release (.audit/features-watermark.json) against the latest
+# jellyrock/jellyrock release. When upstream is ahead, it opens/updates a single
+# "Feature audit needed" tracking issue with the changelog delta; when back in
+# sync, it closes it. The judgement (is any of this website-worthy?) is the
+# human-run /audit-features skill — this job never edits features.ts.
+#
+# Authenticates as the JellyRock GitHub App (consistent bot identity, and App
+# events can trigger downstream workflows where GITHUB_TOKEN events cannot).
+
+on:
+  schedule:
+    # 13:17 UTC daily. Odd minute to dodge the top-of-hour scheduler surge.
+    - cron: '17 13 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: feature-drift
+  cancel-in-progress: true
+
+# Permissions are unused when authenticating as the JellyRock GitHub App (the
+# App's installation permissions apply instead) — kept for clarity and as a
+# fallback for forks where APP_PRIVATE_KEY isn't available.
+permissions:
+  contents: read # read this repo + the public upstream (releases, CHANGELOG)
+  issues: write # upsert/close the tracking issue on this repo
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate JellyRock app token
+        id: app-token
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Detect drift and manage tracking issue
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: ./scripts/feature-drift-detect.sh sync-issue

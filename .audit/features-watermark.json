@@ -1,0 +1,5 @@
+{
+  "lastAuditedRelease": "v2.19.0",
+  "lastAuditedAt": "2026-06-05",
+  "note": "Last upstream jellyrock/jellyrock release whose changelog has been audited against src/data/features.ts. Advanced by the /audit-features skill's PR. The feature-drift detector (scripts/feature-drift-detect.sh) compares this against the latest upstream release; newer releases open a tracking issue."
+}
