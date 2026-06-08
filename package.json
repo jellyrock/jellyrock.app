@@ -54,7 +54,7 @@
     "@eslint/js": "9.33.0",
     "@iconify-json/flat-color-icons": "1.2.3",
     "@iconify-json/tabler": "1.2.35",
-    "@tailwindcss/typography": "0.5.19",
+    "@tailwindcss/typography": "0.5.20",
     "@types/js-yaml": "4.0.9",
     "@types/lodash.merge": "4.6.9",
     "@types/mdx": "2.0.14",
