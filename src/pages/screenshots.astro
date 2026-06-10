@@ -2,14 +2,7 @@
 import { Image } from 'astro:assets';
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
-
-const screenshotGlobs = import.meta.glob<{ default: ImageMetadata }>('../assets/images/jellyrock/screenshots/*.png', {
-  eager: true,
-});
-const screenshots = Object.entries(screenshotGlobs).map(([filepath, mod]) => ({
-  name: filepath.split('/').pop()?.replace('.png', '') ?? '',
-  src: mod.default,
-}));
+import { screenshots } from '~/utils/screenshots';
 
 const metadata = {
   title: 'Screenshots',
@@ -33,7 +26,7 @@ const metadata = {
         screenshots.map((screenshot) => (
           <Image
             src={screenshot.src}
-            alt={`JellyRock ${screenshot.name} screen`}
+            alt={`JellyRock — ${screenshot.label}`}
             class="rounded-lg shadow-lg w-full cursor-zoom-in"
             data-zoomable
             loading="lazy"

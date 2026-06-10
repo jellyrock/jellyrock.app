@@ -7,27 +7,19 @@ import Features from '~/components/widgets/Features.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 
 import { features, HOMEPAGE_FEATURE_COUNT } from '~/data/features';
+import { screenshots } from '~/utils/screenshots';
 
 const metadata = {
   title: 'JellyRock — A Jellyfin client for Roku',
   ignoreTitleTemplate: true,
 };
 
-// Dynamically import all screenshots from the fetched assets
-const screenshotGlobs = import.meta.glob<{ default: ImageMetadata }>('../assets/images/jellyrock/screenshots/*.png', {
-  eager: true,
-});
-const allScreenshots = Object.entries(screenshotGlobs).map(([filepath, mod]) => ({
-  name: filepath.split('/').pop()?.replace('.png', '') ?? '',
-  src: mod.default,
-}));
-
 // Pick a hero screenshot (prefer 'home', fallback to first)
-const heroScreenshot = allScreenshots.find((s) => s.name === 'home') || allScreenshots[0];
-// Show up to 6 screenshots in the gallery (excluding hero)
+const heroScreenshot = screenshots.find((s) => s.name === 'home') ?? screenshots[0];
+// Show up to N screenshots in the gallery (excluding hero)
 const HOMEPAGE_SCREENSHOT_COUNT = 4;
-const galleryScreenshots = allScreenshots.filter((s) => s !== heroScreenshot).slice(0, HOMEPAGE_SCREENSHOT_COUNT);
-const hasMoreScreenshots = allScreenshots.length > HOMEPAGE_SCREENSHOT_COUNT + 1;
+const galleryScreenshots = screenshots.filter((s) => s !== heroScreenshot).slice(0, HOMEPAGE_SCREENSHOT_COUNT);
+const hasMoreScreenshots = screenshots.length > HOMEPAGE_SCREENSHOT_COUNT + 1;
 
 // Show first N features on homepage
 const homepageFeatures = features.slice(0, HOMEPAGE_FEATURE_COUNT);
@@ -95,7 +87,7 @@ const hasMoreFeatures = features.length > HOMEPAGE_FEATURE_COUNT;
             {galleryScreenshots.map((screenshot) => (
               <Image
                 src={screenshot.src}
-                alt={`JellyRock ${screenshot.name} screen`}
+                alt={`JellyRock — ${screenshot.label}`}
                 class="rounded-lg shadow-lg w-full cursor-zoom-in"
                 data-zoomable
                 loading="lazy"
