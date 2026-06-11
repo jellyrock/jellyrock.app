@@ -7,7 +7,7 @@ import Features from '~/components/widgets/Features.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 
 import { features, HOMEPAGE_FEATURE_COUNT } from '~/data/features';
-import { screenshots } from '~/utils/screenshots';
+import { screenshots, homepageScreenshots } from '~/utils/screenshots';
 
 const metadata = {
   title: 'JellyRock — A Jellyfin client for Roku',
@@ -16,10 +16,9 @@ const metadata = {
 
 // Pick a hero screenshot (prefer 'home', fallback to first)
 const heroScreenshot = screenshots.find((s) => s.name === 'home') ?? screenshots[0];
-// Show up to N screenshots in the gallery (excluding hero)
-const HOMEPAGE_SCREENSHOT_COUNT = 4;
-const galleryScreenshots = screenshots.filter((s) => s !== heroScreenshot).slice(0, HOMEPAGE_SCREENSHOT_COUNT);
-const hasMoreScreenshots = screenshots.length > HOMEPAGE_SCREENSHOT_COUNT + 1;
+// Homepage gallery is a curated teaser; the full set lives on /screenshots.
+const galleryScreenshots = homepageScreenshots;
+const hasMoreScreenshots = screenshots.length > galleryScreenshots.length;
 
 // Show first N features on homepage
 const homepageFeatures = features.slice(0, HOMEPAGE_FEATURE_COUNT);
