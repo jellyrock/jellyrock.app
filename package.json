@@ -61,7 +61,7 @@
     "@typescript-eslint/eslint-plugin": "8.62.1",
     "@typescript-eslint/parser": "8.62.1",
     "astro-compress": "2.4.1",
-    "astro-eslint-parser": "1.4.0",
+    "astro-eslint-parser": "2.1.0",
     "eslint": "9.39.4",
     "eslint-plugin-astro": "1.7.0",
     "globals": "16.5.0",
