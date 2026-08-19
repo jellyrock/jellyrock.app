@@ -47,7 +47,7 @@
     "unpic": "4.2.2"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.9",
+    "@astrojs/check": "0.9.10",
     "@astrojs/mdx": "4.3.14",
     "@astrojs/partytown": "2.1.7",
     "@astrojs/tailwind": "5.1.5",
