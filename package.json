@@ -60,7 +60,7 @@
     "@types/mdx": "2.0.14",
     "@typescript-eslint/eslint-plugin": "8.63.0",
     "@typescript-eslint/parser": "8.63.0",
-    "astro-compress": "2.4.1",
+    "astro-compress": "2.4.3",
     "astro-eslint-parser": "1.4.0",
     "eslint": "9.39.5",
     "eslint-plugin-astro": "1.7.0",
