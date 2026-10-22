@@ -1,0 +1,8 @@
+{
+  "$comment": "Security headers Caddy sends for jellyrock.app (its config lives in jellyrock/infra). The browser tests serve dist/ with these, and the deploy workflow compares them with the live site after every deploy, so a change in infra that this copy misses turns the deploy red. Strict-Transport-Security is left out: it only applies over HTTPS.",
+  "Content-Security-Policy": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'",
+  "Permissions-Policy": "accelerometer=(), autoplay=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), screen-wake-lock=(), sync-xhr=(), xr-spatial-tracking=(), interest-cohort=()",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY"
+}

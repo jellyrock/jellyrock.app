@@ -13,32 +13,31 @@ on:
 
 concurrency:
   group: deploy-homepage
-  cancel-in-progress: true
+  # Never stop a deploy halfway through rsync. A newer push waits, then deploys.
+  cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
-  build-and-deploy:
+  # The same checks, build and browser tests a pull request runs (ci.yml). Upstream
+  # content-update rebuilds never get a PR, so this is their only gate.
+  gates:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: gates
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      # Deploy exactly the build the gates tested, not a fresh rebuild.
+      - name: Download tested build
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run checks (astro + eslint + prettier)
-        run: npm run check
-
-      - name: Build site
-        run: npm run build
+          name: dist
+          path: dist/
 
       - name: Set up SSH
         env:
@@ -64,35 +63,39 @@ jobs:
             dist/ \
             "${VPS_USER}@${VPS_HOST}:/opt/jellyrock/homepage/"
 
-      # Deploy heartbeat (ADR-0005). Values passed via env, never inlined into
-      # the script, to avoid commit-message shell injection. No-op until the
-      # GOTIFY_URL secret is set.
-      - name: Notify Gotify on success
-        if: success()
+      - name: Verify the live site serves this build
+        run: scripts/verify-live.sh https://jellyrock.app
+
+  # Deploy heartbeat (ADR-0005). Its own job so a failure in the gates alerts too, not
+  # only a failed rsync. Values passed via env, never inlined into the script, to avoid
+  # commit-message shell injection. No-op until the GOTIFY_URL secret is set.
+  notify:
+    needs: [gates, deploy]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Gotify
         env:
           GOTIFY_URL: ${{ secrets.GOTIFY_URL }}
           REPO: ${{ github.event.repository.name }}
+          GATES: ${{ needs.gates.result }}
+          DEPLOY: ${{ needs.deploy.result }}
           COMMIT_MSG: ${{ github.event.head_commit.message || github.event.client_payload.reason || 'manual / upstream trigger' }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           [ -z "$GOTIFY_URL" ] && { echo "GOTIFY_URL unset — skipping"; exit 0; }
+          if [ "$GATES" = success ] && [ "$DEPLOY" = success ]; then
+            title="${REPO} deploy ok"; priority=3; detail="Deployed and verified live."
+          elif [ "$GATES" = cancelled ] || [ "$DEPLOY" = cancelled ]; then
+            title="${REPO} deploy cancelled"; priority=5; detail="Run was cancelled."
+          elif [ "$GATES" != success ]; then
+            title="${REPO} deploy FAILED"; priority=8; detail="Checks or browser tests failed; nothing was deployed."
+          else
+            title="${REPO} deploy FAILED"; priority=8; detail="Tests passed but rsync or the live check failed."
+          fi
           curl -fsS -m 10 "$GOTIFY_URL" \
-            -F "priority=3" \
-            -F "title=${REPO} deploy ok" \
-            -F "message=Commit: ${COMMIT_MSG}
-          Run: ${RUN_URL}" || true
-
-      - name: Notify Gotify on failure
-        if: failure()
-        env:
-          GOTIFY_URL: ${{ secrets.GOTIFY_URL }}
-          REPO: ${{ github.event.repository.name }}
-          COMMIT_MSG: ${{ github.event.head_commit.message || github.event.client_payload.reason || 'manual / upstream trigger' }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          [ -z "$GOTIFY_URL" ] && exit 0
-          curl -fsS -m 10 "$GOTIFY_URL" \
-            -F "priority=8" \
-            -F "title=${REPO} deploy FAILED" \
-            -F "message=Commit: ${COMMIT_MSG}
+            -F "priority=${priority}" \
+            -F "title=${title}" \
+            -F "message=${detail}
+          Commit: ${COMMIT_MSG}
           Run: ${RUN_URL}" || true
