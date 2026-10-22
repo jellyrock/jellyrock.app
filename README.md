@@ -84,10 +84,10 @@ its `index.html`: each failure shows the error, and each screenshot failure
 shows expected, actual and a diff.
 
 **After a deliberate design or content change** (including a feature card
-edit from `/audit-features` or a shared-ui release), the screenshot tests go
-red as intended. Check the diff is what you meant, run
-`npm run build && npm run test:visual:update`, and commit the updated PNGs in
-the same PR.
+edit from `/audit-features`), the screenshot tests go red as intended. Check
+the diff is what you meant, run `npm run build && npm run test:visual:update`,
+and commit the updated PNGs in the same PR. shared-ui releases refresh them
+for you; see [shared-ui updates](#shared-ui-updates).
 
 Screenshots only match inside the Playwright image, because fonts render
 differently between machines, which is why those commands run through Docker
@@ -123,6 +123,31 @@ instead of cloning. Vite then picks up every save instantly. Remove the sibling
 > The symlink points at your local working tree — you can ship a build
 > referencing shared-ui commits that aren't pushed yet. Always push
 > `shared-ui` before pushing consumer sites that depend on the change.
+
+### shared-ui updates
+
+A shared-ui change is reviewed once, on its own PR, and reaches this site with
+no further clicks when it looks exactly as reviewed:
+
+```text
+shared-ui PR ─▶ consumer-preview.yml: builds this site with the change, runs these
+   │            browser tests, shows which screenshots change (diffs in its
+   │            jellyrock.app-report artifact) and saves them as the approved set
+   ▼ merge
+shared-ui release.yml: tags vX.Y.Z, then notifies this repo
+   ▼
+.github/workflows/shared-ui-bump.yml → scripts/shared-ui-bump.sh:
+   bumps SHARED_UI_REF, regenerates the screenshots, opens "update shared-ui to vX.Y.Z"
+   ├─ identical to the approved set → auto-merge on green check + browser-tests → deploy
+   └─ anything else → PR left open; its description says why (no preview, or which
+      screenshots differ, e.g. this site changed since the preview)
+```
+
+When a bump stops for review, compare the PNGs in the PR's **Files changed**
+tab and merge it. To retry or catch up on a release: Actions → **shared-ui
+bump** → Run workflow, or locally `scripts/shared-ui-bump.sh vX.Y.Z --dry-run`.
+Renovate also tracks the pin, but only opens a PR if no bump has landed 3 days
+after a release.
 
 ## Updating content
 

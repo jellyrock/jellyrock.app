@@ -4,7 +4,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track the pinned shared-ui release that fetch-shared-ui.ts clones at build time. It follows the org preset like any dependency: patch and minor automerge after their soak once CI (including the browser tests that render the shared header and footer) is green; majors wait for review.",
+      "description": "Track the pinned shared-ui release that fetch-shared-ui.ts clones at build time. Bumps normally arrive from .github/workflows/shared-ui-bump.yml (triggered by every shared-ui release, with screenshots refreshed); Renovate is the safety net, see the jellyrock/shared-ui package rule.",
       "managerFilePatterns": ["/^src/utils/fetch-shared-ui\\.ts$/"],
       "matchStrings": [
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s*\\n\\s*const SHARED_UI_REF = '(?<currentValue>[^']+)'"
@@ -17,6 +17,13 @@
       "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
       "groupName": "playwright",
       "schedule": ["at any time"]
+    },
+    {
+      "description": "Safety net for shared-ui: the shared-ui-bump workflow opens and usually merges the bump within minutes of a release. Renovate only opens a PR if that has not landed within 3 days (internalChecksFilter strict: no PR while the release is younger than minimumReleaseAge), and never automerges it, because a shared-ui change usually changes screenshots that need refreshing (scripts/shared-ui-bump.sh does that).",
+      "matchPackageNames": ["jellyrock/shared-ui"],
+      "minimumReleaseAge": "3 days",
+      "internalChecksFilter": "strict",
+      "automerge": false
     }
   ]
 }

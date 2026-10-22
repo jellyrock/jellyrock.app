@@ -5,8 +5,9 @@ import { execSync } from 'node:child_process';
 const REPO_URL = 'https://github.com/jellyrock/shared-ui.git';
 const CLONE_DIR = path.resolve('.shared-ui-repo');
 
-// Pinned shared-ui release for reproducible CI/prod builds. Renovate bumps this
-// (see renovate.json customManager); patch bumps auto-merge on green CI.
+// Pinned shared-ui release for reproducible CI/prod builds. Each shared-ui release
+// bumps it through .github/workflows/shared-ui-bump.yml (README: shared-ui updates);
+// Renovate (renovate.json customManager) is the fallback.
 // renovate: datasource=github-tags depName=jellyrock/shared-ui
 const SHARED_UI_REF = 'v1.0.0';
 
@@ -15,12 +16,13 @@ const SHARED_UI_REF = 'v1.0.0';
  * current project's src/shared-ui/ directory at build time.
  *
  * Tries a sibling '../shared-ui' checkout first (local dev), then clones
- * from GitHub (CI).
+ * from GitHub (CI). SHARED_UI_FROM_RELEASE=1 skips the sibling so a local
+ * build uses the pinned release, as CI does (scripts/shared-ui-bump.sh).
  */
 export async function fetchSharedUi(): Promise<void> {
   const destDir = path.resolve('src/shared-ui');
   const sibling = path.resolve('..', 'shared-ui');
-  const hasSibling = fs.existsSync(path.join(sibling, 'nav.ts'));
+  const hasSibling = process.env.SHARED_UI_FROM_RELEASE !== '1' && fs.existsSync(path.join(sibling, 'nav.ts'));
 
   // Dev-mode with sibling: symlink so edits in shared-ui/ propagate immediately
   if (hasSibling) {
