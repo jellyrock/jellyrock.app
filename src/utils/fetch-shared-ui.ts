@@ -8,7 +8,7 @@ const CLONE_DIR = path.resolve('.shared-ui-repo');
 // Pinned shared-ui release for reproducible CI/prod builds. Renovate bumps this
 // (see renovate.json customManager); patch bumps auto-merge on green CI.
 // renovate: datasource=github-tags depName=jellyrock/shared-ui
-const SHARED_UI_REF = 'v1.0.0';
+const SHARED_UI_REF = 'v1.1.0';
 
 /**
  * Copy the JellyRock shared-ui (header, footer, tokens, nav data) into the
