@@ -29,7 +29,11 @@
     "check:prettier": "prettier --check .",
     "fix": "npm run fix:eslint && npm run fix:prettier",
     "fix:eslint": "eslint --fix .",
-    "fix:prettier": "prettier -w ."
+    "fix:prettier": "prettier -w .",
+    "test": "scripts/playwright-docker.sh playwright test",
+    "test:e2e": "playwright test --grep-invert @visual",
+    "test:visual": "scripts/playwright-docker.sh playwright test --grep @visual",
+    "test:visual:update": "scripts/playwright-docker.sh playwright test --grep @visual --update-snapshots"
   },
   "dependencies": {
     "@astrojs/rss": "4.0.19",
@@ -54,6 +58,7 @@
     "@eslint/js": "9.39.5",
     "@iconify-json/flat-color-icons": "1.2.3",
     "@iconify-json/tabler": "1.2.42",
+    "@playwright/test": "1.64.1",
     "@tailwindcss/typography": "0.5.20",
     "@types/js-yaml": "4.0.9",
     "@types/lodash.merge": "4.6.9",

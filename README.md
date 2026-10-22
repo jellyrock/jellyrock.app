@@ -20,22 +20,23 @@ a Jellyfin client for Roku. Deployed at **[jellyrock.app](https://jellyrock.app)
 | Analytics | [Umami](https://analytics.jellyrock.app) (self-hosted)                                 | Privacy-respecting; see [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro). |
 | Hosting   | Caddy `file_server` on the JellyRock VPS                                               | See [`jellyrock/infra`](https://github.com/jellyrock/infra).                                              |
 
-> [!NOTE]
-> The `Dockerfile`, `netlify.toml`, `vercel.json`, and `nginx/` dir are legacy
-> AstroWind artifacts kept only while we verify nothing depends on them.
-> They are not part of the deploy pipeline.
-
 ## How deploys work
 
 ```text
 push to main  ─▶  .github/workflows/deploy.yml
-                      │
-                      ├─ npm ci
-                      ├─ npm run build                  (Astro → dist/)
-                      └─ rsync dist/ → VPS:/opt/jellyrock/homepage/
-                              │
-                              └─ Caddy serves jellyrock.app
+(or upstream          │
+ content-update)      ├─ gates: .github/workflows/ci.yml   (same as every PR)
+                      │    ├─ check: npm run check + npm run build  (Astro → dist/)
+                      │    └─ browser-tests: Playwright on that dist/
+                      ├─ rsync the tested dist/ → VPS:/opt/jellyrock/homepage/
+                      │       └─ Caddy serves jellyrock.app
+                      ├─ scripts/verify-live.sh   (live pages, assets and headers match)
+                      └─ Gotify: deploy ok / FAILED (also when the tests fail)
 ```
+
+Nothing reaches the VPS unless the checks and browser tests pass, and the
+files deployed are the exact build that was tested. A running deploy is never
+cancelled; a newer push waits for it.
 
 Required repo secrets (org-level, shared with sibling deploy repos):
 
@@ -52,7 +53,53 @@ npm run build            # production build → dist/
 npm run preview          # preview the build
 npm run check            # astro-check + eslint + prettier
 npm run fix              # eslint --fix + prettier --write
+npm test                 # browser tests, as CI runs them (needs Docker and a build)
 ```
+
+## Browser tests
+
+CI opens the built site in a real browser (Playwright, Chromium) at desktop and
+phone size before anything merges or deploys. They exist so a dependency bump
+that breaks the site turns CI red instead of reaching jellyrock.app. The site
+is served the way production serves it: same security headers (including the
+strict CSP), same redirects and 404 handling
+([`tests/support/serve-dist.mjs`](tests/support/serve-dist.mjs)).
+
+| Test file                                              | Fails when                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`tests/e2e/site.spec.ts`](tests/e2e/site.spec.ts)     | Any page in the sitemap has a script error, something the CSP blocks, a failed or cross-origin request, a broken image, sideways scrolling on a phone, or a missing header/footer; an internal link or anchor is broken; content from `src/data/features.ts` stops rendering; the scroll-reveal stops working |
+| [`tests/e2e/visual.spec.ts`](tests/e2e/visual.spec.ts) | A page looks different from its approved screenshot in [`tests/e2e/__screenshots__/`](tests/e2e/__screenshots__/) (images masked, since app screenshots change upstream)                                                                                                                                      |
+
+```bash
+npm run build                # the tests run against dist/
+npm test                     # everything, inside the same Playwright image CI uses
+npm run test:e2e             # functional tests only, with a local browser
+                             # (first time: npx playwright install chromium)
+npm run test:visual          # screenshot tests only (Docker)
+npm run test:visual:update   # accept the current look as the new baseline (Docker)
+```
+
+**When CI goes red,** open the failed run's **playwright-report** artifact and
+its `index.html`: each failure shows the error, and each screenshot failure
+shows expected, actual and a diff.
+
+**After a deliberate design or content change** (including a feature card
+edit from `/audit-features` or a shared-ui release), the screenshot tests go
+red as intended. Check the diff is what you meant, run
+`npm run build && npm run test:visual:update`, and commit the updated PNGs in
+the same PR.
+
+Screenshots only match inside the Playwright image, because fonts render
+differently between machines, which is why those commands run through Docker
+([`scripts/playwright-docker.sh`](scripts/playwright-docker.sh)). The image is
+pinned in `.github/workflows/ci.yml`, and Renovate moves it together with
+`@playwright/test` in one PR.
+
+The production headers the tests use are a copy of the Caddy config in
+`jellyrock/infra`, kept in
+[`tests/support/production-headers.json`](tests/support/production-headers.json).
+After every deploy, `scripts/verify-live.sh` compares them with the live site
+and fails the deploy if they drifted.
 
 On the first build, [`src/utils/fetch-shared-ui.ts`](src/utils/fetch-shared-ui.ts)
 shallow-clones [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui)
@@ -107,8 +154,10 @@ image pipeline.
 
 We inherited AstroWind's structure; deltas worth knowing about:
 
-- Removed `src/pages/[...blog]`, `[...landing]`, `pricing`, `services` —
-  JellyRock doesn't sell anything or blog (yet).
+- Removed the blog (posts, category/tag/RSS routes), `about`, `pricing`,
+  `services`, the landing layout, the Decap CMS admin page and the widgets
+  only they used — JellyRock doesn't sell anything or blog (yet). See
+  [Restoring a template page](#restoring-a-template-page).
 - Replaced Google Analytics + Splitbee integrations with a single self-hosted
   Umami snippet.
 - Replaced bundled header/footer with shared components from
@@ -116,6 +165,21 @@ We inherited AstroWind's structure; deltas worth knowing about:
   [`src/layouts/PageLayout.astro`](src/layouts/PageLayout.astro).
 - Features are authored in TypeScript ([`src/data/features.ts`](src/data/features.ts))
   instead of YAML frontmatter.
+
+### Restoring a template page
+
+The git tag `template-pages-archive` marks the last commit that still had the
+AstroWind pages, with this site's styling tweaks. To start a new page from one,
+restore it from the tag (the paths are listed in the commit after the tag):
+
+```bash
+git fetch origin tag template-pages-archive
+git checkout template-pages-archive -- src/pages/about.astro
+```
+
+A restored page may need porting to the Astro version in use by then. For a
+fresh, maintained copy instead, start from upstream
+[AstroWind](https://github.com/arthelokyo/astrowind).
 
 ## License
 

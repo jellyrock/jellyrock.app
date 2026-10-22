@@ -4,11 +4,19 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track the pinned shared-ui release that fetch-shared-ui.ts clones at build time. Patch bumps auto-merge on green CI via the org preset; minor/major land in the Monday review batch.",
-      "fileMatch": ["^src/utils/fetch-shared-ui\\.ts$"],
+      "description": "Track the pinned shared-ui release that fetch-shared-ui.ts clones at build time. It follows the org preset like any dependency: patch and minor automerge after their soak once CI (including the browser tests that render the shared header and footer) is green; majors wait for review.",
+      "managerFilePatterns": ["/^src/utils/fetch-shared-ui\\.ts$/"],
       "matchStrings": [
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s*\\n\\s*const SHARED_UI_REF = '(?<currentValue>[^']+)'"
       ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "The browser tests run in the official Playwright image (.github/workflows/ci.yml), which must match the @playwright/test version or the test runner refuses to start. Group them so they always move in one PR. The image sits in a workflow file, so the org preset's GitHub Actions rule would otherwise give it a Monday-only schedule and split it from the npm package; schedule is reset here. A Playwright bump can change how pages render, so the screenshot tests may go red on it: refresh the baselines on that PR (README: Browser tests).",
+      "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
+      "groupName": "playwright",
+      "schedule": ["at any time"]
     }
   ]
 }

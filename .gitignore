@@ -30,3 +30,6 @@ src/assets/images/jellyrock/
 # Fetched from shared-ui repo at build time
 src/shared-ui
 .shared-ui-repo/
+# Playwright output
+playwright-report/
+test-results/
