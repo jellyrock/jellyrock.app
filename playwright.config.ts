@@ -23,7 +23,7 @@ export default defineConfig({
       animations: 'disabled',
       caret: 'hide',
       scale: 'css',
-      maxDiffPixelRatio: 0.001,
+      maxDiffPixels: 0,
     },
   },
   projects: [
