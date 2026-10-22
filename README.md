@@ -102,8 +102,10 @@ image pipeline.
 
 We inherited AstroWind's structure; deltas worth knowing about:
 
-- Removed `src/pages/[...blog]`, `[...landing]`, `pricing`, `services` —
-  JellyRock doesn't sell anything or blog (yet).
+- Removed the blog (posts, category/tag/RSS routes), `about`, `pricing`,
+  `services`, the landing layout, the Decap CMS admin page and the widgets
+  only they used — JellyRock doesn't sell anything or blog (yet). See
+  [Restoring a template page](#restoring-a-template-page).
 - Replaced Google Analytics + Splitbee integrations with a single self-hosted
   Umami snippet.
 - Replaced bundled header/footer with shared components from
@@ -111,6 +113,21 @@ We inherited AstroWind's structure; deltas worth knowing about:
   [`src/layouts/PageLayout.astro`](src/layouts/PageLayout.astro).
 - Features are authored in TypeScript ([`src/data/features.ts`](src/data/features.ts))
   instead of YAML frontmatter.
+
+### Restoring a template page
+
+The git tag `template-pages-archive` marks the last commit that still had the
+AstroWind pages, with this site's styling tweaks. To start a new page from one,
+restore it from the tag (the paths are listed in the commit after the tag):
+
+```bash
+git fetch origin tag template-pages-archive
+git checkout template-pages-archive -- src/pages/about.astro
+```
+
+A restored page may need porting to the Astro version in use by then. For a
+fresh, maintained copy instead, start from upstream
+[AstroWind](https://github.com/arthelokyo/astrowind).
 
 ## License
 

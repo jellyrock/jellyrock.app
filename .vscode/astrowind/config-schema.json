@@ -271,5 +271,5 @@
       "required": ["theme"]
     }
   },
-  "required": ["site", "metadata", "i18n", "apps", "analytics", "ui"]
+  "required": ["site", "metadata", "i18n", "analytics", "ui"]
 }
