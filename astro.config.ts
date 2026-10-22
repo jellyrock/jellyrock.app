@@ -95,6 +95,12 @@ export default defineConfig({
   },
 
   vite: {
+    build: {
+      // Never inline bundled scripts: Astro inlines any under 4 kB by default, and the
+      // site's CSP (`script-src 'self'`, ADR-0006) blocks inline scripts in production.
+      // Returning undefined keeps the default for every other asset type.
+      assetsInlineLimit: (filePath: string) => (filePath.endsWith('.js') ? false : undefined),
+    },
     resolve: {
       alias: {
         '~': path.resolve(__dirname, './src'),
