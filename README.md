@@ -20,11 +20,6 @@ a Jellyfin client for Roku. Deployed at **[jellyrock.app](https://jellyrock.app)
 | Analytics | [Umami](https://analytics.jellyrock.app) (self-hosted)                                 | Privacy-respecting; see [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro). |
 | Hosting   | Caddy `file_server` on the JellyRock VPS                                               | See [`jellyrock/infra`](https://github.com/jellyrock/infra).                                              |
 
-> [!NOTE]
-> The `Dockerfile`, `netlify.toml`, `vercel.json`, and `nginx/` dir are legacy
-> AstroWind artifacts kept only while we verify nothing depends on them.
-> They are not part of the deploy pipeline.
-
 ## How deploys work
 
 ```text
