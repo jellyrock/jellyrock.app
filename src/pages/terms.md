@@ -55,7 +55,7 @@ has been formally registered.
 ### Permission Requests
 
 To request permission to use JellyRock Branding for any purpose, contact us via
-the [contact page](/contact) before using the assets.
+the [contact page](/contact/) before using the assets.
 
 ## Contributions
 

@@ -20,6 +20,11 @@ for (const pagePath of pages) {
 
     const response = await page.goto(pagePath);
     expect(response?.status(), 'HTTP status').toBe(200);
+    // The sitemap URL itself must answer 200: a redirect means the sitemap, links and canonical
+    // disagree with the URL the server actually serves (directories get a trailing slash).
+    expect(response?.request().redirectedFrom()?.url(), 'sitemap URL redirects').toBeUndefined();
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
+    expect(canonical && new URL(canonical).pathname, 'canonical URL').toBe(pagePath);
     await scrollThrough(page);
     await collectCspViolations(page, problems);
 
@@ -54,9 +59,12 @@ test('every internal link and in-page anchor resolves', async ({ request }) => {
   const broken: string[] = [];
   for (const [href, from] of links) {
     const [target, anchor] = href.split('#');
-    const res = await request.get(target || '/');
+    // maxRedirects 0: a link that only works through a redirect (e.g. /features → /features/)
+    // costs every visitor a round trip, so it counts as broken.
+    const res = await request.get(target || '/', { maxRedirects: 0 });
     if (res.status() !== 200) {
-      broken.push(`${href} (on ${from}) → ${res.status()}`);
+      const location = res.headers()['location'];
+      broken.push(`${href} (on ${from}) → ${res.status()}${location ? ` ${location}` : ''}`);
       continue;
     }
     if (anchor && !(await res.text()).includes(`id="${anchor}"`)) broken.push(`${href} (on ${from}) → no #${anchor}`);
