@@ -49,6 +49,10 @@ jobs:
           node-version-file: .nvmrc
           cache: 'npm'
 
+      # The npm package.json's packageManager names (see ci.yml).
+      - name: Setup npm
+        run: npm install -g "$(node -p 'require("./package.json").packageManager')"
+
       - name: Install dependencies
         run: npm ci
 
