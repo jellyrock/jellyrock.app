@@ -19,6 +19,11 @@
       "schedule": ["at any time"]
     },
     {
+      "description": "TypeScript 7 is held back (#85): typescript-eslint (8.72.0, the latest on 2026-10-22) accepts typescript >=4.8.4 <6.1.0 and @astrojs/check (0.9.12) accepts ^5 || ^6, so npm can't install 7 beside them. Renovate offers 6.x instead. Remove this rule once both accept 7 (check: npm view typescript-eslint peerDependencies; npm view @astrojs/check peerDependencies).",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7.0.0"
+    },
+    {
       "description": "Safety net for shared-ui: the shared-ui-bump workflow opens and usually merges the bump within minutes of a release. Renovate only opens a PR if that has not landed within 3 days (internalChecksFilter strict: no PR while the release is younger than minimumReleaseAge), and never automerges it, because a shared-ui change usually changes screenshots that need refreshing (scripts/shared-ui-bump.sh does that).",
       "matchPackageNames": ["jellyrock/shared-ui"],
       "minimumReleaseAge": "3 days",
