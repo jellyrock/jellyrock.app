@@ -16,7 +16,7 @@ a Jellyfin client for Roku. Deployed at **[jellyrock.app](https://jellyrock.app)
 | Starter   | Forked from [AstroWind](https://github.com/arthelokyo/astrowind)             | Good opinionated defaults; we stripped blog/pricing/services/landing variants.                            |
 | Icons     | [`astro-icon`](https://github.com/natemoo-re/astro-icon) with the Tabler set | Inline SVGs, zero runtime cost.                                                                           |
 | Images    | Astro `<Image>` + `sharp`                                                    | Build-time optimization + responsive `srcset`.                                                            |
-| Shared UI | [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui)              | Header/footer/tokens shared with docs + API reference sites.                                              |
+| Shared UI | [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui)              | Header/footer/tokens shared with the docs sites.                                                          |
 | Analytics | [Umami](https://analytics.jellyrock.app) (self-hosted)                       | Privacy-respecting; see [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro). |
 | Hosting   | Caddy `file_server` on the JellyRock VPS                                     | See [`jellyrock/infra`](https://github.com/jellyrock/infra).                                              |
 
