@@ -187,6 +187,10 @@ We inherited AstroWind's structure; deltas worth knowing about:
   Umami snippet, and dropped the template's unused dependencies
   (`@astrolib/analytics`, Partytown, RSS, `astro-embed`, the
   `flat-color-icons` set).
+- Dropped the two integrations that only supported Astro ≤5: `@astrolib/seo`
+  ([`Metadata.astro`](src/components/common/Metadata.astro) writes the SEO tags
+  itself) and `@astrojs/tailwind` (Tailwind runs as a PostCSS plugin from
+  [`postcss.config.js`](postcss.config.js)).
 - Replaced bundled header/footer with shared components from
   [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui) via
   [`src/layouts/PageLayout.astro`](src/layouts/PageLayout.astro).

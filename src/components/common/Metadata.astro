@@ -1,17 +1,27 @@
 ---
 import merge from 'lodash.merge';
-import { AstroSeo } from '@astrolib/seo';
-
-import type { Props as AstroSeoProps } from '@astrolib/seo';
 
 import { SITE, METADATA, I18N } from 'astrowind:config';
 import type { MetaData } from '~/types';
 import { getCanonical } from '~/utils/permalinks';
 
-import { adaptOpenGraphImages } from '~/utils/images';
+import { adaptOpenGraphImages, type OpenGraph } from '~/utils/images';
 
 export interface Props extends MetaData {
   dontUseTitleTemplate?: boolean;
+}
+
+// The SEO tags this site uses: title, description, robots, canonical, Open Graph and the
+// Twitter card. Defaults come from src/config.yaml (METADATA), then each page's props win.
+interface SeoProps {
+  title?: string;
+  titleTemplate?: string;
+  noindex?: boolean;
+  nofollow?: boolean;
+  description?: string;
+  canonical?: string;
+  openGraph?: OpenGraph;
+  twitter?: { cardType?: string; site?: string; handle?: string };
 }
 
 const {
@@ -24,7 +34,7 @@ const {
   twitter = {},
 } = Astro.props;
 
-const seoProps: AstroSeoProps = merge(
+const seoProps: SeoProps = merge(
   {
     title: '',
     titleTemplate: '%s',
@@ -63,6 +73,37 @@ const seoProps: AstroSeoProps = merge(
     twitter: twitter,
   }
 );
+
+const og = await adaptOpenGraphImages(seoProps.openGraph, Astro.site);
+const fullTitle = seoProps.title && (seoProps.titleTemplate ?? '%s').replace('%s', seoProps.title);
+const robotsContent = [
+  ...(seoProps.noindex === undefined ? [] : [seoProps.noindex ? 'noindex' : 'index']),
+  ...(seoProps.nofollow === undefined ? [] : [seoProps.nofollow ? 'nofollow' : 'follow']),
+].join(',');
+const ogTitle = og.title || seoProps.title;
+const ogDescription = og.description || seoProps.description;
+const tw = seoProps.twitter ?? {};
 ---
 
-<AstroSeo {...{ ...seoProps, openGraph: await adaptOpenGraphImages(seoProps?.openGraph, Astro.site) }} />
+{fullTitle && <title>{fullTitle}</title>}
+{seoProps.description && <meta name="description" content={seoProps.description} />}
+{robotsContent && <meta name="robots" content={robotsContent} />}
+{seoProps.canonical && <link rel="canonical" href={seoProps.canonical} />}
+
+{ogTitle && <meta property="og:title" content={ogTitle} />}
+{ogDescription && <meta property="og:description" content={ogDescription} />}
+{og.url && <meta property="og:url" content={og.url} />}
+{og.type && <meta property="og:type" content={og.type} />}
+{og.images?.map((image) => (
+  <>
+    <meta property="og:image" content={image.url} />
+    {image.width && <meta property="og:image:width" content={String(image.width)} />}
+    {image.height && <meta property="og:image:height" content={String(image.height)} />}
+  </>
+))}
+{og.locale && <meta property="og:locale" content={og.locale} />}
+{og.site_name && <meta property="og:site_name" content={og.site_name} />}
+
+{tw.cardType && <meta name="twitter:card" content={tw.cardType} />}
+{tw.site && <meta name="twitter:site" content={tw.site} />}
+{tw.handle && <meta name="twitter:creator" content={tw.handle} />}
