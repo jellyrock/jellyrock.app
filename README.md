@@ -64,13 +64,17 @@ CI opens the built site in a real browser (Playwright, Chromium) at desktop and
 phone size before anything merges or deploys. They exist so a dependency bump
 that breaks the site turns CI red instead of reaching jellyrock.app. The site
 is served the way production serves it: same security headers (including the
-strict CSP), same redirects and 404 handling
-([`tests/support/serve-dist.mjs`](tests/support/serve-dist.mjs)).
+strict CSP), same redirects and 404 handling. The server and the checks every
+JellyRock site shares (each sitemap page loads cleanly, links and anchors
+resolve, a missing page is a 404) come from shared-ui's
+[`testing/`](https://github.com/jellyrock/shared-ui/tree/main/testing), which
+the build fetches into `src/shared-ui/testing/`; this repo keeps its own config,
+page list, screenshots, production headers and site-specific tests.
 
-| Test file                                              | Fails when                                                                                                                                                                                                                                                                                                    |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`tests/e2e/site.spec.ts`](tests/e2e/site.spec.ts)     | Any page in the sitemap has a script error, something the CSP blocks, a failed or cross-origin request, a broken image, sideways scrolling on a phone, or a missing header/footer; an internal link or anchor is broken; content from `src/data/features.ts` stops rendering; the scroll-reveal stops working |
-| [`tests/e2e/visual.spec.ts`](tests/e2e/visual.spec.ts) | A page looks different from its approved screenshot in [`tests/e2e/__screenshots__/`](tests/e2e/__screenshots__/) (images masked, since app screenshots change upstream)                                                                                                                                      |
+| Test file                                              | Fails when                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`tests/e2e/site.spec.ts`](tests/e2e/site.spec.ts)     | (shared) Any page in the sitemap has a script error, something the CSP blocks, a failed or cross-origin request, a broken image, sideways scrolling on a phone, or a missing header/footer; an internal link or anchor is broken; content from `src/data/features.ts` stops rendering; the scroll-reveal stops working |
+| [`tests/e2e/visual.spec.ts`](tests/e2e/visual.spec.ts) | A page looks different from its approved screenshot in [`tests/e2e/__screenshots__/`](tests/e2e/__screenshots__/) (images masked, since app screenshots change upstream)                                                                                                                                               |
 
 ```bash
 npm run build                # the tests run against dist/

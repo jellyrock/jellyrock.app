@@ -49,6 +49,16 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      # The shared-ui the build fetched, so the browser tests use its testing/ code from the
+      # same release.
+      - name: Upload shared-ui
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: shared-ui
+          path: src/shared-ui/
+          if-no-files-found: error
+          retention-days: 7
+
   browser-tests:
     needs: check
     runs-on: ubuntu-latest
@@ -79,6 +89,12 @@ jobs:
         with:
           name: dist
           path: dist/
+
+      - name: Download shared-ui
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: shared-ui
+          path: src/shared-ui/
 
       - name: Run browser tests (functional + screenshots)
         run: npx playwright test

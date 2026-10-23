@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // Browser tests run against the production build in dist/, served the way Caddy serves it
-// (tests/support/serve-dist.mjs). Build first: `npm run build`.
+// (shared-ui's testing/serve-dist.mjs, with this site's tests/support/production-headers.json).
+// Build first: `npm run build`, which also fetches shared-ui into src/shared-ui/.
 //
 // Screenshot tests (tagged @visual) only match pixel-for-pixel inside the official Playwright
 // image CI uses, so run those through `npm run test:visual` (Docker), never a local browser.
@@ -31,7 +32,7 @@ export default defineConfig({
     { name: 'phone', use: { ...devices['Pixel 7'] } },
   ],
   webServer: {
-    command: `node tests/support/serve-dist.mjs ${port}`,
+    command: `node src/shared-ui/testing/serve-dist.mjs --root dist --port ${port} --headers tests/support/production-headers.json`,
     url: `http://localhost:${port}/`,
     reuseExistingServer: !process.env.CI,
   },

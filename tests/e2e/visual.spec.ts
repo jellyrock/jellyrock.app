@@ -8,7 +8,7 @@
 // Baselines live in tests/e2e/__screenshots__ and only match inside the Playwright image CI uses.
 // After a deliberate design change, refresh them: `npm run test:visual:update` (README).
 import { test, expect } from '@playwright/test';
-import { scrollThrough } from './helpers';
+import { scrollThrough } from '../../src/shared-ui/testing/checks';
 
 const pages = [
   { name: 'home', path: '/' },
