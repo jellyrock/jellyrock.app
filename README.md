@@ -47,7 +47,7 @@ Required repo secrets (org-level, shared with sibling deploy repos):
 ## Local development
 
 ```bash
-nvm use                  # Node from .nvmrc (Astro 7 needs ≥ 22.23.4)
+nvm use                  # Node 24 + its npm 11, from .nvmrc (lockfiles must be written with npm 11)
 npm ci
 npm run dev              # http://localhost:4321
 npm run build            # production build → dist/
