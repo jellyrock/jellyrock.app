@@ -1,77 +1,126 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-@layer utilities {
-  .bg-page {
-    background-color: var(--aw-color-bg-page);
-  }
-  .bg-dark {
-    background-color: var(--aw-color-bg-page-dark);
-  }
-  .bg-light {
-    background-color: var(--aw-color-bg-page);
-  }
-  .text-page {
-    color: var(--aw-color-text-page);
-  }
-  .text-muted {
-    color: var(--aw-color-text-muted);
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant intersect (&:not([no-intersect]));
+
+/* inline: these resolve at runtime from the --aw-* variables (CustomStyles.astro). */
+@theme inline {
+  --color-primary: var(--aw-color-primary);
+  --color-secondary: var(--aw-color-secondary);
+  --color-accent: var(--aw-color-accent);
+  --color-default: var(--aw-color-text-default);
+  --color-muted: var(--aw-color-text-muted);
+
+  /* Tailwind 3's default stacks after the --aw-* font, as the Tailwind 3 config had them. */
+  --font-sans:
+    var(--aw-font-sans, ui-sans-serif), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: var(--aw-font-serif, ui-serif), ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-heading:
+    var(--aw-font-heading, ui-sans-serif), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@theme {
+  --animate-fade: fadeInUp 1s both;
+
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(2rem);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
-@layer components {
-  .btn {
-    @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base text-page leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 cursor-pointer;
+/* Tailwind 4 changed two defaults; keep Tailwind 3's (tailwindcss.com/docs/upgrade-guide). */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
   }
 
-  .btn:hover {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@utility bg-page {
+  background-color: var(--aw-color-bg-page);
+}
+@utility bg-dark {
+  background-color: var(--aw-color-bg-page-dark);
+}
+@utility bg-light {
+  background-color: var(--aw-color-bg-page);
+}
+@utility text-page {
+  color: var(--aw-color-text-page);
+}
+@utility text-muted {
+  color: var(--aw-color-text-muted);
+}
+
+/* Buttons are utilities, not @layer components: Tailwind 4 can only @apply utilities (btn-primary applies btn). */
+@utility btn {
+  @apply inline-flex items-center justify-center rounded-full border-gray-400 border bg-transparent font-medium text-center text-base text-page leading-snug transition py-3.5 px-6 md:px-8 ease-in duration-200 focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 cursor-pointer;
+
+  &:hover {
     background-color: var(--jr-bg-secondary) !important;
     border-color: var(--jr-text-disabled) !important;
     color: var(--jr-primary) !important;
   }
+}
 
-  .btn-primary {
-    @apply btn font-semibold bg-primary text-white border-primary dark:text-white dark:bg-primary dark:border-primary;
-  }
+@utility btn-primary {
+  @apply btn font-semibold bg-primary text-white border-primary dark:text-white dark:bg-primary dark:border-primary;
 
-  .btn-primary:hover {
+  &:hover {
     background-color: color-mix(in srgb, var(--jr-primary) 60%, black) !important;
     border-color: color-mix(in srgb, var(--jr-primary) 60%, black) !important;
     color: white !important;
   }
 
-  .btn-primary:focus {
+  &:focus {
     background-color: color-mix(in srgb, var(--jr-primary) 50%, black) !important;
     border-color: color-mix(in srgb, var(--jr-primary) 50%, black) !important;
     color: white !important;
   }
+}
 
-  .btn-donate {
-    @apply btn font-semibold text-white cursor-pointer;
-    background-color: var(--jr-secondary);
-    border-color: var(--jr-secondary);
-  }
+@utility btn-donate {
+  @apply btn font-semibold text-white cursor-pointer;
+  background-color: var(--jr-secondary);
+  border-color: var(--jr-secondary);
 
-  .btn-donate:hover {
+  &:hover {
     background-color: color-mix(in srgb, var(--jr-secondary) 60%, black) !important;
     border-color: color-mix(in srgb, var(--jr-secondary) 60%, black) !important;
     color: white !important;
   }
 
-  .btn-donate:focus {
+  &:focus {
     background-color: color-mix(in srgb, var(--jr-secondary) 50%, black) !important;
     border-color: color-mix(in srgb, var(--jr-secondary) 50%, black) !important;
     color: white !important;
   }
+}
 
-  .btn-secondary {
-    @apply btn;
-  }
+@utility btn-secondary {
+  @apply btn;
+}
 
-  .btn-tertiary {
-    @apply btn border-none shadow-none text-muted hover:text-gray-900 dark:text-gray-400 dark:hover:text-white;
-  }
+@utility btn-tertiary {
+  @apply btn border-none shadow-none text-muted hover:text-gray-900 dark:text-gray-400 dark:hover:text-white;
 }
 
 #header.scroll > div:first-child {

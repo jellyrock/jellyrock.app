@@ -12,7 +12,7 @@ a Jellyfin client for Roku. Deployed at **[jellyrock.app](https://jellyrock.app)
 | Piece     | Choice                                                                       | Why                                                                                                       |
 | --------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | Framework | [Astro 7](https://astro.build/)                                              | Static-first, islands architecture, great DX.                                                             |
-| Styling   | [Tailwind CSS 3](https://tailwindcss.com/)                                   | Utility-first, matches starter template.                                                                  |
+| Styling   | [Tailwind CSS 4](https://tailwindcss.com/)                                   | Utility-first, matches starter template.                                                                  |
 | Starter   | Forked from [AstroWind](https://github.com/arthelokyo/astrowind)             | Good opinionated defaults; we stripped blog/pricing/services/landing variants.                            |
 | Icons     | [`astro-icon`](https://github.com/natemoo-re/astro-icon) with the Tabler set | Inline SVGs, zero runtime cost.                                                                           |
 | Images    | Astro `<Image>` + `sharp`                                                    | Build-time optimization + responsive `srcset`.                                                            |
@@ -190,8 +190,9 @@ We inherited AstroWind's structure; deltas worth knowing about:
   `flat-color-icons` set).
 - Dropped the two integrations that only supported Astro ≤5: `@astrolib/seo`
   ([`Metadata.astro`](src/components/common/Metadata.astro) writes the SEO tags
-  itself) and `@astrojs/tailwind` (Tailwind runs as a PostCSS plugin from
-  [`postcss.config.js`](postcss.config.js)).
+  itself) and `@astrojs/tailwind` (Tailwind 4 runs through its Vite plugin,
+  `@tailwindcss/vite`, configured in CSS in
+  [`src/assets/styles/tailwind.css`](src/assets/styles/tailwind.css)).
 - Replaced bundled header/footer with shared components from
   [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui) via
   [`src/layouts/PageLayout.astro`](src/layouts/PageLayout.astro).

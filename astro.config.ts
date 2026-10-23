@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
+import tailwindcss from '@tailwindcss/vite';
 
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
@@ -74,6 +75,7 @@ export default defineConfig({
   },
 
   vite: {
+    plugins: [tailwindcss()],
     build: {
       // Never inline bundled scripts: Astro inlines any under 4 kB by default, and the
       // site's CSP (`script-src 'self'`, ADR-0006) blocks inline scripts in production.
