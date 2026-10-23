@@ -17,7 +17,7 @@
   "engines": {
     "node": ">=22.23.4"
   },
-  "packageManager": "npm@11.21.1",
+  "packageManager": "npm@12.2.1",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
