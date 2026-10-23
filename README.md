@@ -47,7 +47,8 @@ Required repo secrets (org-level, shared with sibling deploy repos):
 ## Local development
 
 ```bash
-nvm use                  # Node 24 + its npm 11, from .nvmrc (lockfiles must be written with npm 11)
+nvm use                  # Node from .nvmrc
+npm install -g "$(node -p 'require("./package.json").packageManager')"  # the npm CI and Renovate use
 npm ci
 npm run dev              # http://localhost:4321
 npm run build            # production build → dist/
