@@ -169,8 +169,8 @@ after a release.
 1. Drop `.mp4` / `.webm` files alongside the PNGs.
 2. Broaden the glob to `*.{png,mp4,webm}` and branch on extension to render
    `<video autoplay muted loop playsinline>` vs `<Image>`.
-3. For YouTube embeds, use [`astro-embed`](https://github.com/delucis/astro-embed)
-   (already a dep) — `<YouTube id="..." />`.
+3. For YouTube embeds, add [`astro-embed`](https://github.com/delucis/astro-embed)
+   (`npm install astro-embed`) and use `<YouTube id="..." />`.
 
 Keep file sizes tight (prefer `.webm` @ 720p, <2 MB) since videos bypass Astro's
 image pipeline.
@@ -184,7 +184,9 @@ We inherited AstroWind's structure; deltas worth knowing about:
   only they used — JellyRock doesn't sell anything or blog (yet). See
   [Restoring a template page](#restoring-a-template-page).
 - Replaced Google Analytics + Splitbee integrations with a single self-hosted
-  Umami snippet.
+  Umami snippet, and dropped the template's unused dependencies
+  (`@astrolib/analytics`, Partytown, RSS, `astro-embed`, the
+  `flat-color-icons` set).
 - Replaced bundled header/footer with shared components from
   [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui) via
   [`src/layouts/PageLayout.astro`](src/layouts/PageLayout.astro).
