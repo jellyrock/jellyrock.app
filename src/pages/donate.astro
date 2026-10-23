@@ -33,31 +33,31 @@ const contributors = [
 
   <section class="px-4 pb-20">
     <div class="max-w-3xl mx-auto">
-      <h2 class="text-2xl font-bold mb-6 font-heading" style="color: var(--jr-text-primary)">Sponsor a Contributor</h2>
+      <h2 class="text-2xl font-bold mb-6 font-heading" style="color: var(--jr-text-primary)">
+        Sponsor a Contributor
+      </h2>
       <div class="space-y-4">
-        {
-          contributors.map((contributor) => (
-            <div
-              class="flex items-center justify-between p-5 rounded-lg border"
-              style="background-color: var(--jr-bg-secondary); border-color: var(--jr-text-disabled)"
-            >
-              <div>
-                <div class="font-semibold" style="color: var(--jr-text-primary)">
-                  {contributor.name}
-                </div>
-                <div class="text-sm" style="color: var(--jr-text-secondary)">
-                  {contributor.role} ·
-                  <a href={`https://github.com/${contributor.handle}`} target="_blank" rel="noopener" class="underline">
-                    @{contributor.handle}
-                  </a>
-                </div>
+        {contributors.map((contributor) => (
+          <div
+            class="flex items-center justify-between p-5 rounded-lg border"
+            style="background-color: var(--jr-bg-secondary); border-color: var(--jr-text-disabled)"
+          >
+            <div>
+              <div class="font-semibold" style="color: var(--jr-text-primary)">
+                {contributor.name}
               </div>
-              <Button href={contributor.url} target="_blank" variant="primary" icon="tabler:heart">
-                Sponsor
-              </Button>
+              <div class="text-sm" style="color: var(--jr-text-secondary)">
+                {contributor.role} ·
+                <a href={`https://github.com/${contributor.handle}`} target="_blank" rel="noopener" class="underline">
+                  @{contributor.handle}
+                </a>
+              </div>
             </div>
-          ))
-        }
+            <Button href={contributor.url} target="_blank" variant="primary" icon="tabler:heart">
+              Sponsor
+            </Button>
+          </div>
+        ))}
       </div>
 
       <div class="mt-12 text-center text-sm" style="color: var(--jr-text-secondary)">

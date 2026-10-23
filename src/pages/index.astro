@@ -48,8 +48,8 @@ const hasMoreFeatures = features.length > HOMEPAGE_FEATURE_COUNT;
     </Fragment>
 
     <Fragment slot="subtitle">
-      <span class="font-semibold">JellyRock</span> is a free, open source Jellyfin client for Roku devices. Stream your movies,
-      shows, music, and more — no subscriptions, no tracking, no compromise.
+      <span class="font-semibold">JellyRock</span> is a free, open source Jellyfin client for Roku devices. Stream your
+      movies, shows, music, and more — no subscriptions, no tracking, no compromise.
     </Fragment>
   </Hero>
 
@@ -61,51 +61,47 @@ const hasMoreFeatures = features.length > HOMEPAGE_FEATURE_COUNT;
     items={homepageFeatures}
   />
 
-  {
-    hasMoreFeatures && (
-      <div class="text-center -mt-8 mb-12">
-        <a href="/features/" class="btn">
-          View all features
-        </a>
-      </div>
-    )
-  }
+  {hasMoreFeatures && (
+    <div class="text-center -mt-8 mb-12">
+      <a href="/features/" class="btn">
+        View all features
+      </a>
+    </div>
+  )}
 
   <!-- Screenshot Gallery -->
-  {
-    galleryScreenshots.length > 0 && (
-      <section class="py-16 px-4" style="background-color: var(--jr-bg-secondary)">
-        <div class="max-w-6xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-2 font-heading" style="color: var(--jr-text-primary)">
-            See JellyRock in action
-          </h2>
-          <p class="text-center mb-10" style="color: var(--jr-text-secondary)">
-            Designed for the couch — easy to navigate with just your Roku remote
-          </p>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {galleryScreenshots.map((screenshot) => (
-              <Image
-                src={screenshot.src}
-                alt={`JellyRock — ${screenshot.label}`}
-                class="rounded-lg shadow-lg w-full cursor-zoom-in"
-                data-zoomable
-                loading="lazy"
-                widths={[480, 800, 1200]}
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            ))}
-          </div>
-          {hasMoreScreenshots && (
-            <div class="text-center mt-8">
-              <a href="/screenshots/" class="btn">
-                View all screenshots
-              </a>
-            </div>
-          )}
+  {galleryScreenshots.length > 0 && (
+    <section class="py-16 px-4" style="background-color: var(--jr-bg-secondary)">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-bold text-center mb-2 font-heading" style="color: var(--jr-text-primary)">
+          See JellyRock in action
+        </h2>
+        <p class="text-center mb-10" style="color: var(--jr-text-secondary)">
+          Designed for the couch — easy to navigate with just your Roku remote
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {galleryScreenshots.map((screenshot) => (
+            <Image
+              src={screenshot.src}
+              alt={`JellyRock — ${screenshot.label}`}
+              class="rounded-lg shadow-lg w-full cursor-zoom-in"
+              data-zoomable
+              loading="lazy"
+              widths={[480, 800, 1200]}
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          ))}
         </div>
-      </section>
-    )
-  }
+        {hasMoreScreenshots && (
+          <div class="text-center mt-8">
+            <a href="/screenshots/" class="btn">
+              View all screenshots
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
 
   <CallToAction
     actions={[
