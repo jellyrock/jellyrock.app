@@ -2,9 +2,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 
 import sitemap from '@astrojs/sitemap';
-import mdx from '@astrojs/mdx';
 import icon from 'astro-icon';
 import compress from 'astro-compress';
 import type { AstroIntegration } from 'astro';
@@ -30,11 +30,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   output: 'static',
+  // Astro 7 defaults to 'jsx', which drops the whitespace between elements on separate lines
+  // ("Maintainer ·@cewert", "Error404"). true is the lossless compression Astro 5 used.
+  compressHTML: true,
 
   integrations: [
     jellyrockAssets(),
     sitemap(),
-    mdx(),
     icon({
       include: {
         tabler: ['*'],
@@ -64,8 +66,11 @@ export default defineConfig({
   },
 
   markdown: {
-    remarkPlugins: [readingTimeRemarkPlugin],
-    rehypePlugins: [responsiveTablesRehypePlugin, lazyImagesRehypePlugin],
+    // Our remark/rehype plugins need the unified processor; Astro 7 defaults to Sätteri.
+    processor: unified({
+      remarkPlugins: [readingTimeRemarkPlugin],
+      rehypePlugins: [responsiveTablesRehypePlugin, lazyImagesRehypePlugin],
+    }),
   },
 
   vite: {
