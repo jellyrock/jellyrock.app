@@ -9,7 +9,7 @@ const CLONE_DIR = path.resolve('.shared-ui-repo');
 // bumps it through .github/workflows/shared-ui-bump.yml (README: shared-ui updates);
 // Renovate (renovate.json customManager) is the fallback.
 // renovate: datasource=github-tags depName=jellyrock/shared-ui
-const SHARED_UI_REF = 'v1.1.2';
+const SHARED_UI_REF = 'v1.2.0';
 
 /**
  * Copy the JellyRock shared-ui (header, footer, tokens, nav data) into the
