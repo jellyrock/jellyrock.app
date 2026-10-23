@@ -15,26 +15,22 @@ const metadata = {
       <span class="text-accent">Screenshots</span>
     </Fragment>
 
-    <Fragment slot="subtitle">
-      See what JellyRock looks like on your Roku. Click any image to view full size.
-    </Fragment>
+    <Fragment slot="subtitle">See what JellyRock looks like on your Roku. Click any image to view full size.</Fragment>
   </HeroText>
 
   <section class="px-4 pb-16">
     <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-      {
-        screenshots.map((screenshot) => (
-          <Image
-            src={screenshot.src}
-            alt={`JellyRock — ${screenshot.label}`}
-            class="rounded-lg shadow-lg w-full cursor-zoom-in"
-            data-zoomable
-            loading="lazy"
-            widths={[480, 800, 1200, 1920]}
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-        ))
-      }
+      {screenshots.map((screenshot) => (
+        <Image
+          src={screenshot.src}
+          alt={`JellyRock — ${screenshot.label}`}
+          class="rounded-lg shadow-lg w-full cursor-zoom-in"
+          data-zoomable
+          loading="lazy"
+          widths={[480, 800, 1200, 1920]}
+          sizes="(max-width: 768px) 100vw, 50vw"
+        />
+      ))}
     </div>
   </section>
 </Layout>
