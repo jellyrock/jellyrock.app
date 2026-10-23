@@ -36,4 +36,4 @@ any data to jellyrock.app.
 
 ## Contact
 
-Questions? See our [contact page](/contact) for ways to reach us.
+Questions? See our [contact page](/contact/) for ways to reach us.

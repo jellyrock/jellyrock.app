@@ -2,7 +2,7 @@ site:
   name: JellyRock
   site: 'https://jellyrock.app'
   base: '/'
-  trailingSlash: false
+  trailingSlash: true
 
 # Default SEO metadata
 metadata:

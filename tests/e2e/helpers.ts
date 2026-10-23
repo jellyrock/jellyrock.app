@@ -9,10 +9,7 @@ export function sitemapPaths(): string[] {
   const file = path.join(dist, 'sitemap-0.xml');
   if (!fs.existsSync(file)) throw new Error('dist/sitemap-0.xml not found: run `npm run build` first');
   const xml = fs.readFileSync(file, 'utf8');
-  return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, loc]) => {
-    const { pathname } = new URL(loc);
-    return pathname.endsWith('/') ? pathname : `${pathname}/`;
-  });
+  return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, loc]) => new URL(loc).pathname);
 }
 
 /** Problems a visitor would hit on a page: script errors, blocked resources, broken requests. */
