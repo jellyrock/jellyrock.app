@@ -9,16 +9,16 @@ a Jellyfin client for Roku. Deployed at **[jellyrock.app](https://jellyrock.app)
 
 ## Tech stack
 
-| Piece     | Choice                                                                                 | Why                                                                                                       |
-| --------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Framework | [Astro 5](https://astro.build/)                                                        | Static-first, islands architecture, great DX.                                                             |
-| Styling   | [Tailwind CSS 3](https://tailwindcss.com/)                                             | Utility-first, matches starter template.                                                                  |
-| Starter   | Forked from [AstroWind](https://github.com/arthelokyo/astrowind)                       | Good opinionated defaults; we stripped blog/pricing/services/landing variants.                            |
-| Icons     | [`astro-icon`](https://github.com/natemoo-re/astro-icon) with Tabler + Flat Color sets | Inline SVGs, zero runtime cost.                                                                           |
-| Images    | Astro `<Image>` + `sharp`                                                              | Build-time optimization + responsive `srcset`.                                                            |
-| Shared UI | [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui)                        | Header/footer/tokens shared with docs + API reference sites.                                              |
-| Analytics | [Umami](https://analytics.jellyrock.app) (self-hosted)                                 | Privacy-respecting; see [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro). |
-| Hosting   | Caddy `file_server` on the JellyRock VPS                                               | See [`jellyrock/infra`](https://github.com/jellyrock/infra).                                              |
+| Piece     | Choice                                                                       | Why                                                                                                       |
+| --------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Framework | [Astro 7](https://astro.build/)                                              | Static-first, islands architecture, great DX.                                                             |
+| Styling   | [Tailwind CSS 3](https://tailwindcss.com/)                                   | Utility-first, matches starter template.                                                                  |
+| Starter   | Forked from [AstroWind](https://github.com/arthelokyo/astrowind)             | Good opinionated defaults; we stripped blog/pricing/services/landing variants.                            |
+| Icons     | [`astro-icon`](https://github.com/natemoo-re/astro-icon) with the Tabler set | Inline SVGs, zero runtime cost.                                                                           |
+| Images    | Astro `<Image>` + `sharp`                                                    | Build-time optimization + responsive `srcset`.                                                            |
+| Shared UI | [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui)              | Header/footer/tokens shared with docs + API reference sites.                                              |
+| Analytics | [Umami](https://analytics.jellyrock.app) (self-hosted)                       | Privacy-respecting; see [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro). |
+| Hosting   | Caddy `file_server` on the JellyRock VPS                                     | See [`jellyrock/infra`](https://github.com/jellyrock/infra).                                              |
 
 ## How deploys work
 
@@ -47,6 +47,7 @@ Required repo secrets (org-level, shared with sibling deploy repos):
 ## Local development
 
 ```bash
+nvm use                  # Node from .nvmrc (Astro 7 needs ≥ 22.23.4)
 npm ci
 npm run dev              # http://localhost:4321
 npm run build            # production build → dist/
