@@ -1,80 +1,11 @@
-// Functional checks over the production build. Each one guards something a dependency bump
-// can break without failing `astro check` or the build: a script that errors or that the
-// production CSP blocks, an asset that 404s, a page that overflows a phone screen, or content
-// that silently stops rendering.
-import fs from 'node:fs';
-import path from 'node:path';
+// Functional checks over the production build. The checks every JellyRock site shares (each
+// sitemap page loads cleanly, links and anchors resolve, a missing page is a 404) come from
+// shared-ui's testing/site-tests.ts; the tests below are this site's own.
 import { test, expect } from '@playwright/test';
 import { features, HOMEPAGE_FEATURE_COUNT } from '../../src/data/features';
-import { sitemapPaths, watchForProblems, collectCspViolations, scrollThrough, brokenImages } from './helpers';
+import { defineSiteTests } from '../../src/shared-ui/testing/site-tests';
 
-const pages = sitemapPaths();
-
-test('the sitemap lists the site pages', () => {
-  expect(pages).toEqual(expect.arrayContaining(['/', '/install/', '/features/', '/screenshots/']));
-});
-
-for (const pagePath of pages) {
-  test(`${pagePath} loads cleanly`, async ({ page, baseURL }) => {
-    const problems = await watchForProblems(page, new URL(baseURL!).origin);
-
-    const response = await page.goto(pagePath);
-    expect(response?.status(), 'HTTP status').toBe(200);
-    // The sitemap URL itself must answer 200: a redirect means the sitemap, links and canonical
-    // disagree with the URL the server actually serves (directories get a trailing slash).
-    expect(response?.request().redirectedFrom()?.url(), 'sitemap URL redirects').toBeUndefined();
-    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
-    expect(canonical && new URL(canonical).pathname, 'canonical URL').toBe(pagePath);
-    await scrollThrough(page);
-    await collectCspViolations(page, problems);
-
-    expect(problems.consoleErrors, 'console errors').toEqual([]);
-    expect(problems.cspViolations, 'blocked by the production CSP').toEqual([]);
-    expect(problems.failedRequests, 'failed requests').toEqual([]);
-    expect(problems.externalRequests, 'requests to other origins (the CSP blocks these)').toEqual([]);
-
-    await expect(page.locator('header.jr-site-header'), 'shared header').toBeVisible();
-    await expect(page.locator('footer').first(), 'footer').toBeVisible();
-    await expect(page.locator('h1').first(), 'page heading').toBeVisible();
-    await expect(page, 'page title').toHaveTitle(/\S/);
-
-    expect(await brokenImages(page), 'images that failed to render').toEqual([]);
-
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-    expect(overflow, 'page wider than the screen (sideways scrolling)').toBeLessThanOrEqual(0);
-  });
-}
-
-test('every internal link and in-page anchor resolves', async ({ request }) => {
-  const htmlFiles = fs.globSync('dist/**/*.html');
-  const links = new Map<string, string>();
-  for (const file of htmlFiles) {
-    const html = fs.readFileSync(file, 'utf8');
-    for (const [, href] of html.matchAll(/<a\s[^>]*href="([^"]+)"/g)) {
-      if (href.startsWith('/') && !href.startsWith('//')) links.set(href, path.relative('dist', file));
-    }
-  }
-  expect(links.size).toBeGreaterThan(0);
-
-  const broken: string[] = [];
-  for (const [href, from] of links) {
-    const [target, anchor] = href.split('#');
-    // maxRedirects 0: a link that only works through a redirect (e.g. /features → /features/)
-    // costs every visitor a round trip, so it counts as broken.
-    const res = await request.get(target || '/', { maxRedirects: 0 });
-    if (res.status() !== 200) {
-      const location = res.headers()['location'];
-      broken.push(`${href} (on ${from}) → ${res.status()}${location ? ` ${location}` : ''}`);
-      continue;
-    }
-    if (anchor && !(await res.text()).includes(`id="${anchor}"`)) broken.push(`${href} (on ${from}) → no #${anchor}`);
-  }
-  expect(broken).toEqual([]);
-});
-
-test('a missing page returns 404', async ({ request }) => {
-  expect((await request.get('/this-page-does-not-exist/')).status()).toBe(404);
-});
+defineSiteTests({ test, expect, distDir: 'dist', requiredPages: ['/', '/install/', '/features/', '/screenshots/'] });
 
 test.describe('home page', () => {
   test('hero, install button and featured cards render', async ({ page }) => {

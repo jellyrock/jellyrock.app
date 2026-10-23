@@ -12,7 +12,16 @@ image=$(grep -oE 'mcr\.microsoft\.com/playwright:v[0-9.]+-noble@sha256:[0-9a-f]{
 [[ -f dist/index.html ]] || { echo "dist/ is missing: run 'npm run build' first" >&2; exit 1; }
 command -v docker >/dev/null || { echo "Docker is required for screenshot tests" >&2; exit 1; }
 
+# In symlink mode (a sibling shared-ui checkout: local dev, shared-ui's consumer-preview),
+# src/shared-ui links outside this repo. Mount the link's target at the same path so the
+# shared test code it holds resolves inside the container too.
+mounts=(-v "$PWD:/work")
+if [[ -L src/shared-ui ]]; then
+  shared_ui=$(readlink -f src/shared-ui)
+  mounts+=(-v "$shared_ui:$shared_ui:ro")
+fi
+
 exec docker run --rm --init --ipc=host \
   --user "$(id -u):$(id -g)" -e HOME=/tmp -e CI \
-  -v "$PWD:/work" -w /work \
+  "${mounts[@]}" -w /work \
   "$image" npx "$@"

@@ -12,8 +12,9 @@ const CLONE_DIR = path.resolve('.shared-ui-repo');
 const SHARED_UI_REF = 'v1.2.0';
 
 /**
- * Copy the JellyRock shared-ui (header, footer, tokens, nav data) into the
- * current project's src/shared-ui/ directory at build time.
+ * Copy the JellyRock shared-ui (header, footer, tokens, nav data, and the shared
+ * browser-test code in testing/) into the current project's src/shared-ui/
+ * directory at build time.
  *
  * Tries a sibling '../shared-ui' checkout first (local dev), then clones
  * from GitHub (CI). SHARED_UI_FROM_RELEASE=1 skips the sibling so a local
@@ -38,8 +39,10 @@ export async function fetchSharedUi(): Promise<void> {
     return;
   }
 
-  // CI/prod: clone from GitHub and copy files
-  if (fs.existsSync(destDir) && fs.existsSync(path.join(destDir, 'nav.ts'))) {
+  // CI/prod: clone from GitHub and copy files. A copy from before testing/ existed
+  // counts as missing, so the browser tests never run against one without it.
+  const toCopy = ['nav.ts', 'tokens.css', 'components', 'testing'];
+  if (toCopy.every((name) => fs.existsSync(path.join(destDir, name)))) {
     return; // already fetched
   }
 
@@ -50,8 +53,8 @@ export async function fetchSharedUi(): Promise<void> {
     });
   }
 
+  fs.rmSync(destDir, { recursive: true, force: true });
   fs.mkdirSync(destDir, { recursive: true });
-  const toCopy = ['nav.ts', 'tokens.css', 'components'];
   for (const name of toCopy) {
     const src = path.join(CLONE_DIR, name);
     const dest = path.join(destDir, name);

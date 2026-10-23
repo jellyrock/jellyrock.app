@@ -60,12 +60,12 @@ scripts/playwright-docker.sh playwright test --grep @visual --update-snapshots |
 mapfile -t changed < <(git status --porcelain -- "$shots" | awk '{print $2}')
 
 # 3. Compare with the screenshots approved on the shared-ui side: the newest successful
-# consumer-preview run of exactly this release's content (nav.ts, tokens.css, components/, as
+# consumer-preview run of exactly this release's content (nav.ts, tokens.css, components/, testing/, as
 # git blob hashes). That covers the PR that produced the release, a manual run on the release
 # commit, and a manual run on any later commit whose shared-ui content is unchanged.
 surface() {
   gh api "repos/$upstream/git/trees/$1?recursive=1" \
-    --jq '[.tree[] | select(.type == "blob") | select(.path | test("^(nav\\.ts|tokens\\.css|components/)")) | "\(.path) \(.sha)"] | sort | join(",")'
+    --jq '[.tree[] | select(.type == "blob") | select(.path | test("^(nav\\.ts|tokens\\.css|components/|testing/)")) | "\(.path) \(.sha)"] | sort | join(",")'
 }
 pr_line=$(gh api "repos/$upstream/commits/$tag_sha/pulls" --jq '.[0] // empty | "\(.number) \(.head.sha)"' 2>/dev/null || true)
 upstream_pr=${pr_line%% *}
