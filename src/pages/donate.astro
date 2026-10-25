@@ -1,22 +1,12 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
+import Features2 from '~/components/widgets/Features2.astro';
 import Button from '~/components/ui/Button.astro';
 
 const metadata = {
   title: 'Donate',
 };
-
-// Contributors you can sponsor directly.
-// Add more entries here as the project grows.
-const contributors = [
-  {
-    name: 'Charles Ewert',
-    role: 'Maintainer',
-    handle: 'cewert',
-    url: 'https://github.com/sponsors/cewert',
-  },
-];
 ---
 
 <Layout metadata={metadata}>
@@ -26,46 +16,79 @@ const contributors = [
     </Fragment>
 
     <Fragment slot="subtitle">
-      JellyRock is free and open source. If it's improved your Jellyfin experience on Roku, consider supporting ongoing
-      development with a one-time or recurring donation.
+      Hey, I'm Charles 👋 I build JellyRock on my own, in my spare time. When someone sponsors it, it makes my day. I
+      appreciate every single one of you.
     </Fragment>
   </HeroText>
 
-  <section class="px-4 pb-20">
-    <div class="max-w-3xl mx-auto">
-      <h2 class="text-2xl font-bold mb-6 font-heading" style="color: var(--jr-text-primary)">
-        Sponsor a Contributor
-      </h2>
-      <div class="space-y-4">
-        {contributors.map((contributor) => (
-          <div
-            class="flex items-center justify-between p-5 rounded-lg border"
-            style="background-color: var(--jr-bg-secondary); border-color: var(--jr-text-disabled)"
-          >
-            <div>
-              <div class="font-semibold" style="color: var(--jr-text-primary)">
-                {contributor.name}
-              </div>
-              <div class="text-sm" style="color: var(--jr-text-secondary)">
-                {contributor.role} ·
-                <a href={`https://github.com/${contributor.handle}`} target="_blank" rel="noopener" class="underline">
-                  @{contributor.handle}
-                </a>
-              </div>
-            </div>
-            <Button href={contributor.url} target="_blank" variant="primary" icon="tabler:heart">
-              Sponsor
-            </Button>
-          </div>
-        ))}
+  <section class="px-4 pb-12">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="flex flex-wrap justify-center gap-4">
+        <Button href="https://buymeacoffee.com/cewert" target="_blank" variant="primary" icon="tabler:coffee">
+          Buy me a coffee
+        </Button>
+        <Button href="https://github.com/sponsors/cewert" target="_blank" variant="secondary" icon="tabler:heart">
+          Sponsor on GitHub
+        </Button>
       </div>
 
-      <div class="mt-12 text-center text-sm" style="color: var(--jr-text-secondary)">
-        <p>
-          100% of donations go directly to the individual contributor via GitHub Sponsors. JellyRock does not collect or
-          hold any funds.
-        </p>
-      </div>
+      <p class="mt-8" style="color: var(--jr-text-secondary)">
+        The money goes back into the project: the Roku devices I test on, the domain and email, and the AI coding tools
+        that help me get more done in the time I have.
+      </p>
+    </div>
+  </section>
+
+  <Features2
+    title="Other ways to help"
+    subtitle="Not able to give? Totally fine. There are lots of other ways to help."
+    columns={2}
+    items={[
+      {
+        title: 'Tell a friend',
+        description: 'Know someone with a Roku and a Jellyfin server? Point them to JellyRock.',
+        icon: 'tabler:speakerphone',
+      },
+      {
+        title: 'Star JellyRock on GitHub',
+        description:
+          '<a href="https://github.com/jellyrock/jellyrock" target="_blank" class="text-accent underline">github.com/jellyrock/jellyrock</a>',
+        icon: 'tabler:star',
+      },
+      {
+        title: 'Report a bug or suggest a feature',
+        description:
+          '<a href="https://github.com/jellyrock/jellyrock/issues/new/choose" target="_blank" class="text-accent underline">Open an issue on GitHub</a>',
+        icon: 'tabler:bug',
+      },
+      {
+        title: 'Translate JellyRock',
+        description:
+          'Help translate the app into your language on <a href="https://translate.jellyrock.app/projects/jellyrock/" target="_blank" class="text-accent underline">Weblate</a>.',
+        icon: 'tabler:language',
+      },
+      {
+        title: 'Answer questions',
+        description:
+          'Help other people in <a href="https://github.com/jellyrock/jellyrock/discussions" target="_blank" class="text-accent underline">GitHub Discussions</a>.',
+        icon: 'tabler:messages',
+      },
+      {
+        title: 'Improve the docs',
+        description:
+          'Every page on <a href="https://docs.jellyrock.app/" target="_blank" class="text-accent underline">docs.jellyrock.app</a> has an "Edit page" link.',
+        icon: 'tabler:file-text',
+      },
+    ]}
+  />
+
+  <section class="px-4 pb-20">
+    <div class="max-w-3xl mx-auto text-center text-sm" style="color: var(--jr-text-secondary)">
+      <p>
+        Donations go straight to me through Buy Me a Coffee or GitHub Sponsors. JellyRock itself doesn't collect or hold
+        any money.
+      </p>
+      <p class="mt-4">Thanks for using JellyRock! I hope it's a pleasure to use.</p>
     </div>
   </section>
 </Layout>
