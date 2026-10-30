@@ -58,7 +58,7 @@
     "@types/lodash.merge": "4.6.9",
     "@typescript-eslint/parser": "8.72.1",
     "astro-compress": "2.4.3",
-    "eslint": "10.13.0",
+    "eslint": "10.14.0",
     "eslint-plugin-astro": "3.2.1",
     "globals": "17.13.0",
     "js-yaml": "5.5.0",
