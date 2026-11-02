@@ -55,7 +55,7 @@ export const PROJECT_CARDS: FeatureCard[] = [
     slug: 'fast',
     title: 'Blazing Fast & Silky Smooth',
     pitch:
-      'Heavily optimized to outpace the original Roku client. Every API request runs off the render thread, so menus stay fluid and the interface never stutters while data loads.',
+      'Built to stay smooth: every request to your server runs in the background, so menus keep moving and the interface never stutters while things load.',
     icon: 'tabler:rocket',
     needs: [],
     needsDetail: [],
