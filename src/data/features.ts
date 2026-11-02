@@ -5,37 +5,15 @@
 // Everything here is a pure function of the catalog and a date, so the unit tests (tests/unit)
 // check it without a build. site-features.ts runs it once per build for the pages.
 import type { Catalog, CatalogApp, CatalogFeature } from './catalog.ts';
+import featureIcons from './feature-icons.json' with { type: 'json' };
 
 /** The icon a feature gets when FEATURE_ICONS has no entry for its slug. */
 export const DEFAULT_ICON = 'tabler:sparkles';
 
-/** Each catalog slug's icon. Verify a new name exists before adding it:
- * `jq -e '.icons["<name>"]' node_modules/@iconify-json/tabler/icons.json`. */
-export const FEATURE_ICONS: Record<string, string> = {
-  'cast-to-jellyrock': 'tabler:cast',
-  'deep-linking': 'tabler:link',
-  'delete-media': 'tabler:trash',
-  favorites: 'tabler:star',
-  'hdr-dolby-vision': 'tabler:video',
-  'item-details': 'tabler:info-circle',
-  'jellyfin-12': 'tabler:server-bolt',
-  languages: 'tabler:language',
-  'live-tv': 'tabler:device-tv',
-  'manage-subtitles': 'tabler:subtitles',
-  'media-segments': 'tabler:player-skip-forward',
-  music: 'tabler:music',
-  'original-quality': 'tabler:player-play',
-  photos: 'tabler:photo',
-  'player-controls': 'tabler:layout-dashboard',
-  'quick-connect': 'tabler:device-mobile-message',
-  search: 'tabler:search',
-  servers: 'tabler:server-cog',
-  'surround-sound': 'tabler:speakerphone',
-  syncplay: 'tabler:users-group',
-  themes: 'tabler:palette',
-  trickplay: 'tabler:photo-scan',
-  'voice-control': 'tabler:microphone',
-};
+/** Each catalog slug's icon, from feature-icons.json: a JSON file, so the feature-drift watcher
+ * (scripts/feature-drift-detect.sh) can compare it with the catalog using jq. Verify a new name
+ * exists before adding it: `jq -e '.icons["<name>"]' node_modules/@iconify-json/tabler/icons.json`. */
+export const FEATURE_ICONS: Record<string, string> = featureIcons;
 
 /** The homepage's "Why JellyRock?" cards, in order: the app README's four. A slug that is
  * missing from the catalog or unreleased is skipped. */
@@ -188,9 +166,7 @@ export function buildFeatures(catalog: Catalog, now: Date, warn: (message: strin
   const cards = released.map((f): FeatureCard => {
     const icon = FEATURE_ICONS[f.slug];
     if (!icon) {
-      warn(
-        `no icon for feature \`${f.slug}\`, so it uses ${DEFAULT_ICON}. Add one to FEATURE_ICONS in src/data/features.ts.`
-      );
+      warn(`no icon for feature \`${f.slug}\`, so it uses ${DEFAULT_ICON}. Add one to src/data/feature-icons.json.`);
     }
     return {
       slug: f.slug,
@@ -206,7 +182,7 @@ export function buildFeatures(catalog: Catalog, now: Date, warn: (message: strin
 
   const known = new Set(catalog.features.map((f) => f.slug));
   for (const slug of Object.keys(FEATURE_ICONS)) {
-    if (!known.has(slug)) warn(`FEATURE_ICONS has \`${slug}\`, which the catalog no longer holds. Remove it.`);
+    if (!known.has(slug)) warn(`feature-icons.json has \`${slug}\`, which the catalog no longer holds. Remove it.`);
   }
 
   const bySlug = new Map(cards.map((c) => [c.slug, c]));

@@ -175,11 +175,13 @@ when the catalog changes, and that deploys.
 
 - **Wording** (title, pitch, what a feature needs) comes from the catalog as it
   is. To change it, edit the feature page in jellyrock/jellyrock.
-- **Here** ([`src/data/features.ts`](src/data/features.ts)): an icon per slug,
-  the homepage's pinned slugs, and the three hand-written cards that are claims
-  about the project.
-- **A slug with no icon** gets a default icon and a build warning (an
-  annotation on the CI run), never a failure. Add its icon to `FEATURE_ICONS`.
+- **Here:** an icon per slug in
+  [`src/data/feature-icons.json`](src/data/feature-icons.json), and in
+  [`src/data/features.ts`](src/data/features.ts) the homepage's pinned slugs
+  and the three hand-written cards that are claims about the project.
+- **A slug with no icon** gets a default icon and a build warning, never a
+  failure. The daily feature-drift watcher also opens its tracking issue for it,
+  so `/audit-features` adds the icon to `src/data/feature-icons.json`.
 - **New:** a feature released in the last 90 days shows "New in vX.Y" and
   appears in the homepage's **New in JellyRock**. A weekly deploy expires it.
 - **A catalog the site can't use** (unreadable, or a `schema` other than 1)

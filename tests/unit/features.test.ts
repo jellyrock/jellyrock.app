@@ -116,7 +116,7 @@ test('a new slug with no icon gets the default icon and a warning, not a failure
 test('an icon for a slug the catalog no longer holds warns', () => {
   const c = catalog();
   const { warnings } = build({ ...c, features: c.features.filter((f) => f.slug !== 'photos') });
-  assert.deepEqual(warnings, ['FEATURE_ICONS has `photos`, which the catalog no longer holds. Remove it.']);
+  assert.deepEqual(warnings, ['feature-icons.json has `photos`, which the catalog no longer holds. Remove it.']);
 });
 
 test('pinned cards follow PINNED_SLUGS, and a missing one is skipped with a warning', () => {
