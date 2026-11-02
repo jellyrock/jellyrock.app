@@ -252,14 +252,15 @@ test('the server range uses the newest line when the catalog has one', () => {
   assert.equal(serverRange({ languages: 98, themes: 9, serverFloor: '10.7.0' }), 'Jellyfin 10.7 or later');
   assert.equal(
     serverRange({ languages: 98, themes: 9, serverFloor: '10.7.0', serverNewest: '12' }),
-    'Jellyfin 10.7 to 12'
+    'Jellyfin 10.7 to 12.0'
   );
 });
 
-test('versions drop only a .0 patch', () => {
+test('versions drop only a .0 patch, and a bare major gains a .0 minor', () => {
   assert.equal(shortVersion('10.10.0'), '10.10');
   assert.equal(shortVersion('12.0.0'), '12.0');
   assert.equal(shortVersion('10.11.8'), '10.11.8');
+  assert.equal(shortVersion('12'), '12.0');
 });
 
 test('a fixed build date is used as given, and an invalid one fails', () => {
