@@ -106,12 +106,15 @@ export interface SiteFeatures {
   app: CatalogApp;
   /** "Jellyfin 10.7 to 12", or "Jellyfin 10.7 or later" when the catalog has no newest line. */
   serverRange: string;
-  /** /features/: the pinned cards, the other catalog cards in catalog order, then the project cards. */
+  /** /features/: the new cards (newest first), the other pinned ones, the rest in catalog order,
+   * then the project cards. */
   all: FeatureCard[];
   /** The homepage's "Why JellyRock?". */
   pinned: FeatureCard[];
-  /** The homepage's "New in JellyRock": newest first, at most RECENT_MAX, none of them pinned. */
+  /** The homepage's "New in JellyRock": newest first, at most RECENT_MAX, pinned ones included. */
   recent: FeatureCard[];
+  /** The newest feature, for the line above the homepage's headline. */
+  latest?: FeatureCard;
 }
 
 /** `10.10.0` → `10.10`; any other version is kept whole, so `10.11.8` keeps its patch. */
@@ -149,12 +152,22 @@ export function requirements(f: CatalogFeature, app: CatalogApp): Pick<FeatureCa
     needsDetail.push({ text: `On HTTPS servers: Jellyfin ${shortVersion(f.https.server)} or later` });
   }
   if (compareVersions(f.server, app.serverFloor) > 0) {
-    needsDetail.push({ text: `Needs Jellyfin ${shortVersion(f.server)} or later` });
+    const line = { text: `Needs Jellyfin ${shortVersion(f.server)} or later` };
+    needs.push(line);
+    needsDetail.push(line);
   }
   return { needs, needsDetail };
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** The moment a build decides what is new: `fixed` (an ISO date) when given, else now. */
+export function buildDate(fixed: string | undefined, now = new Date()): Date {
+  if (!fixed) return now;
+  const date = new Date(fixed);
+  if (Number.isNaN(date.getTime())) throw new Error(`FEATURE_BUILD_DATE is not a date: ${fixed}`);
+  return date;
+}
 
 /** `v3.3` when the feature was released within NEW_FOR_DAYS of `now`. */
 export function newIn(f: CatalogFeature, now: Date): string | undefined {
@@ -200,18 +213,17 @@ export function buildFeatures(catalog: Catalog, now: Date, warn: (message: strin
     if (!card) warn(`pinned feature \`${slug}\` is missing or unreleased, so the homepage skips it.`);
     return card ? [card] : [];
   });
-  const pinnedSet = new Set(pinned.map((c) => c.slug));
-
-  const recent = cards
-    .filter((c) => c.newIn && !pinnedSet.has(c.slug))
-    .sort((a, b) => (b.sinceDate ?? '').localeCompare(a.sinceDate ?? '') || a.title.localeCompare(b.title))
-    .slice(0, RECENT_MAX);
+  const newest = cards
+    .filter((c) => c.newIn)
+    .sort((a, b) => (b.sinceDate ?? '').localeCompare(a.sinceDate ?? '') || a.title.localeCompare(b.title));
+  const lead = new Set([...newest, ...pinned].map((c) => c.slug));
 
   return {
     app,
     serverRange: serverRange(app),
-    all: [...pinned, ...cards.filter((c) => !pinnedSet.has(c.slug)), ...PROJECT_CARDS],
+    all: [...newest, ...pinned.filter((c) => !c.newIn), ...cards.filter((c) => !lead.has(c.slug)), ...PROJECT_CARDS],
     pinned,
-    recent,
+    recent: newest.slice(0, RECENT_MAX),
+    latest: newest[0],
   };
 }

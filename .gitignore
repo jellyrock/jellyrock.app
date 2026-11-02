@@ -1,6 +1,7 @@
 # build output
 dist/
 dist-catalog-test/
+dist-visual/
 .output/
 
 # dependencies

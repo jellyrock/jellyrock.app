@@ -1,7 +1,7 @@
 // The feature cards for this build: the catalog read once, and one moment that decides what counts
 // as new, so every page (and /feature-cards.json, which the browser tests read) agrees.
 import { loadCatalog } from './catalog.ts';
-import { buildFeatures } from './features.ts';
+import { buildDate, buildFeatures } from './features.ts';
 
 const warned = new Set<string>();
 
@@ -13,6 +13,8 @@ export function warnOnce(message: string): void {
   else console.warn(`[feature catalog] ${message}`);
 }
 
-export const BUILD_DATE = new Date();
+/** Now, unless FEATURE_BUILD_DATE fixes it: the screenshot tests' build does
+ * (scripts/build-visual.sh), so what counts as new never moves under its baselines. */
+export const BUILD_DATE = buildDate(process.env.FEATURE_BUILD_DATE);
 
 export const siteFeatures = buildFeatures(loadCatalog(), BUILD_DATE, warnOnce);

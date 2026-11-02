@@ -22,6 +22,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
+    "build:visual": "scripts/build-visual.sh",
     "preview": "astro preview",
     "astro": "astro",
     "check": "npm run check:astro && npm run check:eslint && npm run check:prettier && npm run test:unit",
@@ -31,11 +32,11 @@
     "fix": "npm run fix:eslint && npm run fix:prettier",
     "fix:eslint": "eslint --fix .",
     "fix:prettier": "prettier -w .",
-    "test": "scripts/playwright-docker.sh playwright test",
+    "test": "scripts/playwright-docker.sh playwright test --grep-invert @visual && npm run test:visual",
     "test:unit": "node --experimental-strip-types --test 'tests/unit/*.test.ts'",
     "test:e2e": "playwright test --grep-invert @visual",
-    "test:visual": "scripts/playwright-docker.sh playwright test --grep @visual",
-    "test:visual:update": "scripts/playwright-docker.sh playwright test --grep @visual --update-snapshots"
+    "test:visual": "DIST_DIR=dist-visual scripts/playwright-docker.sh playwright test --grep @visual",
+    "test:visual:update": "DIST_DIR=dist-visual scripts/playwright-docker.sh playwright test --grep @visual --update-snapshots"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.5",

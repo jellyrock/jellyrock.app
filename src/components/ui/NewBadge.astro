@@ -1,0 +1,13 @@
+---
+// "New in v3.3": the label a feature carries while it is new (src/data/features.ts, newIn).
+export interface Props {
+  version: string;
+}
+
+const { version } = Astro.props;
+---
+
+{/* The primary color darkened 10%: white small text on the plain primary is 4.2:1, under WCAG AA's 4.5:1. */}
+<span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-[color-mix(in_srgb,var(--jr-primary)_90%,black)]">
+  New in {version}
+</span>

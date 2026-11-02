@@ -54,6 +54,18 @@ jobs:
       - name: Build from test feature catalogs
         run: scripts/check-catalog-builds.sh
 
+      # The build the screenshot tests compare: the committed test catalog at the date stored in it.
+      - name: Build for the screenshot tests
+        run: npm run build:visual
+
+      - name: Upload screenshot-test build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist-visual
+          path: dist-visual/
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Upload test-catalog build
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -115,15 +127,31 @@ jobs:
           name: dist-catalog-test
           path: dist-catalog-test/
 
-      - name: Run browser tests (functional + screenshots)
-        run: npx playwright test
+      - name: Download screenshot-test build
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist-visual
+          path: dist-visual/
+
+      # The build that deploys, with its live catalog content: everything but screenshots.
+      - name: Run functional browser tests
+        run: npx playwright test --grep-invert @visual
+
+      # Screenshots compare a build from the committed test catalog at a fixed date, so live
+      # content (a new feature, a reworded pitch, a "New" label expiring) never moves a baseline.
+      - name: Run screenshot tests
+        if: ${{ !cancelled() }}
+        run: npx playwright test --grep @visual
+        env:
+          DIST_DIR: dist-visual
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-visual
 
       # The tests for the pages a catalog changes (home and /features/), on a build with a new
       # feature that has no icon and is new today: if they fail here, the next feature page
       # upstream would block a deploy. The other pages are the same as in dist/.
-      - name: Run browser tests on the test-catalog build
+      - name: Run functional tests on the test-catalog build
         if: ${{ !cancelled() }}
-        run: npx playwright test --grep '( / | /features/ )loads cleanly|internal link|home page|features page|(home|features) looks the same'
+        run: npx playwright test --grep '( / | /features/ )loads cleanly|internal link|home page|features page'
         env:
           DIST_DIR: dist-catalog-test
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-catalog-test
@@ -136,5 +164,6 @@ jobs:
           name: playwright-report
           path: |
             playwright-report/
+            playwright-report-visual/
             playwright-report-catalog-test/
           retention-days: 14
