@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
-# Replace tests/fixtures/feature-catalog.json with jellyrock/jellyrock's current catalog, dated now,
-# so the screenshot baselines can show today's features. Then rebuild and accept the new look:
+# Replace the test catalogs with the current ones upstream, so the screenshot baselines can show
+# today's features:
+#
+#   tests/fixtures/feature-catalog.json   jellyrock/jellyrock's catalog, dated now (_buildDate)
+#   tests/fixtures/plugin-catalog.json    jellyrock/jellyfin-plugin-jellyrock's catalog
+#
+# Then rebuild and accept the new look:
 #
 #   scripts/refresh-test-catalog.sh
 #   npm run build:visual && npm run test:visual:update
@@ -9,13 +14,19 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-fixture=tests/fixtures/feature-catalog.json
-url=https://raw.githubusercontent.com/jellyrock/jellyrock/main/docs/feature-catalog.json
-comment=$(jq -r '._comment' "$fixture")
+refresh() { # <fixture> <url> [jq filter]
+  local fixture=$1 url=$2 filter=${3:-.} comment
+  comment=$(jq -r '._comment' "$fixture")
+  curl -fsSL "$url" | jq --arg comment "$comment" "{_comment: \$comment} + (del(._comment) | $filter)" >"$fixture.tmp"
+  mv "$fixture.tmp" "$fixture"
+  npx prettier --write "$fixture" >/dev/null
+}
 
-curl -fsSL "$url" |
-  jq --arg comment "$comment" --arg date "$(date -u +%Y-%m-%dT12:00:00Z)" \
-    '{_comment: $comment, _buildDate: $date} + del(._comment)' >"$fixture.tmp"
-mv "$fixture.tmp" "$fixture"
-npx prettier --write "$fixture" >/dev/null
-echo "Refreshed $fixture, dated $(jq -r ._buildDate "$fixture")."
+app=tests/fixtures/feature-catalog.json
+refresh "$app" https://raw.githubusercontent.com/jellyrock/jellyrock/main/docs/feature-catalog.json \
+  "{_buildDate: \"$(date -u +%Y-%m-%dT12:00:00Z)\"} + ."
+echo "Refreshed $app, dated $(jq -r ._buildDate "$app")."
+
+plugin=tests/fixtures/plugin-catalog.json
+refresh "$plugin" https://raw.githubusercontent.com/jellyrock/jellyfin-plugin-jellyrock/main/docs/feature-catalog.json
+echo "Refreshed $plugin."

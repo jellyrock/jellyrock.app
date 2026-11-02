@@ -1,0 +1,98 @@
+---
+// The JellyRock Companion plugin, built from its catalog (src/data/companion.ts): which capabilities
+// need it on which servers, a card per capability, and the server it installs on. Catalog text is
+// rendered as text, never as HTML. The install steps stay on docs.jellyrock.app, their one owner.
+import { Icon } from 'astro-icon/components';
+import Layout from '~/layouts/PageLayout.astro';
+import HeroText from '~/components/widgets/HeroText.astro';
+import FeatureSection from '~/components/widgets/FeatureSection.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import Headline from '~/components/ui/Headline.astro';
+import { needText } from '~/data/companion';
+import { PLUGINS_DOCS_URL } from '~/data/features';
+import { siteCompanion } from '~/data/site-features';
+
+const metadata = {
+  title: 'JellyRock Companion plugin',
+};
+
+const { server, rows, cards } = siteCompanion;
+---
+
+<Layout metadata={metadata}>
+  <HeroText
+    callToAction={{ variant: 'primary', text: 'How to install it', href: PLUGINS_DOCS_URL, icon: 'tabler:download' }}
+  >
+    <Fragment slot="title">
+      JellyRock <span class="text-accent">Companion</span>
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      A plugin for your Jellyfin server, not for your Roku. A few JellyRock features need it, depending on your server.
+    </Fragment>
+  </HeroText>
+
+  <WidgetWrapper id="do-i-need-it" containerClass="max-w-3xl">
+    <Headline
+      title="Do I need it?"
+      subtitle="It depends on your Jellyfin server's address: does it start with http:// or https://?"
+    />
+    <div class="overflow-x-auto">
+      <table class="w-full text-left" data-companion-table>
+        <thead>
+          <tr class="border-b-2 border-gray-200 dark:border-slate-700">
+            <th scope="col" class="py-3 pr-4 font-bold">
+              Feature
+            </th>
+            <th scope="col" class="py-3 px-4 font-bold whitespace-nowrap">
+              HTTP server
+            </th>
+            <th scope="col" class="py-3 pl-4 font-bold whitespace-nowrap">
+              HTTPS server
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr class="border-b border-gray-200 dark:border-slate-700" data-companion-row={row.slug}>
+              <th scope="row" class="py-3 pr-4 font-medium">
+                {row.title}
+              </th>
+              {[row.http, row.https].map((need, i) => (
+                <td class:list={['py-3 whitespace-nowrap', i === 0 ? 'px-4' : 'pl-4']}>
+                  <Icon
+                    name={need === 'needed' ? 'tabler:circle-check' : 'tabler:minus'}
+                    class:list={[
+                      'inline-block w-5 h-5 mr-1.5 rtl:ml-1.5 rtl:mr-0 align-[-0.25em]',
+                      need === 'needed' ? 'text-accent' : 'text-muted',
+                    ]}
+                    aria-hidden="true"
+                  />
+                  <span class:list={[need === 'needed' ? 'font-semibold' : 'text-muted']}>{needText(need)}</span>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </WidgetWrapper>
+
+  <FeatureSection id="capabilities" title="What it does" items={cards} />
+
+  <WidgetWrapper id="install" containerClass="max-w-3xl">
+    <Headline title="Install it" />
+    <p class="text-center text-lg text-muted">
+      It installs on{' '}
+      <span class="whitespace-nowrap font-semibold text-default" data-companion-server>
+        {`Jellyfin ${server} or later.`}
+      </span>
+    </p>
+    <p class="mt-4 text-center text-lg text-muted">
+      The steps are on the JellyRock docs:{' '}
+      <a href={PLUGINS_DOCS_URL} class="text-accent underline underline-offset-4 hover:no-underline">
+        Jellyfin server plugins
+      </a>
+    </p>
+  </WidgetWrapper>
+</Layout>

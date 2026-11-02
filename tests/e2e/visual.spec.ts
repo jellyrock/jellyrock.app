@@ -5,9 +5,10 @@
 //   change there without a PR here. site.spec.ts already checks every image renders.
 // - The mask hides pixels but keeps each tile's box, so the /screenshots/ page grows with the number
 //   of screens upstream lists. That page gets its gallery pinned to a fixed height in the test only.
-// - The pages are built from the committed test catalog at the date stored in it (dist-visual/,
-//   scripts/build-visual.sh), so feature cards, "New" labels and the homepage's newest-feature line
-//   all show and are compared, and live catalog content never moves a baseline.
+// - The pages are built from the committed test catalogs, the app's at the date stored in it
+//   (dist-visual/, scripts/build-visual.sh), so feature cards, "New" labels, the homepage's
+//   newest-feature line and /companion-plugin/ all show and are compared, and live catalog content
+//   never moves a baseline.
 // - Reduced motion is emulated so the scroll-reveal fade can't leave a section mid-animation.
 //
 // Baselines live in tests/e2e/__screenshots__ and only match inside the Playwright image CI uses.
@@ -18,6 +19,7 @@ import { scrollThrough } from '../../src/shared-ui/testing/checks';
 const pages = [
   { name: 'home', path: '/' },
   { name: 'features', path: '/features/' },
+  { name: 'companion-plugin', path: '/companion-plugin/' },
   { name: 'screenshots', path: '/screenshots/' },
   { name: 'install', path: '/install/' },
   { name: 'contact', path: '/contact/' },

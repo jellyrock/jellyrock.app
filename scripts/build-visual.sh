@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Build the site the screenshot tests compare (tests/e2e/visual.spec.ts) into dist-visual/: the
-# committed test catalog, judged as of the date stored in it, so the feature cards, "New" labels and
-# the homepage's newest-feature line all render and stay the same until the design changes.
+# committed test catalogs (the app's, judged as of the date stored in it, and the Companion
+# plugin's), so the feature cards, "New" labels, /companion-plugin/ and the homepage's
+# newest-feature line all render and stay the same until the design changes.
 #
 # The real build (dist/) gets the functional tests; live catalog content never reaches a baseline.
 #
@@ -15,4 +16,5 @@ date=$(jq -er '._buildDate' "$fixture") || {
   exit 1
 }
 
-FEATURE_CATALOG_PATH=$fixture FEATURE_BUILD_DATE=$date npx astro build --outDir dist-visual
+FEATURE_CATALOG_PATH=$fixture PLUGIN_CATALOG_PATH=tests/fixtures/plugin-catalog.json FEATURE_BUILD_DATE=$date \
+  npx astro build --outDir dist-visual
