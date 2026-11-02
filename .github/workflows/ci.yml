@@ -146,12 +146,13 @@ jobs:
           DIST_DIR: dist-visual
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-visual
 
-      # The tests for the pages a catalog changes (home and /features/), on a build with a new
-      # feature that has no icon and is new today: if they fail here, the next feature page
-      # upstream would block a deploy. The other pages are the same as in dist/.
+      # The tests for the pages a catalog changes (home, /features/ and /companion-plugin/), on a
+      # build with a new feature that has no icon and is new today, and an unreleased capability: if
+      # they fail here, the next feature page upstream would block a deploy. The other pages are the
+      # same as in dist/.
       - name: Run functional tests on the test-catalog build
         if: ${{ !cancelled() }}
-        run: npx playwright test --grep '( / | /features/ )loads cleanly|internal link|home page|features page'
+        run: npx playwright test --grep '( / | /features/ | /companion-plugin/ )loads cleanly|internal link|home page|features page|companion page'
         env:
           DIST_DIR: dist-catalog-test
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-catalog-test

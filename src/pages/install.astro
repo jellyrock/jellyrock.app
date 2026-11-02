@@ -2,6 +2,7 @@
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
 import Steps from '~/components/widgets/Steps.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
 
 const metadata = {
   title: 'Install JellyRock',
@@ -64,4 +65,14 @@ const rokuStoreUrl =
       },
     ]}
   />
+
+  <WidgetWrapper id="companion" containerClass="max-w-3xl">
+    <p class="text-center text-lg text-muted">
+      <span class="font-semibold text-default">Optional:</span> a few features need the JellyRock Companion plugin on
+      your Jellyfin server, depending on your server.{' '}
+      <a href="/companion-plugin/" class="text-accent underline underline-offset-4 hover:no-underline">
+        Do I need it?
+      </a>
+    </p>
+  </WidgetWrapper>
 </Layout>

@@ -2,14 +2,16 @@
 // sitemap page loads cleanly, links and anchors resolve, a missing page is a 404) come from
 // shared-ui's testing/site-tests.ts; the tests below are this site's own.
 import { test, expect, type Locator, type Page } from '@playwright/test';
+import type { CompanionPage } from '../../src/data/companion.ts';
 import type { FeatureCard } from '../../src/data/features.ts';
 import { defineSiteTests } from '../../src/shared-ui/testing/site-tests';
+import { needText } from '../../src/data/companion.ts';
 
 defineSiteTests({
   test,
   expect,
   distDir: process.env.DIST_DIR || 'dist',
-  requiredPages: ['/', '/install/', '/features/', '/screenshots/'],
+  requiredPages: ['/', '/install/', '/features/', '/screenshots/', '/companion-plugin/'],
 });
 
 interface BuiltCards {
@@ -115,4 +117,48 @@ test('features page lists every feature, with what each one needs', async ({ pag
   await expect(
     page.getByText(`It comes in ${built.languages} languages and works with ${built.serverRange}.`)
   ).toBeVisible();
+});
+
+test.describe('companion page', () => {
+  /** What the build rendered (src/pages/companion-cards.json.ts). */
+  async function builtCompanion(page: Page): Promise<CompanionPage> {
+    const res = await page.request.get('/companion-cards.json');
+    expect(res.ok()).toBe(true);
+    return res.json();
+  }
+
+  test('the Do I need it? table, the cards and the server come from the plugin catalog', async ({ page }) => {
+    const built = await builtCompanion(page);
+    expect(built.rows.length, 'the plugin catalog has released capabilities').toBeGreaterThan(0);
+    await page.goto('/companion-plugin/');
+
+    const rows = page.locator('[data-companion-table] tbody tr');
+    await expect(rows).toHaveCount(built.rows.length);
+    for (const [i, row] of built.rows.entries()) {
+      const cells = rows.nth(i).locator('th, td');
+      await expect(cells).toHaveText([row.title, needText(row.http), needText(row.https)]);
+    }
+
+    const cards = page.locator('#capabilities [data-feature-card]');
+    expect(await cards.evaluateAll((els) => els.map((e) => e.getAttribute('data-feature-card')))).toEqual(
+      built.cards.map((c) => c.slug)
+    );
+    for (const card of built.cards) await expectCard(page.locator('#capabilities'), card, 'needs');
+
+    await expect(page.locator('[data-companion-server]')).toHaveText(`Jellyfin ${built.server} or later.`);
+    const install = page.getByRole('link', { name: 'Jellyfin server plugins' });
+    await expect(install).toHaveAttribute('href', 'https://docs.jellyrock.app/jellyfin-server-plugins/');
+  });
+
+  test('the install page and the HTTPS labels link here', async ({ page }) => {
+    await page.goto('/install/');
+    await expect(page.getByRole('link', { name: 'Do I need it?' })).toHaveAttribute('href', '/companion-plugin/');
+
+    // Every "On HTTPS servers: ..., with the ... plugin" line on /features/ is a link to this page.
+    const built = await builtCards(page);
+    const https = built.all.flatMap((c) => c.needsDetail).filter((n) => /^On HTTPS servers: .* plugin$/.test(n.text));
+    await page.goto('/features/');
+    const links = page.locator('#all-features a[href="/companion-plugin/"]');
+    await expect(links).toHaveText(https.map((n) => n.text));
+  });
 });

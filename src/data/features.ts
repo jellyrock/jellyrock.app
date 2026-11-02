@@ -24,8 +24,8 @@ export const NEW_FOR_DAYS = 90;
 export const RECENT_MAX = 4;
 
 export const PLUGINS_DOCS_URL = 'https://docs.jellyrock.app/jellyfin-server-plugins/';
-/** Where "Plugin needed on HTTPS servers" links: the JellyRock Companion plugin's install docs. */
-export const COMPANION_URL = PLUGINS_DOCS_URL;
+/** Where "Plugin needed on HTTPS servers" links: the JellyRock Companion plugin's page. */
+export const COMPANION_URL = '/companion-plugin/';
 export const RELEASE_NOTES_URL = 'https://github.com/jellyrock/jellyrock/releases';
 
 /** Claims about the project, not features, so the catalog doesn't hold them. These are the only

@@ -1,7 +1,10 @@
 // The feature cards for this build: the catalog read once, and one moment that decides what counts
-// as new, so every page (and /feature-cards.json, which the browser tests read) agrees.
+// as new, so every page (and /feature-cards.json, which the browser tests read) agrees. The same
+// for /companion-plugin/ and the plugin catalog (/companion-cards.json).
 import { loadCatalog } from './catalog.ts';
+import { buildCompanion } from './companion.ts';
 import { buildDate, buildFeatures } from './features.ts';
+import { loadPluginCatalog } from './plugin-catalog.ts';
 
 const warned = new Set<string>();
 
@@ -18,3 +21,5 @@ export function warnOnce(message: string): void {
 export const BUILD_DATE = buildDate(process.env.FEATURE_BUILD_DATE);
 
 export const siteFeatures = buildFeatures(loadCatalog(), BUILD_DATE, warnOnce);
+
+export const siteCompanion = buildCompanion(loadPluginCatalog());

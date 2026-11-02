@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { DEFAULT_CATALOG_PATH } from '../data/catalog.ts';
+import { DEFAULT_PLUGIN_CATALOG_PATH } from '../data/plugin-catalog.ts';
 
 const ASSETS_DIR = path.resolve('src/assets/images/jellyrock');
 const CLONE_DIR = path.resolve('.jellyrock-repo');
@@ -53,4 +54,30 @@ export async function fetchAssets(): Promise<void> {
   fs.rmSync(CLONE_DIR, { recursive: true, force: true });
 
   console.log('JellyRock assets ready.');
+}
+
+const PLUGIN_REPO_URL = 'https://github.com/jellyrock/jellyfin-plugin-jellyrock.git';
+const PLUGIN_CLONE_DIR = path.resolve('.plugin-repo');
+
+/** Copy the Companion plugin's feature catalog (docs/feature-catalog.json in
+ * jellyrock/jellyfin-plugin-jellyrock) to DEFAULT_PLUGIN_CATALOG_PATH, unless it is already there.
+ * A clone with no checkout fetches that one file, and unlike the raw.githubusercontent.com URL it is
+ * never a cached copy, so the deploy a catalog change starts builds with that change. */
+export async function fetchPluginCatalog(): Promise<void> {
+  const dest = path.resolve(DEFAULT_PLUGIN_CATALOG_PATH);
+  if (fs.existsSync(dest)) return;
+
+  console.log('Fetching the Companion plugin catalog...');
+  fs.rmSync(PLUGIN_CLONE_DIR, { recursive: true, force: true });
+  try {
+    execSync(`git clone --depth 1 --filter=blob:none --no-checkout ${PLUGIN_REPO_URL} ${PLUGIN_CLONE_DIR}`, {
+      stdio: 'inherit',
+    });
+    const catalog = execSync(`git -C ${PLUGIN_CLONE_DIR} show HEAD:docs/feature-catalog.json`);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, catalog);
+    console.log(`Copied: docs/feature-catalog.json → ${path.relative(process.cwd(), dest)}`);
+  } finally {
+    fs.rmSync(PLUGIN_CLONE_DIR, { recursive: true, force: true });
+  }
 }

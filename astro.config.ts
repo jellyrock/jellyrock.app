@@ -11,20 +11,24 @@ import compress from 'astro-compress';
 import type { AstroIntegration } from 'astro';
 
 import astrowind from './vendor/integration';
-import { fetchAssets } from './src/utils/assets';
+import { fetchAssets, fetchPluginCatalog } from './src/utils/assets';
 import { fetchSharedUi } from './src/utils/fetch-shared-ui';
 import { loadCatalog } from './src/data/catalog';
+import { loadPluginCatalog } from './src/data/plugin-catalog';
 
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
 
-// Fetch JellyRock branding assets, the feature catalog and shared-ui from GitHub at build time.
-// The catalog is checked here, before any page builds, so an unusable one fails in seconds.
+// Fetch JellyRock branding assets, the feature catalogs (the app's and the Companion plugin's) and
+// shared-ui from GitHub at build time. The catalogs are checked here, before any page builds, so an
+// unusable one fails in seconds.
 const jellyrockAssets: () => AstroIntegration = () => ({
   name: 'jellyrock-assets',
   hooks: {
     'astro:config:setup': async () => {
       await fetchAssets();
+      await fetchPluginCatalog();
       loadCatalog();
+      loadPluginCatalog();
       await fetchSharedUi();
     },
   },

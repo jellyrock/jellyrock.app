@@ -5,8 +5,10 @@ on:
     branches: [main]
   # Fired by the upstream jellyrock repo when content the site renders at
   # build time changes (docs/screenshots and docs/feature-catalog.json; see
-  # issues #1 and #165). Those files are gitignored and pulled fresh on every
-  # build, so a rebuild is all that's needed to pick them up.
+  # issues #1 and #165), and by jellyrock/jellyfin-plugin-jellyrock when its
+  # docs/feature-catalog.json changes (/companion-plugin/). Those files are
+  # gitignored and pulled fresh on every build, so a rebuild is all that's
+  # needed to pick them up.
   repository_dispatch:
     types: [content-update]
   # Weekly, so a feature's "New" label expires on time when nothing upstream changes, and a break

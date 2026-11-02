@@ -75,10 +75,10 @@ resolve, a missing page is a 404) come from shared-ui's
 the build fetches into `src/shared-ui/testing/`; this repo keeps its own config,
 page list, screenshots, production headers and site-specific tests.
 
-| Test file                                              | Fails when                                                                                                                                                                                                                                                                                                                                             |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [`tests/e2e/site.spec.ts`](tests/e2e/site.spec.ts)     | (shared) Any page in the sitemap has a script error, something the CSP blocks, a failed or cross-origin request, a broken image, sideways scrolling on a phone, or a missing header/footer; an internal link or anchor is broken; a feature card differs from what the build says it rendered (`/feature-cards.json`); the scroll-reveal stops working |
-| [`tests/e2e/visual.spec.ts`](tests/e2e/visual.spec.ts) | A page looks different from its approved screenshot in [`tests/e2e/__screenshots__/`](tests/e2e/__screenshots__/) (built from the committed test catalog at a fixed date, so live content never moves a baseline; app screenshots masked)                                                                                                              |
+| Test file                                              | Fails when                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`tests/e2e/site.spec.ts`](tests/e2e/site.spec.ts)     | (shared) Any page in the sitemap has a script error, something the CSP blocks, a failed or cross-origin request, a broken image, sideways scrolling on a phone, or a missing header/footer; an internal link or anchor is broken; a feature card, or the Companion page's table or cards, differs from what the build says it rendered (`/feature-cards.json`, `/companion-cards.json`); the scroll-reveal stops working |
+| [`tests/e2e/visual.spec.ts`](tests/e2e/visual.spec.ts) | A page looks different from its approved screenshot in [`tests/e2e/__screenshots__/`](tests/e2e/__screenshots__/) (built from the committed test catalogs, the app's at a fixed date, so live content never moves a baseline; app screenshots masked)                                                                                                                                                                    |
 
 ```bash
 npm run build                # the functional tests run against dist/
@@ -188,20 +188,40 @@ when the catalog changes, and that deploys.
   fails the build, so the live site stays as it is. Update
   [`src/data/catalog.ts`](src/data/catalog.ts) for the new shape.
 
-The screenshot tests don't use the live catalog: they compare a build from
+### The Companion plugin page
+
+`/companion-plugin/` is built the same way from the JellyRock Companion
+plugin's catalog,
+[`docs/feature-catalog.json`](https://github.com/jellyrock/jellyfin-plugin-jellyrock/blob/main/docs/feature-catalog.json)
+in jellyrock/jellyfin-plugin-jellyrock
+([`src/data/plugin-catalog.ts`](src/data/plugin-catalog.ts), page data in
+[`src/data/companion.ts`](src/data/companion.ts)): the **Do I need it?** table
+from each capability's `http` and `https`, a card per capability with the
+JellyRock version it needs, and the Jellyfin server it installs on
+(`plugin.server`). Unreleased capabilities are left out. The install steps stay
+on docs.jellyrock.app; the page links them. The plugin repo sends
+`content-update` when its catalog changes, and that deploys. The same rule
+applies: unreadable, or a `schema` other than 1, fails the build.
+
+### Tests and local builds
+
+The screenshot tests don't use the live catalogs: they compare a build from
 [`tests/fixtures/feature-catalog.json`](tests/fixtures/feature-catalog.json),
-judged as of the date stored in it (`npm run build:visual`), so every card,
-label and the homepage's newest-feature line is compared and stays put. To make
-the baselines show today's features, run
+judged as of the date stored in it, and
+[`tests/fixtures/plugin-catalog.json`](tests/fixtures/plugin-catalog.json)
+(`npm run build:visual`), so every card, label, the homepage's newest-feature
+line and the Companion page is compared and stays put. To make the baselines
+show today's features, run
 [`scripts/refresh-test-catalog.sh`](scripts/refresh-test-catalog.sh), then
 `npm run build:visual && npm run test:visual:update`.
 
-Locally, the build reuses the catalog it fetched before. Delete
-`src/data/upstream/` to fetch the current one. To build from another catalog,
-such as an edited copy, set
-`FEATURE_CATALOG_PATH`. [`scripts/check-catalog-builds.sh`](scripts/check-catalog-builds.sh)
-does that in CI to prove a new feature can't block a deploy and an unusable
-catalog can't reach one.
+Locally, the build reuses the catalogs it fetched before. Delete
+`src/data/upstream/` to fetch the current ones. To build from another catalog,
+such as an edited copy, set `FEATURE_CATALOG_PATH` (the app's) or
+`PLUGIN_CATALOG_PATH` (the plugin's).
+[`scripts/check-catalog-builds.sh`](scripts/check-catalog-builds.sh) does that
+in CI to prove a new feature can't block a deploy and an unusable catalog of
+either kind can't reach one.
 
 ## Updating content
 

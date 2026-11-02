@@ -47,23 +47,57 @@ export interface Catalog {
   features: CatalogFeature[];
 }
 
+/** A catalog this site can't use. `catalog` names which one: the plugin catalog (plugin-catalog.ts)
+ * shares these checks. */
 export class CatalogError extends Error {
-  constructor(message: string) {
-    super(`Feature catalog: ${message}`);
+  constructor(message: string, catalog = 'Feature catalog') {
+    super(`${catalog}: ${message}`);
     this.name = 'CatalogError';
   }
 }
 
-type Json = Record<string, unknown>;
+export type Json = Record<string, unknown>;
 
-const isObject = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);
+export const isObject = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);
 const isStringList = (v: unknown): v is string[] => Array.isArray(v) && v.every((s) => typeof s === 'string');
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
+export const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-function requireString(obj: Json, key: string, where: string): string {
+export function requireString(obj: Json, key: string, where: string, catalog?: string): string {
   const v = obj[key];
-  if (typeof v !== 'string' || v === '') throw new CatalogError(`${where}: \`${key}\` is not a non-empty string`);
+  if (typeof v !== 'string' || v === '') {
+    throw new CatalogError(`${where}: \`${key}\` is not a non-empty string`, catalog);
+  }
   return v;
+}
+
+/** A catalog's text parsed as a JSON object whose `schema` is `schema`. */
+export function parseJsonObject(text: string, schema: number, catalog?: string): Json {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch (e) {
+    throw new CatalogError(`not valid JSON (${(e as Error).message})`, catalog);
+  }
+  if (!isObject(raw)) throw new CatalogError('is not a JSON object', catalog);
+  if (raw.schema !== schema) {
+    throw new CatalogError(
+      `schema is ${JSON.stringify(raw.schema)}, and this site reads schema ${schema}. Update the site for the new shape.`,
+      catalog
+    );
+  }
+  return raw;
+}
+
+/** A catalog file's text. One that can't be read fails, naming the file. */
+export function readCatalogFile(file: string, catalog?: string): string {
+  try {
+    return fs.readFileSync(file, 'utf8');
+  } catch (e) {
+    throw new CatalogError(
+      `cannot read ${file} (${(e as NodeJS.ErrnoException).code ?? (e as Error).message})`,
+      catalog
+    );
+  }
 }
 
 function parseFeature(raw: unknown, i: number): CatalogFeature {
@@ -100,18 +134,7 @@ function parseFeature(raw: unknown, i: number): CatalogFeature {
 
 /** Check a catalog's text and return it typed. Throws CatalogError naming the first problem. */
 export function parseCatalog(text: string): Catalog {
-  let raw: unknown;
-  try {
-    raw = JSON.parse(text);
-  } catch (e) {
-    throw new CatalogError(`not valid JSON (${(e as Error).message})`);
-  }
-  if (!isObject(raw)) throw new CatalogError('is not a JSON object');
-  if (raw.schema !== CATALOG_SCHEMA) {
-    throw new CatalogError(
-      `schema is ${JSON.stringify(raw.schema)}, and this site reads schema ${CATALOG_SCHEMA}. Update the site for the new shape.`
-    );
-  }
+  const raw = parseJsonObject(text, CATALOG_SCHEMA);
 
   const app = raw.app;
   if (!isObject(app)) throw new CatalogError('`app` is not an object');
@@ -132,7 +155,7 @@ export function parseCatalog(text: string): Catalog {
   }
 
   return {
-    schema: raw.schema,
+    schema: CATALOG_SCHEMA,
     app: {
       languages: app.languages,
       themes: app.themes,
@@ -151,13 +174,7 @@ let cached: Catalog | undefined;
 /** Read and check the catalog once per build. */
 export function loadCatalog(file = catalogPath()): Catalog {
   if (cached && file === catalogPath()) return cached;
-  let text: string;
-  try {
-    text = fs.readFileSync(file, 'utf8');
-  } catch (e) {
-    throw new CatalogError(`cannot read ${file} (${(e as NodeJS.ErrnoException).code ?? (e as Error).message})`);
-  }
-  const catalog = parseCatalog(text);
+  const catalog = parseCatalog(readCatalogFile(file));
   if (file === catalogPath()) cached = catalog;
   return catalog;
 }
