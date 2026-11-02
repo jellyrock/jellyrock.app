@@ -4,7 +4,7 @@
 import { BUILD_DATE, siteFeatures } from '~/data/site-features';
 
 export function GET(): Response {
-  const { all, pinned, recent, serverRange, app } = siteFeatures;
+  const { all, pinned, recent, latest, serverRange, app } = siteFeatures;
   return new Response(
     JSON.stringify({
       builtAt: BUILD_DATE.toISOString(),
@@ -13,6 +13,7 @@ export function GET(): Response {
       all,
       pinned: pinned.map((c) => c.slug),
       recent: recent.map((c) => c.slug),
+      latest: latest?.slug ?? null,
     }),
     { headers: { 'Content-Type': 'application/json' } }
   );

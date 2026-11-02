@@ -133,7 +133,7 @@ test('pinned cards follow PINNED_SLUGS, and a missing one is skipped with a warn
   assert.ok(without.warnings.some((w) => /pinned feature `delete-media`/.test(w)));
 });
 
-test('/features/ lists the pinned cards, then the rest in catalog order, then the project cards', () => {
+test('with nothing new, /features/ lists the pinned cards, then the rest in catalog order, then the project cards', () => {
   const c = catalog();
   const { site } = build(c);
   const rest = c.features.map((f) => f.slug).filter((s) => !PINNED_SLUGS.includes(s));
@@ -157,16 +157,37 @@ test(`a feature is new for ${NEW_FOR_DAYS} days after its release, and not befor
   assert.equal(newIn('themes'), undefined);
 });
 
-test('the recent section is newest first, leaves out pinned cards, and holds at most RECENT_MAX', () => {
+test('the recent section is newest first, pinned ones included, and holds at most RECENT_MAX', () => {
   const recent = ['music', 'photos', 'themes', 'trickplay', 'live-tv'].map((slug, i) =>
     feature(slug, { since: `3.${i}.0`, sinceDate: daysBefore(10 + i) })
   );
   const { site } = build(catalog([feature('syncplay', { since: '3.3.0', sinceDate: daysBefore(1) }), ...recent]));
   assert.deepEqual(
     site.recent.map((c) => c.slug),
-    ['music', 'photos', 'themes', 'trickplay'].slice(0, RECENT_MAX)
+    ['syncplay', 'music', 'photos', 'themes'].slice(0, RECENT_MAX)
   );
-  assert.equal(site.pinned[0].newIn, 'v3.3', 'a pinned card keeps its badge where it is');
+  assert.equal(site.latest?.slug, 'syncplay', 'the newest feature leads the homepage');
+  assert.equal(site.pinned[0].newIn, 'v3.3', 'a pinned card keeps its label in Why JellyRock? too');
+});
+
+test('/features/ floats new features to the top, newest first, then the other pinned ones', () => {
+  const c = catalog([
+    feature('music', { since: '3.1.0', sinceDate: daysBefore(20) }),
+    feature('syncplay', { since: '3.3.0', sinceDate: daysBefore(1) }),
+  ]);
+  const { site } = build(c);
+  const pinnedRest = PINNED_SLUGS.filter((s) => s !== 'syncplay');
+  const rest = c.features.map((f) => f.slug).filter((s) => !['music', ...PINNED_SLUGS].includes(s));
+  assert.deepEqual(
+    site.all.map((c) => c.slug),
+    ['syncplay', 'music', ...pinnedRest, ...rest, ...PROJECT_CARDS.map((p) => p.slug)]
+  );
+});
+
+test('with nothing new there is no latest feature and no recent section', () => {
+  const { site } = build(catalog());
+  assert.equal(site.latest, undefined);
+  assert.deepEqual(site.recent, []);
 });
 
 test('a feature with no sinceDate is never new', () => {
@@ -176,14 +197,14 @@ test('a feature with no sinceDate is never new', () => {
 
 // --- what a feature needs ------------------------------------------------------------------
 
-test('a feature that needs a plugin and a newer server says so, shorter on the homepage', () => {
+test('a feature that needs a plugin and a newer server says so on both pages, naming the plugins on /features/', () => {
   const { site } = build(
     catalog([feature('media-segments', { server: '10.10.0', plugins: ['Chapter Segments Provider', 'Intro Skipper'] })])
   );
   const card = site.all.find((c) => c.slug === 'media-segments')!;
   assert.deepEqual(
     card.needs.map((n) => n.text),
-    ['Needs a server plugin']
+    ['Needs a server plugin', 'Needs Jellyfin 10.10 or later']
   );
   assert.deepEqual(
     card.needsDetail.map((n) => n.text),

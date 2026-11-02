@@ -18,6 +18,7 @@ interface BuiltCards {
   all: FeatureCard[];
   pinned: string[];
   recent: string[];
+  latest: string | null;
 }
 
 /** The cards the build rendered (src/pages/feature-cards.json.ts), so the tests and the build
@@ -63,7 +64,25 @@ test.describe('home page', () => {
 
     const recent = page.locator('#new-features');
     await expect(recent).toHaveCount(built.recent.length > 0 ? 1 : 0);
+    expect(
+      await recent
+        .locator('[data-feature-card]')
+        .evaluateAll((els) => els.map((e) => e.getAttribute('data-feature-card')))
+    ).toEqual(built.recent);
     for (const slug of built.recent) await expectCard(recent, bySlug.get(slug)!, 'needs');
+  });
+
+  test('the newest feature is named above the headline', async ({ page }) => {
+    const built = await builtCards(page);
+    await page.goto('/');
+    const line = page.locator('[data-feature-latest]');
+    if (!built.latest) {
+      await expect(line).toHaveCount(0);
+      return;
+    }
+    const latest = built.all.find((c) => c.slug === built.latest)!;
+    await expect(line).toHaveText(`New in ${latest.newIn} ${latest.title} →`);
+    await expect(line).toHaveAttribute('href', '/features/');
   });
 
   test('sections fade in as they scroll into view', async ({ page, isMobile }) => {
