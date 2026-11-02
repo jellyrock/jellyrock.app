@@ -60,7 +60,7 @@
     "astro-compress": "2.4.3",
     "eslint": "10.13.0",
     "eslint-plugin-astro": "3.2.1",
-    "globals": "17.13.0",
+    "globals": "17.14.0",
     "js-yaml": "5.5.0",
     "mdast-util-to-string": "4.0.0",
     "prettier": "3.9.10",
