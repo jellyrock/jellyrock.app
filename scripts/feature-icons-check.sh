@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # List the feature-catalog slugs with no icon, and the icons whose slug the catalog dropped, as the
-# build reports them (FEATURE_ICONS in src/data/features.ts). Used by /audit-features.
+# build reports them (src/data/feature-icons.json). Used by /audit-features.
 #
 # A failed build is reported as a failure, never as "no problems": its log holds no warnings either.
 #

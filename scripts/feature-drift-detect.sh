@@ -2,8 +2,12 @@
 #
 # feature-drift-detect.sh — flag when the upstream JellyRock app ships releases
 # that the site's hand-written feature claims (the project cards in
-# src/data/features.ts) haven't been audited against yet. Feature cards
-# themselves come from the app's feature catalog and need no audit.
+# src/data/features.ts) haven't been audited against yet, or when its feature
+# catalog holds a released feature with no icon in src/data/feature-icons.json
+# (or the file has an icon for a feature the catalog dropped). Feature pages
+# reach the catalog when they merge, between releases, so the icons are
+# checked on every run, not only when a release ships. Feature cards
+# themselves come from the catalog and need no audit.
 #
 # This is the *mechanical* half of the feature-audit loop: it does zero
 # judgement. It compares a stored watermark (the last upstream release we
@@ -26,6 +30,7 @@ set -euo pipefail
 
 UPSTREAM_REPO="${UPSTREAM_REPO:-jellyrock/jellyrock}"
 WATERMARK_FILE="${WATERMARK_FILE:-.audit/features-watermark.json}"
+ICONS_FILE="${ICONS_FILE:-src/data/feature-icons.json}"
 TRACKING_LABEL="${TRACKING_LABEL:-feature-drift}"
 # Marker embedded in the tracking issue body so we can find it unambiguously
 # even if the label is ever removed by hand.
@@ -59,6 +64,24 @@ fetch_changelog() {
     -H "Accept: application/vnd.github.raw"
 }
 
+# The upstream feature catalog, raw.
+fetch_catalog() {
+  gh api "repos/${UPSTREAM_REPO}/contents/docs/feature-catalog.json" \
+    -H "Accept: application/vnd.github.raw"
+}
+
+# One line per icon problem, as the build reports them: "missing <slug>" for a
+# released feature with no icon, "leftover <slug>" for an icon whose feature
+# the catalog no longer holds.
+icon_gaps() {
+  [ -f "$ICONS_FILE" ] || die "icon list not found: $ICONS_FILE"
+  jq -r --slurpfile icons "$ICONS_FILE" '
+    ($icons[0] | keys) as $have
+    | ([.features[] | select(.since != "unreleased") | .slug] - $have | map("missing " + .))
+      + ($have - [.features[].slug] | map("leftover " + .))
+    | .[]'
+}
+
 # Extract released changelog sections strictly newer than the watermark.
 #
 # Relies on the upstream "Keep a Changelog" ordering (newest first, maintained
@@ -82,7 +105,8 @@ extract_delta() {
   '
 }
 
-# Populate globals: WATERMARK, LATEST, DELTA, DRIFT(0|1).
+# Populate globals: WATERMARK, LATEST, DELTA, ICON_GAPS, RELEASE_DRIFT(0|1),
+# DRIFT(0|1: releases or icon gaps).
 compute() {
   require gh
   require jq
@@ -92,11 +116,21 @@ compute() {
   local changelog
   changelog="$(fetch_changelog)"
   DELTA="$(printf '%s' "$changelog" | extract_delta "$wm_ver")"
-  if [ "$WATERMARK" = "$LATEST" ]; then
-    DRIFT=0
-  else
-    DRIFT=1
-  fi
+  ICON_GAPS="$(fetch_catalog | icon_gaps)"
+  RELEASE_DRIFT=1
+  [ "$WATERMARK" = "$LATEST" ] && RELEASE_DRIFT=0
+  DRIFT=$RELEASE_DRIFT
+  [ -n "$ICON_GAPS" ] && DRIFT=1
+  return 0
+}
+
+# What the drift is, in a few words, for the issue title and check output.
+drift_summary() {
+  local parts=()
+  [ "$RELEASE_DRIFT" -eq 1 ] && parts+=("upstream at $LATEST")
+  [ -n "$ICON_GAPS" ] && parts+=("$(printf '%s\n' "$ICON_GAPS" | wc -l | tr -d ' ') icon(s) to fix")
+  local IFS=';'
+  printf '%s' "${parts[*]}" | sed 's/;/, /g'
 }
 
 # --- subcommands ------------------------------------------------------------
@@ -109,21 +143,28 @@ cmd_digest() {
   echo "Upstream repo     : $UPSTREAM_REPO"
   echo
   if [ "$DRIFT" -eq 0 ]; then
-    echo "✅ In sync — no upstream releases newer than the watermark."
+    echo "✅ In sync — no upstream releases newer than the watermark, and every feature has an icon."
     return 0
   fi
-  echo "⚠️  Releases newer than the watermark (Dependencies noise removed):"
-  echo
-  printf '%s\n' "$DELTA"
+  if [ -n "$ICON_GAPS" ]; then
+    echo "⚠️  Icons to fix in $ICONS_FILE:"
+    printf '%s\n' "$ICON_GAPS" | sed 's/^/  /'
+    echo
+  fi
+  if [ "$RELEASE_DRIFT" -eq 1 ]; then
+    echo "⚠️  Releases newer than the watermark (Dependencies noise removed):"
+    echo
+    printf '%s\n' "$DELTA"
+  fi
 }
 
 cmd_check() {
   compute
   if [ "$DRIFT" -eq 0 ]; then
-    echo "in sync (watermark $WATERMARK == latest $LATEST)"
+    echo "in sync (watermark $WATERMARK == latest $LATEST, every feature has an icon)"
     return 0
   fi
-  echo "drift: upstream at $LATEST, last audited $WATERMARK"
+  echo "drift: $(drift_summary) (last audited $WATERMARK)"
   return 1
 }
 
@@ -136,7 +177,7 @@ cmd_sync_issue() {
   if [ "$DRIFT" -eq 0 ]; then
     if [ -n "$existing" ]; then
       gh issue close "$existing" \
-        --comment "Back in sync — features audited up to \`$LATEST\`. Closing automatically."
+        --comment "Back in sync — features audited up to \`$LATEST\`, and every feature has an icon. Closing automatically."
       echo "closed tracking issue #$existing (in sync at $LATEST)"
     else
       echo "in sync at $LATEST; no tracking issue to manage"
@@ -149,42 +190,57 @@ cmd_sync_issue() {
     --color FBCA04 --description "Upstream releases awaiting a marketing-site feature audit" \
     --force >/dev/null 2>&1 || true
 
+  local icons_section="" delta_section=""
+  if [ -n "$ICON_GAPS" ]; then
+    icons_section="### Icons to fix in \`$ICONS_FILE\`
+
+\`missing\`: a released feature with no icon, so it shows the default. \`leftover\`: an icon for a feature the catalog no longer holds.
+
+\`\`\`text
+$ICON_GAPS
+\`\`\`
+"
+  fi
+  if [ "$RELEASE_DRIFT" -eq 1 ]; then
+    delta_section="### Changelog delta (dependency noise removed)
+
+\`\`\`md
+$DELTA
+\`\`\`
+"
+  fi
+
   local body
   body="$(
     cat <<EOF
 $TRACKING_MARKER
-Upstream **${UPSTREAM_REPO}** has shipped release(s) newer than the last audited
-watermark. Run **\`/audit-features\`** to check the site's hand-written feature
-claims and icons against them, then merge the PR it opens (which advances the
-watermark and closes this issue). New features reach the site through the app's
-feature catalog, with no audit.
+The site's feature list needs an audit. Run **\`/audit-features\`**, then merge
+the PR it opens (which advances the watermark and closes this issue). New
+features reach the site through the app's feature catalog with no audit; this
+covers what the catalog can't: icons, and the site's hand-written claims.
 
 | | |
 | --- | --- |
 | Last audited | \`$WATERMARK\` |
 | Latest upstream | \`$LATEST\` |
 
-### Changelog delta (dependency noise removed)
-
-\`\`\`md
-$DELTA
-\`\`\`
-
+$icons_section
+$delta_section
 <sub>Maintained automatically by \`scripts/feature-drift-detect.sh\`; this body is refreshed on each run.</sub>
 EOF
   )"
 
   if [ -n "$existing" ]; then
     gh issue edit "$existing" \
-      --title "Feature audit needed: upstream at $LATEST" \
+      --title "Feature audit needed: $(drift_summary)" \
       --body "$body" >/dev/null
-    echo "updated tracking issue #$existing ($WATERMARK -> $LATEST)"
+    echo "updated tracking issue #$existing ($(drift_summary))"
   else
     gh issue create \
-      --title "Feature audit needed: upstream at $LATEST" \
+      --title "Feature audit needed: $(drift_summary)" \
       --label "$TRACKING_LABEL" \
       --body "$body" >/dev/null
-    echo "opened tracking issue ($WATERMARK -> $LATEST)"
+    echo "opened tracking issue ($(drift_summary))"
   fi
 }
 
