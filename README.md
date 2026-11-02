@@ -28,7 +28,9 @@ push to main  ─▶  .github/workflows/deploy.yml
  content-update)      ├─ gates: .github/workflows/ci.yml   (same as every PR)
                       │    ├─ check: npm run check + npm run build  (Astro → dist/)
                       │    │        + scripts/check-catalog-builds.sh (test catalogs)
-                      │    └─ browser-tests: Playwright on that dist/ and the test-catalog build
+                      │    │        + npm run build:visual (screenshot-test build)
+                      │    └─ browser-tests: Playwright on that dist/, screenshots on the
+                      │             screenshot-test build, and the test-catalog build
                       ├─ rsync the tested dist/ → VPS:/opt/jellyrock/homepage/
                       │       └─ Caddy serves jellyrock.app
                       ├─ scripts/verify-live.sh   (live pages, assets and headers match)
@@ -76,10 +78,11 @@ page list, screenshots, production headers and site-specific tests.
 | Test file                                              | Fails when                                                                                                                                                                                                                                                                                                                                             |
 | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [`tests/e2e/site.spec.ts`](tests/e2e/site.spec.ts)     | (shared) Any page in the sitemap has a script error, something the CSP blocks, a failed or cross-origin request, a broken image, sideways scrolling on a phone, or a missing header/footer; an internal link or anchor is broken; a feature card differs from what the build says it rendered (`/feature-cards.json`); the scroll-reveal stops working |
-| [`tests/e2e/visual.spec.ts`](tests/e2e/visual.spec.ts) | A page looks different from its approved screenshot in [`tests/e2e/__screenshots__/`](tests/e2e/__screenshots__/) (images masked and feature cards pinned, since both change upstream)                                                                                                                                                                 |
+| [`tests/e2e/visual.spec.ts`](tests/e2e/visual.spec.ts) | A page looks different from its approved screenshot in [`tests/e2e/__screenshots__/`](tests/e2e/__screenshots__/) (built from the committed test catalog at a fixed date, so live content never moves a baseline; app screenshots masked)                                                                                                              |
 
 ```bash
-npm run build                # the tests run against dist/
+npm run build                # the functional tests run against dist/
+npm run build:visual         # the screenshot tests run against dist-visual/ (test catalog, fixed date)
 npm test                     # everything, inside the same Playwright image CI uses
 npm run test:e2e             # functional tests only, with a local browser
                              # (first time: npx playwright install chromium)
@@ -93,7 +96,7 @@ shows expected, actual and a diff.
 
 **After a deliberate design or content change** (including an edit to a
 hand-written feature card from `/audit-features`), the screenshot tests go red as intended. Check
-the diff is what you meant, run `npm run build && npm run test:visual:update`,
+the diff is what you meant, run `npm run build:visual && npm run test:visual:update`,
 and commit the updated PNGs in the same PR. shared-ui releases refresh them
 for you; see [shared-ui updates](#shared-ui-updates).
 
@@ -182,6 +185,14 @@ when the catalog changes, and that deploys.
 - **A catalog the site can't use** (unreadable, or a `schema` other than 1)
   fails the build, so the live site stays as it is. Update
   [`src/data/catalog.ts`](src/data/catalog.ts) for the new shape.
+
+The screenshot tests don't use the live catalog: they compare a build from
+[`tests/fixtures/feature-catalog.json`](tests/fixtures/feature-catalog.json),
+judged as of the date stored in it (`npm run build:visual`), so every card,
+label and the homepage's newest-feature line is compared and stays put. To make
+the baselines show today's features, run
+[`scripts/refresh-test-catalog.sh`](scripts/refresh-test-catalog.sh), then
+`npm run build:visual && npm run test:visual:update`.
 
 Locally, the build reuses the catalog it fetched before. Delete
 `src/data/upstream/` to fetch the current one. To build from another catalog,

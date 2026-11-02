@@ -49,14 +49,15 @@ else update_type='patch'; fi
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
-# 1. Bump the pin and build against the release itself, never a local sibling checkout.
+# 1. Bump the pin and build against the release itself, never a local sibling checkout. The
+# screenshot tests compare the build from the committed test catalog (scripts/build-visual.sh).
 sed -i -E "s/$pin_re/const SHARED_UI_REF = '$version';/" "$pin_file"
 rm -rf src/shared-ui .shared-ui-repo
-SHARED_UI_FROM_RELEASE=1 npm run build
+SHARED_UI_FROM_RELEASE=1 npm run build:visual
 
 # 2. Record the screenshots the site now produces.
 recorded=true
-scripts/playwright-docker.sh playwright test --grep @visual --update-snapshots || recorded=false
+DIST_DIR=dist-visual scripts/playwright-docker.sh playwright test --grep @visual --update-snapshots || recorded=false
 mapfile -t changed < <(git status --porcelain -- "$shots" | awk '{print $2}')
 
 # 3. Compare with the screenshots approved on the shared-ui side: the newest successful

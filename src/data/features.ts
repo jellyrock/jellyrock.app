@@ -161,6 +161,14 @@ export function requirements(f: CatalogFeature, app: CatalogApp): Pick<FeatureCa
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/** The moment a build decides what is new: `fixed` (an ISO date) when given, else now. */
+export function buildDate(fixed: string | undefined, now = new Date()): Date {
+  if (!fixed) return now;
+  const date = new Date(fixed);
+  if (Number.isNaN(date.getTime())) throw new Error(`FEATURE_BUILD_DATE is not a date: ${fixed}`);
+  return date;
+}
+
 /** `v3.3` when the feature was released within NEW_FOR_DAYS of `now`. */
 export function newIn(f: CatalogFeature, now: Date): string | undefined {
   if (!f.sinceDate || f.since === 'unreleased') return undefined;

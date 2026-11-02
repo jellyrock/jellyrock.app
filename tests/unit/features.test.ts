@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { CatalogError, loadCatalog, parseCatalog } from '../../src/data/catalog.ts';
 import type { Catalog, CatalogFeature } from '../../src/data/catalog.ts';
 import {
+  buildDate,
   DEFAULT_ICON,
   FEATURE_ICONS,
   NEW_FOR_DAYS,
@@ -259,4 +260,10 @@ test('versions drop only a .0 patch', () => {
   assert.equal(shortVersion('10.10.0'), '10.10');
   assert.equal(shortVersion('12.0.0'), '12.0');
   assert.equal(shortVersion('10.11.8'), '10.11.8');
+});
+
+test('a fixed build date is used as given, and an invalid one fails', () => {
+  assert.equal(buildDate('2026-11-02T12:00:00Z').toISOString(), '2026-11-02T12:00:00.000Z');
+  assert.equal(buildDate(undefined, NOW), NOW);
+  assert.throws(() => buildDate('next tuesday'), /FEATURE_BUILD_DATE is not a date/);
 });

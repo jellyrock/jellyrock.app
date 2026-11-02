@@ -1,5 +1,6 @@
 {
-  "_comment": "A copy of jellyrock/jellyrock's docs/feature-catalog.json for scripts/check-catalog-builds.sh, so those builds never depend on what upstream holds today.",
+  "_comment": "A copy of jellyrock/jellyrock's docs/feature-catalog.json. The screenshot tests build from it (scripts/build-visual.sh), dated _buildDate, so their baselines change only when the design does; scripts/check-catalog-builds.sh builds from it too. Refresh it with scripts/refresh-test-catalog.sh.",
+  "_buildDate": "2026-11-02T12:00:00Z",
   "schema": 1,
   "app": {
     "languages": 98,
