@@ -99,7 +99,10 @@ for you; see [shared-ui updates](#shared-ui-updates).
 
 Screenshots only match inside the Playwright image, because fonts render
 differently between machines, which is why those commands run through Docker
-([`scripts/playwright-docker.sh`](scripts/playwright-docker.sh)). The image is
+([`scripts/playwright-docker.sh`](scripts/playwright-docker.sh)). They also
+need the shared-ui release this repo pins: a build that linked your local
+`../shared-ui` makes the script stop and print the command that rebuilds with
+the release. The image is
 pinned in `.github/workflows/ci.yml`, and Renovate moves it together with
 `@playwright/test` in one PR.
 
