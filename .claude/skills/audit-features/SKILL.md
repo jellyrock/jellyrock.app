@@ -1,117 +1,80 @@
 ---
 name: audit-features
-description: Audit the marketing site's feature list (src/data/features.ts) against the upstream jellyrock/jellyrock app and open a PR with any warranted new cards or edits. Reads the changelog delta since the last-audited watermark (.audit/features-watermark.json) via scripts/feature-drift-detect.sh, cross-checks user-facing wording in the upstream docs/user/*.md, classifies each change as new-card / edit-existing / skip using the engineering-vs-marketing judgment the detector deliberately can't mechanize, drafts house-style copy with a verified tabler: icon, advances the watermark, runs npm run check, and opens a PR that closes the feature-drift tracking issue. Use when the feature-drift watcher opens a "Feature audit needed" issue, when an upstream release ships, or on demand to re-check. The watermark always advances even when nothing is website-worthy, so the loop can't silently re-fire.
+description: Audit what the marketing site claims about JellyRock against the upstream jellyrock/jellyrock app, and open a PR that advances the audit watermark (.audit/features-watermark.json). Feature cards come from the app's feature catalog (docs/feature-catalog.json) with no audit; this checks what the catalog can't - the three hand-written project cards and the icon list in src/data/features.ts - and finds user-facing capabilities the changelog delta shipped with no feature page upstream, which the site therefore can't show. Reads the delta via scripts/feature-drift-detect.sh. Use when the feature-drift watcher opens a "Feature audit needed" issue, when an upstream release ships, or on demand. The watermark always advances, even when nothing needs changing, so the loop can't silently re-fire.
 model: opus
+effort: high
 user-invocable: true
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(./scripts/feature-drift-detect.sh:*), Bash(npm run check:*), Bash(npm run fix:*), Bash(gh api:*), Bash(gh release:*), Bash(gh pr:*), Bash(gh issue:*), Bash(git:*), Bash(jq:*), Bash(date:*)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(./scripts/feature-drift-detect.sh:*), Bash(npm run check:*), Bash(npm run fix:*), Bash(npm run build:*), Bash(gh api:*), Bash(gh release:*), Bash(gh pr:*), Bash(gh issue:*), Bash(git:*), Bash(jq:*), Bash(date:*)
 ---
 
-# /audit-features — keep the site's feature list honest against the app
+# /audit-features: keep the site's own claims honest against the app
 
-The marketing site advertises features in [`src/data/features.ts`](../../../src/data/features.ts); the app ships features in `jellyrock/jellyrock`. They drift. This skill is the **judgment half** of a two-part loop:
+## Contract
 
-- **Mechanics (zero tokens, deterministic):** [`scripts/feature-drift-detect.sh`](../../../scripts/feature-drift-detect.sh) computes the changelog delta since the watermark and (in CI) keeps one tracking issue current. It does **no** judgement.
-- **Judgment (this skill):** decide which delta entries are _user-facing marketing features_ versus engineering noise, write the copy, place the card, advance the watermark.
+**Goal.** The site's feature cards are built from the app's feature catalog, so a new or reworded feature page in jellyrock/jellyrock reaches the site with no edit here. Three things stay outside the catalog and drift: the three hand-written project cards in `src/data/features.ts` (Blazing Fast & Silky Smooth, Self-Hosted Weblate, Free & Open Source), the icon per catalog slug, and capabilities the app ships with no feature page (which the site cannot show at all). This skill is the judgment half of the feature-drift loop: `scripts/feature-drift-detect.sh` finds the releases since the last audit, and this skill decides what they mean for those three things, then advances the watermark.
 
-**The load-bearing invariant: the watermark always advances.** Every run ends by bumping `.audit/features-watermark.json` to the latest upstream release **even if nothing was website-worthy** — otherwise the detector re-fires forever on the same releases. A no-op audit is a real outcome that still moves the watermark (via a tiny PR or commit that records "audited up to vX, nothing to add").
+**Inputs.** No arguments. The changelog delta from `./scripts/feature-drift-detect.sh digest`, the current catalog (the build copies it to `src/data/upstream/feature-catalog.json`), and the upstream user docs (`docs/user/*.md`, `docs/user/features/*.md`). Usually run because the watcher opened a "Feature audit needed" issue.
 
-**Do not reimplement changelog parsing.** Always get the delta from the detector script — it is the single source of truth for "what changed," shared with CI.
+**Outputs.** One PR on a branch from `main`: the watermark advanced to the latest upstream release, plus any edit to the project cards or `FEATURE_ICONS`. When the delta holds a user-facing capability with no feature page upstream, an issue on jellyrock/jellyrock proposing the page, linked from the PR. A PR body that lists what was changed, what was proposed upstream, and the notable delta entries deliberately skipped.
 
-## Step 1 — Get the delta
+**Success criteria.**
+
+- The watermark equals the latest upstream release, even when nothing else changed.
+- Every claim in the three project cards is still true, checked against a source, not memory.
+- Every released catalog slug has an icon that exists in the installed tabler set, and `FEATURE_ICONS` holds no slug the catalog dropped (the build's warnings say both).
+- A capability with no feature page is proposed upstream, never added here as a card.
+- `npm run check` passes, and the PR closes the tracking issue.
+
+**Failure modes to avoid.**
+
+- Adding or rewording a catalog feature's card here. The catalog's wording is used as it is; a pitch that reads badly is fixed on its feature page upstream, and a missing feature gets a page upstream.
+- Skipping the watermark bump on a no-op audit: the watcher then re-fires on the same releases forever.
+- Reimplementing the changelog diff instead of reading `feature-drift-detect.sh digest`.
+- Asserting a count, version or spec from memory or changelog prose. Counts come from the catalog's `app` fields, which the site already reads; never type one into copy.
+- Naming the official Jellyfin client negatively. A differentiator is stated positively.
+- Em dashes in copy, and words that age ("new", "now", "recently") in the hand-written cards.
+
+**When not to use.**
+
+- To change a feature card's wording or add a feature: edit or add the feature page in jellyrock/jellyrock.
+- To change the homepage's pinned features: that is a product decision; edit `PINNED_SLUGS` in its own PR.
+- For a screenshot change: screenshots come from upstream at build time.
+
+## Implementation
+
+### Step 1: Get the delta
 
 ```bash
 ./scripts/feature-drift-detect.sh digest
 ```
 
-This prints the audited watermark, the latest upstream release, and the released changelog sections in between (Dependencies noise already stripped). If it says **"In sync,"** there is nothing to audit — report that and stop, unless the user explicitly asked to re-review existing copy.
+It prints the audited watermark, the latest upstream release, and the released changelog sections between them with dependency noise removed. Note both versions. If it says "In sync", report that and stop, unless the user asked for a re-check.
 
-Note both versions: `WATERMARK` (e.g. `v2.19.0`) and `LATEST` (e.g. `v2.21.0`). You'll bump to `LATEST` in Step 6.
-
-## Step 2 — Classify each delta entry: new / edit / skip
-
-This is the whole point of the skill, and the part a script cannot do. For each changelog line, ask **"would a prospective user care, and is it a capability rather than a fix/chore?"**
-
-**SKIP (the overwhelming majority).** Engineering noise that is not a user-facing capability:
-
-- CI / tooling / tests / skills / agents / docs (e.g. "floor-coverage lint," "crash-report skill," "Material Symbols icon pipeline," "journal sync," "renovate")
-- Dependency bumps (already stripped by the detector, but stay alert)
-- Refactors and internal renames ("unify `GridItem`/`GridItemSmall`")
-- Pure bugfixes that _restore expected behavior_ rather than add a capability ("fix photo selection opening behind ItemDetails")
-
-**EDIT an existing card** when a change strengthens or corrects a capability the site already advertises. Example: "(playback) preserve surround on multichannel transcode fallback" reinforces the existing **Surround Sound Preservation** card — usually no copy change needed, but check the wording is still accurate.
-
-**NEW card** only when a genuinely new, user-facing capability has no card yet. The bar is high. Historical examples that cleared it: Quick Connect, multi-server support, Roku voice control, media segments.
-
-Bias toward **skip** and **edit**. New cards are rare; the list should stay curated, not exhaustive.
-
-## Step 3 — Verify every claim against the source (never assert)
-
-Before writing copy for a new/edit candidate, ground it. The site must not state things that aren't true or that will drift:
-
-- **Counts and specifics** — verify against the app, not the changelog prose. (Translations: count `locale/` files. Themes: read the options table in `docs/user/app-settings.md`.)
-- **User-facing wording** — pull the plain-language description from the upstream user docs rather than paraphrasing an engineering commit:
-  ```bash
-  gh api repos/jellyrock/jellyrock/contents/docs/user/jellyfin-server-feature-matrix.md -H "Accept: application/vnd.github.raw"
-  gh api repos/jellyrock/jellyrock/contents/docs/user/app-settings.md -H "Accept: application/vnd.github.raw"
-  ```
-- **Don't hardcode brittle specifics.** The device profile is built dynamically from each Roku's reported capabilities, so do **not** claim a fixed codec/Dolby-Vision-profile list. Frame device-dependent features as device-dependent.
-- **Never** name the official Jellyfin client disparagingly. Differentiators are stated positively ("99 languages, far beyond the dozen or so offered by Roku OS and the official client") — never "the official app can't do X."
-
-## Step 4 — Draft copy in house style + pick a verified icon
-
-**House style for `description` (match the existing 19 cards):**
-
-- Benefit-first, concrete, confident. ~20–30 words, one or two sentences.
-- **No em dashes** (`—`). Use periods, commas, or colons. This is a hard rule — the maintainer flagged it explicitly.
-- No temporal words that age ("New", "now", "recently"). The card outlives the release.
-- Parallel rhythm with neighbors; no marketing fluff or exclamation points.
-
-**Title:** short, intent-named, Title Case. Keep titles stable once shipped (they're not changed lightly).
-
-**Icon:** an `tabler:` name that actually exists in the installed set — verify before committing, or the build breaks:
+### Step 2: Check the icons
 
 ```bash
-jq -e --arg k "server-cog" '.icons[$k]' node_modules/@iconify-json/tabler/icons.json >/dev/null && echo OK || echo MISSING
+npm run build 2>&1 | grep -F '[feature catalog]'
 ```
 
-**Placement (order matters twice):** the array order drives both pages. The **first `HOMEPAGE_FEATURE_COUNT` entries are the homepage** (currently 8, a 2-column grid, so keep the count even). Lead with the biggest differentiators (performance, server compatibility, playback quality, the OSD); park niche/convenience features lower. A new card usually belongs in the lower (full-page) section unless it's a true headline feature — confirm placement with the user if it would enter the homepage tier.
-
-## Step 5 — Apply the edits
-
-Edit [`src/data/features.ts`](../../../src/data/features.ts): add/modify entries and, if a new card changes the intended homepage set, adjust order or `HOMEPAGE_FEATURE_COUNT` (keep it even). Preserve the `Feature` interface and the single-quote/escaping style already in the file.
-
-## Step 6 — Advance the watermark (ALWAYS)
-
-Update `.audit/features-watermark.json` to the `LATEST` tag from Step 1, with today's date (`date +%F`):
-
-```jsonc
-{ "lastAuditedRelease": "vLATEST", "lastAuditedAt": "YYYY-MM-DD", "note": "…(keep existing note)…" }
-```
-
-Do this **even on a no-op audit.** This is the invariant that stops the detector re-firing.
-
-## Step 7 — Verify the build
+Each line is a slug with no icon, or an icon whose slug the catalog dropped. For a missing icon, pick a `tabler:` name that fits the feature's pitch and check it exists before adding it to `FEATURE_ICONS`, or the build breaks:
 
 ```bash
-npm run check
+jq -e --arg k "{{icon-name}}" '.icons[$k]' node_modules/@iconify-json/tabler/icons.json >/dev/null && echo OK || echo MISSING
 ```
 
-If it fails, `npm run fix` and re-run until clean. CI runs the same gate (`CLAUDE.md`); never open a PR on a red check.
+Remove an entry whose slug is gone.
 
-## Step 8 — Open the PR and close the loop
+### Step 3: Read the delta for the project cards and for missing pages
 
-Branch, commit (no `Co-Authored-By` / generated footers — see global prefs), push, and open a PR summarizing: which entries were added/edited, and which notable delta items were **deliberately skipped** (so the human reviewer can sanity-check the judgment). Close the tracking issue from the PR:
+For each delta entry, ask two questions:
 
-```bash
-gh pr create --fill --body "...audited vWATERMARK..vLATEST. Closes #<tracking-issue>."
-```
+1. **Does it change a claim in a project card?** For example, a license change, the Weblate instance moving, or ads or tracking added. Verify against the source (the app's `LICENSE`, its README, `translate.jellyrock.app`) and edit the card in `PROJECT_CARDS` if the claim no longer holds.
+2. **Is it a user-facing capability with no feature page?** List the catalog's slugs (`jq -r '.features[].slug' src/data/upstream/feature-catalog.json`) and the upstream pages. When a capability a prospective user would care about has neither a page nor a section of an existing page, propose a page in an issue on jellyrock/jellyrock: what it does, the PRs that shipped it, the server version it needs, and why it matters to a user. Most entries are fixes, refactors, CI or internal work: skip them.
 
-On a no-op audit, still open the watermark-bump PR and note "no website-worthy changes in vWATERMARK..vLATEST."
+### Step 4: Advance the watermark
 
-## Anti-patterns
+Write the latest tag from Step 1 and today's date (`date +%F`) to `.audit/features-watermark.json`, keeping its `note`. Do this even when nothing else changed.
 
-- **Reimplementing the changelog diff in the skill.** Use `feature-drift-detect.sh digest`. One source of truth.
-- **Skipping the watermark bump on a no-op.** The detector will nag forever. The bump is not optional.
-- **Asserting a count/profile/spec from memory or changelog prose.** Verify against `locale/`, `docs/user/*.md`, or app source first.
-- **Em dashes in copy.** Hard no.
-- **Silently promoting a card onto the homepage.** The first 8 are prime real estate; confirm with the user before changing the homepage tier.
+### Step 5: Check and open the PR
+
+Run `npm run check`; on failure run `npm run fix` and check again. A change to a project card's text changes the screenshots: run `npm run build && npm run test:visual:update` and commit the PNGs. Then branch, commit, push and open the PR. Its body lists the changes, the upstream issues opened, the notable entries skipped, and `Closes #{{tracking-issue}}`. On a no-op audit the PR says "No changes needed for v{{watermark}}..v{{latest}}".
