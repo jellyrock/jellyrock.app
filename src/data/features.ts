@@ -84,7 +84,7 @@ export interface FeatureCard {
 
 export interface SiteFeatures {
   app: CatalogApp;
-  /** "Jellyfin 10.7 to 12", or "Jellyfin 10.7 or later" when the catalog has no newest line. */
+  /** "Jellyfin 10.7 to 12.0", or "Jellyfin 10.7 or later" when the catalog has no newest line. */
   serverRange: string;
   /** /features/: the new cards (newest first), the other pinned ones, the rest in catalog order,
    * then the project cards. */
@@ -97,8 +97,9 @@ export interface SiteFeatures {
   latest?: FeatureCard;
 }
 
-/** `10.10.0` → `10.10`; any other version is kept whole, so `10.11.8` keeps its patch. */
-export const shortVersion = (v: string): string => v.replace(/^(\d+\.\d+)\.0$/, '$1');
+/** `10.10.0` → `10.10`, and a bare major such as the catalog's `serverNewest` (`12`) → `12.0`, so
+ * every version the site shows has a minor. Any other version is kept whole: `10.11.8` keeps its patch. */
+export const shortVersion = (v: string): string => v.replace(/^(\d+\.\d+)\.0$/, '$1').replace(/^(\d+)$/, '$1.0');
 
 export function compareVersions(a: string, b: string): number {
   const [x, y] = [a, b].map((v) => v.split('.').map(Number));
@@ -111,7 +112,7 @@ export function compareVersions(a: string, b: string): number {
 
 export const serverRange = (app: CatalogApp): string =>
   app.serverNewest
-    ? `Jellyfin ${shortVersion(app.serverFloor)} to ${app.serverNewest}`
+    ? `Jellyfin ${shortVersion(app.serverFloor)} to ${shortVersion(app.serverNewest)}`
     : `Jellyfin ${shortVersion(app.serverFloor)} or later`;
 
 /** What a feature needs beyond the base app: the short lines and the full ones. */
