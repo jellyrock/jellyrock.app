@@ -183,7 +183,9 @@ when the catalog changes, and that deploys.
   fails the build, so the live site stays as it is. Update
   [`src/data/catalog.ts`](src/data/catalog.ts) for the new shape.
 
-To build from another catalog, such as an edited copy, set
+Locally, the build reuses the catalog it fetched before. Delete
+`src/data/upstream/` to fetch the current one. To build from another catalog,
+such as an edited copy, set
 `FEATURE_CATALOG_PATH`. [`scripts/check-catalog-builds.sh`](scripts/check-catalog-builds.sh)
 does that in CI to prove a new feature can't block a deploy and an unusable
 catalog can't reach one.
@@ -248,7 +250,9 @@ git fetch origin tag template-pages-archive
 git checkout template-pages-archive -- src/pages/about.astro
 ```
 
-A restored page may need porting to the Astro version in use by then. For a
+A restored page may need porting to the Astro version in use by then, and may
+import widgets removed since (`widgets/Features.astro` and `ui/ItemGrid.astro`
+went with the catalog-driven cards): restore those from the tag the same way. For a
 fresh, maintained copy instead, start from upstream
 [AstroWind](https://github.com/arthelokyo/astrowind).
 

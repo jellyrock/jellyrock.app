@@ -139,12 +139,14 @@ export function requirements(f: CatalogFeature, app: CatalogApp): Pick<FeatureCa
     needs.push({ text: 'Needs a server plugin', href: PLUGINS_DOCS_URL });
     needsDetail.push({ text: `Needs a server plugin: ${f.plugins.join(' or ')}`, href: PLUGINS_DOCS_URL });
   }
-  if (f.https) {
+  if (f.https && f.https.plugins.length > 0) {
     needs.push({ text: 'Plugin needed on HTTPS servers', href: COMPANION_URL });
     needsDetail.push({
       text: `On HTTPS servers: Jellyfin ${shortVersion(f.https.server)} or later, with the ${f.https.plugins.join(' or ')} plugin`,
       href: COMPANION_URL,
     });
+  } else if (f.https) {
+    needsDetail.push({ text: `On HTTPS servers: Jellyfin ${shortVersion(f.https.server)} or later` });
   }
   if (compareVersions(f.server, app.serverFloor) > 0) {
     needsDetail.push({ text: `Needs Jellyfin ${shortVersion(f.server)} or later` });

@@ -118,11 +118,12 @@ jobs:
       - name: Run browser tests (functional + screenshots)
         run: npx playwright test
 
-      # The same tests on a build with a new feature that has no icon and is new today: if they
-      # fail here, the next feature page upstream would block a deploy.
+      # The tests for the pages a catalog changes (home and /features/), on a build with a new
+      # feature that has no icon and is new today: if they fail here, the next feature page
+      # upstream would block a deploy. The other pages are the same as in dist/.
       - name: Run browser tests on the test-catalog build
         if: ${{ !cancelled() }}
-        run: npx playwright test
+        run: npx playwright test --grep '( / | /features/ )loads cleanly|internal link|home page|features page|(home|features) looks the same'
         env:
           DIST_DIR: dist-catalog-test
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-catalog-test

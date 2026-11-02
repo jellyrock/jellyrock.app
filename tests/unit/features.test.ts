@@ -208,6 +208,16 @@ test('a feature that needs a plugin only on HTTPS says so', () => {
   );
 });
 
+test('a feature that needs only a newer server on HTTPS names no plugin', () => {
+  const { site } = build(catalog([feature('syncplay', { https: { server: '10.11.0', plugins: [] } })]));
+  const card = site.all.find((c) => c.slug === 'syncplay')!;
+  assert.deepEqual(card.needs, []);
+  assert.deepEqual(
+    card.needsDetail.map((n) => n.text),
+    ['On HTTPS servers: Jellyfin 10.11 or later']
+  );
+});
+
 test('a feature that needs nothing extra has no lines', () => {
   const { site } = build(catalog());
   const card = site.all.find((c) => c.slug === 'music')!;

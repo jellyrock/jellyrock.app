@@ -8,8 +8,9 @@ const CLONE_DIR = path.resolve('.jellyrock-repo');
 
 const REPO_URL = 'https://github.com/jellyrock/jellyrock.git';
 
-/** Folders the sparse checkout asks for. In cone mode it also checks out the files directly
- * inside each one's parent folders, which is how docs/feature-catalog.json arrives. */
+/** Folders the sparse checkout asks for. In cone mode (asked for explicitly below) it also checks
+ * out the files directly inside each one's parent folders, which is how docs/feature-catalog.json
+ * arrives. Without it the catalog is missing and every build fails. */
 const SPARSE_DIRS = ['docs/screenshots', 'resources/branding'];
 
 /** What to copy from the cloned repo, and where to. Everything comes from one clone, so the
@@ -32,7 +33,7 @@ export async function fetchAssets(): Promise<void> {
   // Shallow clone with sparse checkout (only the folders we need)
   if (!fs.existsSync(CLONE_DIR)) {
     execSync(`git clone --depth 1 --filter=blob:none --sparse ${REPO_URL} ${CLONE_DIR}`, { stdio: 'inherit' });
-    execSync(`git -C ${CLONE_DIR} sparse-checkout set ${SPARSE_DIRS.join(' ')}`, { stdio: 'inherit' });
+    execSync(`git -C ${CLONE_DIR} sparse-checkout set --cone ${SPARSE_DIRS.join(' ')}`, { stdio: 'inherit' });
   }
 
   for (const [repoPath, dest] of Object.entries(COPY_MAP)) {
