@@ -1,125 +1,215 @@
-export interface Feature {
-  title: string;
-  description: string;
-  icon: string;
-}
+// The site's feature cards. The app's feature catalog (catalog.ts) holds each feature's title,
+// pitch, docs link and what it needs; this file holds only what the catalog doesn't: an icon per
+// slug, the homepage's pinned slugs, and the three cards that are claims about the project.
+//
+// Everything here is a pure function of the catalog and a date, so the unit tests (tests/unit)
+// check it without a build. site-features.ts runs it once per build for the pages.
+import type { Catalog, CatalogApp, CatalogFeature } from './catalog.ts';
 
-export const features: Feature[] = [
+/** The icon a feature gets when FEATURE_ICONS has no entry for its slug. */
+export const DEFAULT_ICON = 'tabler:sparkles';
+
+/** Each catalog slug's icon. Verify a new name exists before adding it:
+ * `jq -e '.icons["<name>"]' node_modules/@iconify-json/tabler/icons.json`. */
+export const FEATURE_ICONS: Record<string, string> = {
+  'cast-to-jellyrock': 'tabler:cast',
+  'deep-linking': 'tabler:link',
+  'delete-media': 'tabler:trash',
+  favorites: 'tabler:star',
+  'hdr-dolby-vision': 'tabler:video',
+  'item-details': 'tabler:info-circle',
+  languages: 'tabler:language',
+  'live-tv': 'tabler:device-tv',
+  'manage-subtitles': 'tabler:subtitles',
+  'media-segments': 'tabler:player-skip-forward',
+  music: 'tabler:music',
+  'original-quality': 'tabler:player-play',
+  photos: 'tabler:photo',
+  'player-controls': 'tabler:layout-dashboard',
+  'quick-connect': 'tabler:device-mobile-message',
+  servers: 'tabler:server-cog',
+  'surround-sound': 'tabler:speakerphone',
+  syncplay: 'tabler:users-group',
+  themes: 'tabler:palette',
+  trickplay: 'tabler:photo-scan',
+  'voice-control': 'tabler:microphone',
+};
+
+/** The homepage's "Why JellyRock?" cards, in order: the app README's four. A slug that is
+ * missing from the catalog or unreleased is skipped. */
+export const PINNED_SLUGS = ['syncplay', 'cast-to-jellyrock', 'delete-media', 'original-quality'];
+
+/** How long a feature counts as new after its release, and how many the homepage shows. */
+export const NEW_FOR_DAYS = 90;
+export const RECENT_MAX = 4;
+
+export const PLUGINS_DOCS_URL = 'https://docs.jellyrock.app/jellyfin-server-plugins/';
+/** Where "Plugin needed on HTTPS servers" links: the JellyRock Companion plugin's install docs. */
+export const COMPANION_URL = PLUGINS_DOCS_URL;
+export const RELEASE_NOTES_URL = 'https://github.com/jellyrock/jellyrock/releases';
+
+/** Claims about the project, not features, so the catalog doesn't hold them. These are the only
+ * hand-written cards; /audit-features keeps them honest. */
+export const PROJECT_CARDS: FeatureCard[] = [
   {
+    slug: 'fast',
     title: 'Blazing Fast & Silky Smooth',
-    description:
+    pitch:
       'Heavily optimized to outpace the original Roku client. Every API request runs off the render thread, so menus stay fluid and the interface never stutters while data loads.',
     icon: 'tabler:rocket',
+    needs: [],
+    needsDetail: [],
   },
   {
-    title: 'Works With Your Server',
-    description:
-      'Connect to any Jellyfin server from 10.7 to the latest release. JellyRock finds servers across your network and remembers each one, so switching is effortless.',
-    icon: 'tabler:server-cog',
-  },
-  {
-    title: 'Direct Play Priority',
-    description:
-      'Plays your media in its original quality whenever your device supports it, skipping needless transcoding. The result is pristine playback and a lighter load on your server.',
-    icon: 'tabler:player-play',
-  },
-  {
-    title: 'Surround Sound Preservation',
-    description:
-      'Keeps your multichannel surround intact. When a track must be converted, JellyRock steers the server toward surround-capable codecs instead of flattening it to stereo.',
-    icon: 'tabler:speakerphone',
-  },
-  {
-    title: 'Improved OSD',
-    description:
-      'A ground-up redesign of the playback overlay. Navigate chapters, switch video, audio, and subtitle tracks on the fly, and check ratings and playback details all in one clean view.',
-    icon: 'tabler:layout-dashboard',
-  },
-  {
-    title: 'Unified Item Details',
-    description:
-      'One beautifully designed details page for everything: movies, shows, seasons, episodes, music, people, and collections.',
-    icon: 'tabler:info-circle',
-  },
-  {
-    title: 'Full Dolby Vision Support',
-    description:
-      'Enjoy Dolby Vision on supported Roku devices. JellyRock repackages Dolby Vision MKVs on the fly so they keep playing, with no re-encoding required.',
-    icon: 'tabler:video',
-  },
-  {
-    title: '99 Language Translations',
-    description:
-      "JellyRock's own translation system delivers built-in support for 99 languages, far beyond the dozen or so offered by Roku OS and the official Jellyfin client.",
-    icon: 'tabler:language',
-  },
-  {
-    title: 'Media Segments (Intro Skipper)',
-    description:
-      'Automatically skip intros, outros, recaps, previews, and commercials your Jellyfin server detects. Configure each segment type to skip, prompt, or do nothing.',
-    icon: 'tabler:player-skip-forward',
-  },
-  {
-    title: 'Live TV & DVR',
-    description:
-      'Browse the channel guide, tune in to live broadcasts, and schedule DVR recordings of upcoming shows, all without leaving JellyRock.',
-    icon: 'tabler:device-tv',
-  },
-  {
-    title: 'Trickplay Thumbnails',
-    description:
-      'Preview thumbnails as you scrub, so you can land on the exact moment you want. It works even on lower-memory Roku devices.',
-    icon: 'tabler:photo-scan',
-  },
-  {
-    title: 'Quick Connect',
-    description:
-      "Skip the on-screen keyboard. Approve JellyRock from the Jellyfin app on your phone and you're signed in instantly, on every supported server version.",
-    icon: 'tabler:device-mobile-message',
-  },
-  {
-    title: 'Roku Voice Control',
-    description:
-      'Search your whole library by voice, then play, pause, and seek with Roku voice commands. Completely hands-free.',
-    icon: 'tabler:microphone',
-  },
-  {
-    title: 'Music & Audio',
-    description:
-      'More than a video app. Browse artists, albums, and playlists, spin up an instant mix, and enjoy a full-screen now-playing view with album art.',
-    icon: 'tabler:music',
-  },
-  {
-    title: 'Photos & Albums',
-    description:
-      'Relive your memories on the big screen. Browse and view your Jellyfin photo libraries and albums right alongside your movies and shows.',
-    icon: 'tabler:photo',
-  },
-  {
-    title: 'Favorites Tab',
-    description:
-      "Jump straight to everything you've favorited from a dedicated tab on the home screen, across every media type JellyRock supports.",
-    icon: 'tabler:star',
-  },
-  {
-    title: 'Themes for Every Taste',
-    description:
-      'Pick from nine handcrafted themes: JellyRock, Black, Emerald, Ember, Rose, Ocean, Dusk, Midnight, and High Contrast. Or design your own with any hex colors.',
-    icon: 'tabler:palette',
-  },
-  {
+    slug: 'weblate',
     title: 'Self-Hosted Weblate',
-    description:
+    pitch:
       'Translations live on our own Weblate instance at translate.jellyrock.app. Jump in and help bring JellyRock to your language.',
     icon: 'tabler:world',
+    needs: [],
+    needsDetail: [],
   },
   {
+    slug: 'open-source',
     title: 'Free & Open Source',
-    description:
+    pitch:
       'No ads, no tracking, no subscriptions, ever. JellyRock is built in the open by the community under the GPL-2.0 license.',
     icon: 'tabler:heart-handshake',
+    needs: [],
+    needsDetail: [],
   },
 ];
 
-/** Number of features to show on the homepage */
-export const HOMEPAGE_FEATURE_COUNT = 8;
+/** A line under a card saying what the feature needs beyond the base app. */
+export interface Requirement {
+  text: string;
+  href?: string;
+}
+
+export interface FeatureCard {
+  slug: string;
+  title: string;
+  pitch: string;
+  icon: string;
+  /** The feature's docs page. Project cards have none. */
+  url?: string;
+  /** `v3.3` while the feature is new, else absent. */
+  newIn?: string;
+  sinceDate?: string | null;
+  /** The short lines, for the homepage. */
+  needs: Requirement[];
+  /** The full lines, for /features/. */
+  needsDetail: Requirement[];
+}
+
+export interface SiteFeatures {
+  app: CatalogApp;
+  /** "Jellyfin 10.7 to 12", or "Jellyfin 10.7 or later" when the catalog has no newest line. */
+  serverRange: string;
+  /** /features/: the pinned cards, the other catalog cards in catalog order, then the project cards. */
+  all: FeatureCard[];
+  /** The homepage's "Why JellyRock?". */
+  pinned: FeatureCard[];
+  /** The homepage's "New in JellyRock": newest first, at most RECENT_MAX, none of them pinned. */
+  recent: FeatureCard[];
+}
+
+/** `10.10.0` → `10.10`; any other version is kept whole, so `10.11.8` keeps its patch. */
+export const shortVersion = (v: string): string => v.replace(/^(\d+\.\d+)\.0$/, '$1');
+
+export function compareVersions(a: string, b: string): number {
+  const [x, y] = [a, b].map((v) => v.split('.').map(Number));
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    const d = (x[i] || 0) - (y[i] || 0);
+    if (d !== 0) return d;
+  }
+  return 0;
+}
+
+export const serverRange = (app: CatalogApp): string =>
+  app.serverNewest
+    ? `Jellyfin ${shortVersion(app.serverFloor)} to ${app.serverNewest}`
+    : `Jellyfin ${shortVersion(app.serverFloor)} or later`;
+
+/** What a feature needs beyond the base app: the short lines and the full ones. */
+export function requirements(f: CatalogFeature, app: CatalogApp): Pick<FeatureCard, 'needs' | 'needsDetail'> {
+  const needs: Requirement[] = [];
+  const needsDetail: Requirement[] = [];
+  if (f.plugins.length > 0) {
+    needs.push({ text: 'Needs a server plugin', href: PLUGINS_DOCS_URL });
+    needsDetail.push({ text: `Needs a server plugin: ${f.plugins.join(' or ')}`, href: PLUGINS_DOCS_URL });
+  }
+  if (f.https) {
+    needs.push({ text: 'Plugin needed on HTTPS servers', href: COMPANION_URL });
+    needsDetail.push({
+      text: `On HTTPS servers: Jellyfin ${shortVersion(f.https.server)} or later, with the ${f.https.plugins.join(' or ')} plugin`,
+      href: COMPANION_URL,
+    });
+  }
+  if (compareVersions(f.server, app.serverFloor) > 0) {
+    needsDetail.push({ text: `Needs Jellyfin ${shortVersion(f.server)} or later` });
+  }
+  return { needs, needsDetail };
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** `v3.3` when the feature was released within NEW_FOR_DAYS of `now`. */
+export function newIn(f: CatalogFeature, now: Date): string | undefined {
+  if (!f.sinceDate || f.since === 'unreleased') return undefined;
+  const age = now.getTime() - Date.parse(`${f.sinceDate}T00:00:00Z`);
+  if (age < 0 || age >= NEW_FOR_DAYS * DAY_MS) return undefined;
+  return `v${f.since.split('.').slice(0, 2).join('.')}`;
+}
+
+/** Build every card from the catalog. `warn` hears about an icon or pinned slug that is missing:
+ * never a build failure, so a new feature page upstream can't block a deploy. */
+export function buildFeatures(catalog: Catalog, now: Date, warn: (message: string) => void): SiteFeatures {
+  const { app } = catalog;
+  const released = catalog.features.filter((f) => f.since !== 'unreleased');
+
+  const cards = released.map((f): FeatureCard => {
+    const icon = FEATURE_ICONS[f.slug];
+    if (!icon) {
+      warn(
+        `no icon for feature \`${f.slug}\`, so it uses ${DEFAULT_ICON}. Add one to FEATURE_ICONS in src/data/features.ts.`
+      );
+    }
+    return {
+      slug: f.slug,
+      title: f.title,
+      pitch: f.pitch,
+      icon: icon ?? DEFAULT_ICON,
+      url: f.url,
+      newIn: newIn(f, now),
+      sinceDate: f.sinceDate,
+      ...requirements(f, app),
+    };
+  });
+
+  const known = new Set(catalog.features.map((f) => f.slug));
+  for (const slug of Object.keys(FEATURE_ICONS)) {
+    if (!known.has(slug)) warn(`FEATURE_ICONS has \`${slug}\`, which the catalog no longer holds. Remove it.`);
+  }
+
+  const bySlug = new Map(cards.map((c) => [c.slug, c]));
+  const pinned = PINNED_SLUGS.flatMap((slug) => {
+    const card = bySlug.get(slug);
+    if (!card) warn(`pinned feature \`${slug}\` is missing or unreleased, so the homepage skips it.`);
+    return card ? [card] : [];
+  });
+  const pinnedSet = new Set(pinned.map((c) => c.slug));
+
+  const recent = cards
+    .filter((c) => c.newIn && !pinnedSet.has(c.slug))
+    .sort((a, b) => (b.sinceDate ?? '').localeCompare(a.sinceDate ?? '') || a.title.localeCompare(b.title))
+    .slice(0, RECENT_MAX);
+
+  return {
+    app,
+    serverRange: serverRange(app),
+    all: [...pinned, ...cards.filter((c) => !pinnedSet.has(c.slug)), ...PROJECT_CARDS],
+    pinned,
+    recent,
+  };
+}

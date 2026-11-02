@@ -27,7 +27,8 @@ push to main  ─▶  .github/workflows/deploy.yml
 (or upstream          │
  content-update)      ├─ gates: .github/workflows/ci.yml   (same as every PR)
                       │    ├─ check: npm run check + npm run build  (Astro → dist/)
-                      │    └─ browser-tests: Playwright on that dist/
+                      │    │        + scripts/check-catalog-builds.sh (test catalogs)
+                      │    └─ browser-tests: Playwright on that dist/ and the test-catalog build
                       ├─ rsync the tested dist/ → VPS:/opt/jellyrock/homepage/
                       │       └─ Caddy serves jellyrock.app
                       ├─ scripts/verify-live.sh   (live pages, assets and headers match)
@@ -53,7 +54,8 @@ npm ci
 npm run dev              # http://localhost:4321
 npm run build            # production build → dist/
 npm run preview          # preview the build
-npm run check            # astro-check + eslint + prettier
+npm run check            # astro-check + eslint + prettier + unit tests
+npm run test:unit        # unit tests only (Node's test runner; Node 24, as .nvmrc says)
 npm run fix              # eslint --fix + prettier --write
 npm test                 # browser tests, as CI runs them (needs Docker and a build)
 ```
@@ -71,10 +73,10 @@ resolve, a missing page is a 404) come from shared-ui's
 the build fetches into `src/shared-ui/testing/`; this repo keeps its own config,
 page list, screenshots, production headers and site-specific tests.
 
-| Test file                                              | Fails when                                                                                                                                                                                                                                                                                                             |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`tests/e2e/site.spec.ts`](tests/e2e/site.spec.ts)     | (shared) Any page in the sitemap has a script error, something the CSP blocks, a failed or cross-origin request, a broken image, sideways scrolling on a phone, or a missing header/footer; an internal link or anchor is broken; content from `src/data/features.ts` stops rendering; the scroll-reveal stops working |
-| [`tests/e2e/visual.spec.ts`](tests/e2e/visual.spec.ts) | A page looks different from its approved screenshot in [`tests/e2e/__screenshots__/`](tests/e2e/__screenshots__/) (images masked, since app screenshots change upstream)                                                                                                                                               |
+| Test file                                              | Fails when                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`tests/e2e/site.spec.ts`](tests/e2e/site.spec.ts)     | (shared) Any page in the sitemap has a script error, something the CSP blocks, a failed or cross-origin request, a broken image, sideways scrolling on a phone, or a missing header/footer; an internal link or anchor is broken; a feature card differs from what the build says it rendered (`/feature-cards.json`); the scroll-reveal stops working |
+| [`tests/e2e/visual.spec.ts`](tests/e2e/visual.spec.ts) | A page looks different from its approved screenshot in [`tests/e2e/__screenshots__/`](tests/e2e/__screenshots__/) (images masked and feature cards pinned, since both change upstream)                                                                                                                                                                 |
 
 ```bash
 npm run build                # the tests run against dist/
@@ -89,8 +91,8 @@ npm run test:visual:update   # accept the current look as the new baseline (Dock
 its `index.html`: each failure shows the error, and each screenshot failure
 shows expected, actual and a diff.
 
-**After a deliberate design or content change** (including a feature card
-edit from `/audit-features`), the screenshot tests go red as intended. Check
+**After a deliberate design or content change** (including an edit to a
+hand-written feature card from `/audit-features`), the screenshot tests go red as intended. Check
 the diff is what you meant, run `npm run build && npm run test:visual:update`,
 and commit the updated PNGs in the same PR. shared-ui releases refresh them
 for you; see [shared-ui updates](#shared-ui-updates).
@@ -155,12 +157,40 @@ bump** → Run workflow, or locally `scripts/shared-ui-bump.sh vX.Y.Z --dry-run`
 Renovate also tracks the pin, but only opens a PR if no bump has landed 3 days
 after a release.
 
+## Feature cards
+
+The cards on `/` and `/features/` are built from the app's feature catalog,
+[`docs/feature-catalog.json`](https://github.com/jellyrock/jellyrock/blob/main/docs/feature-catalog.json)
+in jellyrock/jellyrock, generated there from its feature pages. The build copies
+it from the same clone as the screenshots and checks it before any page builds
+([`src/data/catalog.ts`](src/data/catalog.ts)). A new feature page upstream
+reaches the site with no change here: jellyrock/jellyrock sends `content-update`
+when the catalog changes, and that deploys.
+
+- **Wording** (title, pitch, what a feature needs) comes from the catalog as it
+  is. To change it, edit the feature page in jellyrock/jellyrock.
+- **Here** ([`src/data/features.ts`](src/data/features.ts)): an icon per slug,
+  the homepage's pinned slugs, and the three hand-written cards that are claims
+  about the project.
+- **A slug with no icon** gets a default icon and a build warning (an
+  annotation on the CI run), never a failure. Add its icon to `FEATURE_ICONS`.
+- **New:** a feature released in the last 90 days shows "New in vX.Y" and
+  appears in the homepage's **New in JellyRock**. A weekly deploy expires it.
+- **A catalog the site can't use** (unreadable, or a `schema` other than 1)
+  fails the build, so the live site stays as it is. Update
+  [`src/data/catalog.ts`](src/data/catalog.ts) for the new shape.
+
+To build from another catalog, such as an edited copy, set
+`FEATURE_CATALOG_PATH`. [`scripts/check-catalog-builds.sh`](scripts/check-catalog-builds.sh)
+does that in CI to prove a new feature can't block a deploy and an unusable
+catalog can't reach one.
+
 ## Updating content
 
 | Task                                      | File(s)                                                                                                                                                                                                                |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Edit hero, install steps, CTAs            | [`src/pages/index.astro`](src/pages/index.astro), [`src/pages/install.astro`](src/pages/install.astro)                                                                                                                 |
-| Edit features list                        | [`src/data/features.ts`](src/data/features.ts) — single source of truth, rendered on `/features` and the home page                                                                                                     |
+| Edit feature cards                        | The feature page in jellyrock/jellyrock; icons, homepage pins and the hand-written cards in [`src/data/features.ts`](src/data/features.ts). See [Feature cards](#feature-cards)                                        |
 | Add/replace screenshots                   | Drop `.png` in [`src/assets/images/jellyrock/screenshots/`](src/assets/images/jellyrock/screenshots/). They are auto-discovered via `import.meta.glob` in [`src/pages/screenshots.astro`](src/pages/screenshots.astro) |
 | Change screenshot sort order              | Filenames are sorted alphabetically by glob. Prefix with `01-`, `02-`, ... to force order, or sort in code — see [`src/pages/screenshots.astro:10`](src/pages/screenshots.astro#L10)                                   |
 | Update donate / contact / privacy / terms | [`src/pages/donate.astro`](src/pages/donate.astro), [`src/pages/contact.astro`](src/pages/contact.astro), [`src/pages/privacy.md`](src/pages/privacy.md), [`src/pages/terms.md`](src/pages/terms.md)                   |
@@ -201,7 +231,7 @@ We inherited AstroWind's structure; deltas worth knowing about:
 - Replaced bundled header/footer with shared components from
   [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui) via
   [`src/layouts/PageLayout.astro`](src/layouts/PageLayout.astro).
-- Features are authored in TypeScript ([`src/data/features.ts`](src/data/features.ts))
+- Feature cards come from the app's feature catalog (see [Feature cards](#feature-cards))
   instead of YAML frontmatter.
 
 ### Restoring a template page

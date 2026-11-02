@@ -3,10 +3,11 @@ import { Image } from 'astro:assets';
 import Layout from '~/layouts/PageLayout.astro';
 
 import Hero from '~/components/widgets/Hero.astro';
-import Features from '~/components/widgets/Features.astro';
+import FeatureSection from '~/components/widgets/FeatureSection.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 
-import { features, HOMEPAGE_FEATURE_COUNT } from '~/data/features';
+import { siteFeatures } from '~/data/site-features';
+import { RELEASE_NOTES_URL } from '~/data/features';
 import { screenshots, homepageScreenshots } from '~/utils/screenshots';
 
 const metadata = {
@@ -19,10 +20,6 @@ const heroScreenshot = screenshots.find((s) => s.name === 'home') ?? screenshots
 // Homepage gallery is a curated teaser; the full set lives on /screenshots.
 const galleryScreenshots = homepageScreenshots;
 const hasMoreScreenshots = screenshots.length > galleryScreenshots.length;
-
-// Show first N features on homepage
-const homepageFeatures = features.slice(0, HOMEPAGE_FEATURE_COUNT);
-const hasMoreFeatures = features.length > HOMEPAGE_FEATURE_COUNT;
 ---
 
 <Layout metadata={metadata}>
@@ -53,21 +50,35 @@ const hasMoreFeatures = features.length > HOMEPAGE_FEATURE_COUNT;
     </Fragment>
   </Hero>
 
-  <Features
+  <FeatureSection
     id="features"
     tagline="Features"
     title="Why JellyRock?"
     subtitle="Built by the community, for the community. JellyRock focuses on stability, performance, and a great user experience."
-    items={homepageFeatures}
+    items={siteFeatures.pinned}
   />
 
-  {hasMoreFeatures && (
-    <div class="text-center -mt-8 mb-12">
-      <a href="/features/" class="btn">
-        View all features
-      </a>
-    </div>
+  {siteFeatures.recent.length > 0 && (
+    <FeatureSection
+      id="new-features"
+      tagline="What's new"
+      title="New in JellyRock"
+      subtitle="Features from the last few months of releases."
+      items={siteFeatures.recent}
+    >
+      <p class="text-center mt-10">
+        <a href={RELEASE_NOTES_URL} class="text-accent underline underline-offset-4 hover:no-underline">
+          Read the release notes
+        </a>
+      </p>
+    </FeatureSection>
   )}
+
+  <div class="text-center -mt-8 mb-12">
+    <a href="/features/" class="btn">
+      View all features
+    </a>
+  </div>
 
   <!-- Screenshot Gallery -->
   {galleryScreenshots.length > 0 && (

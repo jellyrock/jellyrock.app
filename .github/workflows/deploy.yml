@@ -4,11 +4,15 @@ on:
   push:
     branches: [main]
   # Fired by the upstream jellyrock repo when content the site renders at
-  # build time changes (currently docs/screenshots; see issue #1). Those
-  # assets are gitignored and pulled fresh on every build, so a rebuild is
-  # all that's needed to pick them up.
+  # build time changes (docs/screenshots and docs/feature-catalog.json; see
+  # issues #1 and #165). Those files are gitignored and pulled fresh on every
+  # build, so a rebuild is all that's needed to pick them up.
   repository_dispatch:
     types: [content-update]
+  # Weekly, so a feature's "New" label expires on time when nothing upstream changes, and a break
+  # in the build's fetch path shows within a week (the Gotify alert below).
+  schedule:
+    - cron: '23 6 * * 1'
   workflow_dispatch:
 
 concurrency:

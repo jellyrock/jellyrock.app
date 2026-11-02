@@ -6,7 +6,10 @@ import { defineConfig, devices } from '@playwright/test';
 //
 // Screenshot tests (tagged @visual) only match pixel-for-pixel inside the official Playwright
 // image CI uses, so run those through `npm run test:visual` (Docker), never a local browser.
+//
+// DIST_DIR tests another build instead, such as the one scripts/check-catalog-builds.sh makes.
 const port = 4322;
+const distDir = process.env.DIST_DIR || 'dist';
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -32,7 +35,7 @@ export default defineConfig({
     { name: 'phone', use: { ...devices['Pixel 7'] } },
   ],
   webServer: {
-    command: `node src/shared-ui/testing/serve-dist.mjs --root dist --port ${port} --headers tests/support/production-headers.json`,
+    command: `node src/shared-ui/testing/serve-dist.mjs --root ${distDir} --port ${port} --headers tests/support/production-headers.json`,
     url: `http://localhost:${port}/`,
     reuseExistingServer: !process.env.CI,
   },

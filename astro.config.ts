@@ -13,15 +13,18 @@ import type { AstroIntegration } from 'astro';
 import astrowind from './vendor/integration';
 import { fetchAssets } from './src/utils/assets';
 import { fetchSharedUi } from './src/utils/fetch-shared-ui';
+import { loadCatalog } from './src/data/catalog';
 
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
 
-// Fetch JellyRock branding assets + shared-ui from GitHub at build time
+// Fetch JellyRock branding assets, the feature catalog and shared-ui from GitHub at build time.
+// The catalog is checked here, before any page builds, so an unusable one fails in seconds.
 const jellyrockAssets: () => AstroIntegration = () => ({
   name: 'jellyrock-assets',
   hooks: {
     'astro:config:setup': async () => {
       await fetchAssets();
+      loadCatalog();
       await fetchSharedUi();
     },
   },

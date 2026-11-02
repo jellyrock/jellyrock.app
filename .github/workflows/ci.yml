@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run checks (astro + eslint + prettier)
+      - name: Run checks (astro + eslint + prettier + unit tests)
         run: npm run check
 
       - name: Build site
@@ -46,6 +46,19 @@ jobs:
         with:
           name: dist
           path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+      # A new feature upstream must never fail a build, and an unusable catalog must: build from
+      # test catalogs to prove both. The one that builds is tested in the browser below too.
+      - name: Build from test feature catalogs
+        run: scripts/check-catalog-builds.sh
+
+      - name: Upload test-catalog build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist-catalog-test
+          path: dist-catalog-test/
           if-no-files-found: error
           retention-days: 7
 
@@ -96,8 +109,23 @@ jobs:
           name: shared-ui
           path: src/shared-ui/
 
+      - name: Download test-catalog build
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist-catalog-test
+          path: dist-catalog-test/
+
       - name: Run browser tests (functional + screenshots)
         run: npx playwright test
+
+      # The same tests on a build with a new feature that has no icon and is new today: if they
+      # fail here, the next feature page upstream would block a deploy.
+      - name: Run browser tests on the test-catalog build
+        if: ${{ !cancelled() }}
+        run: npx playwright test
+        env:
+          DIST_DIR: dist-catalog-test
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-catalog-test
 
       # Screenshot diffs, traces and failure details. Open index.html from the artifact.
       - name: Upload test report
@@ -105,5 +133,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-report
-          path: playwright-report/
+          path: |
+            playwright-report/
+            playwright-report-catalog-test/
           retention-days: 14

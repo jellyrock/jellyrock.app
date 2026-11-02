@@ -22,6 +22,6 @@ if [[ -L src/shared-ui ]]; then
 fi
 
 exec docker run --rm --init --ipc=host \
-  --user "$(id -u):$(id -g)" -e HOME=/tmp -e CI \
+  --user "$(id -u):$(id -g)" -e HOME=/tmp -e CI -e DIST_DIR \
   "${mounts[@]}" -w /work \
   "$image" npx "$@"
