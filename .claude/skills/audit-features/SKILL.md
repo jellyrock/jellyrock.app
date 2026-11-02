@@ -4,7 +4,7 @@ description: Audit what the marketing site claims about JellyRock against the up
 model: opus
 effort: high
 user-invocable: true
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(./scripts/feature-drift-detect.sh:*), Bash(npm run check:*), Bash(npm run fix:*), Bash(npm run build:*), Bash(gh api:*), Bash(gh release:*), Bash(gh pr:*), Bash(gh issue:*), Bash(git:*), Bash(jq:*), Bash(date:*)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(./scripts/feature-drift-detect.sh:*), Bash(./scripts/feature-icons-check.sh:*), Bash(npm test:*), Bash(npm run check:*), Bash(npm run fix:*), Bash(npm run build:*), Bash(gh api:*), Bash(gh release:*), Bash(gh pr:*), Bash(gh issue:*), Bash(git:*), Bash(jq:*), Bash(date:*)
 ---
 
 # /audit-features: keep the site's own claims honest against the app
@@ -53,10 +53,10 @@ It prints the audited watermark, the latest upstream release, and the released c
 ### Step 2: Check the icons
 
 ```bash
-npm run build 2>&1 | grep -F '[feature catalog]'
+./scripts/feature-icons-check.sh
 ```
 
-Each line is a slug with no icon, or an icon whose slug the catalog dropped. For a missing icon, pick a `tabler:` name that fits the feature's pitch and check it exists before adding it to `FEATURE_ICONS`, or the build breaks:
+It builds the site and prints each slug with no icon, and each icon whose slug the catalog dropped. Exit 2 means the build failed and nothing was checked: fix the build (usually the Node version) and run it again, never read that as a pass. For a missing icon, pick a `tabler:` name that fits the feature's pitch and check it exists before adding it to `FEATURE_ICONS`, or the build breaks:
 
 ```bash
 jq -e --arg k "{{icon-name}}" '.icons[$k]' node_modules/@iconify-json/tabler/icons.json >/dev/null && echo OK || echo MISSING
@@ -77,4 +77,4 @@ Write the latest tag from Step 1 and today's date (`date +%F`) to `.audit/featur
 
 ### Step 5: Check and open the PR
 
-Run `npm run check`; on failure run `npm run fix` and check again. A change to a project card's text changes the screenshots: run `npm run build && npm run test:visual:update` and commit the PNGs. Then branch, commit, push and open the PR. Its body lists the changes, the upstream issues opened, the notable entries skipped, and `Closes #{{tracking-issue}}`. On a no-op audit the PR says "No changes needed for v{{watermark}}..v{{latest}}".
+Run `npm run check`; on failure run `npm run fix` and check again. Then `npm run build && npm test` (needs Docker). The screenshot tests don't show the project cards, so no baseline should change; if one does, find out why before refreshing it. Then branch, commit, push and open the PR. Its body lists the changes, the upstream issues opened, the notable entries skipped, and `Closes #{{tracking-issue}}`. On a no-op audit the PR says "No changes needed for v{{watermark}}..v{{latest}}".
