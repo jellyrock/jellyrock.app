@@ -1,6 +1,6 @@
 ---
 name: audit-features
-description: Audit what the marketing site claims about JellyRock against the upstream jellyrock/jellyrock app, and open a PR that advances the audit watermark (.audit/features-watermark.json). Feature cards come from the app's feature catalog (docs/feature-catalog.json) with no audit; this checks what the catalog can't - the three hand-written project cards and the icon list in src/data/features.ts - and finds user-facing capabilities the changelog delta shipped with no feature page upstream, which the site therefore can't show. Reads the delta via scripts/feature-drift-detect.sh. Use when the feature-drift watcher opens a "Feature audit needed" issue, when an upstream release ships, or on demand. The watermark always advances, even when nothing needs changing, so the loop can't silently re-fire.
+description: Audit what the marketing site claims about JellyRock against the upstream jellyrock/jellyrock app, and open a PR that advances the audit watermark (.audit/features-watermark.json). Feature cards come from the app's feature catalog (docs/feature-catalog.json) with no audit; this checks what the catalog can't - the three hand-written project cards and the icon list in src/data/feature-icons.json - and finds user-facing capabilities the changelog delta shipped with no feature page upstream, which the site therefore can't show. Reads the delta via scripts/feature-drift-detect.sh. Use when the feature-drift watcher opens a "Feature audit needed" issue (a new release, or a catalog feature with no icon), when an upstream release ships, or on demand. The watermark always advances, even when nothing needs changing, so the loop can't silently re-fire.
 model: opus
 effort: high
 user-invocable: true
@@ -11,17 +11,17 @@ allowed-tools: Read, Edit, Write, Grep, Glob, Bash(./scripts/feature-drift-detec
 
 ## Contract
 
-**Goal.** The site's feature cards are built from the app's feature catalog, so a new or reworded feature page in jellyrock/jellyrock reaches the site with no edit here. Three things stay outside the catalog and drift: the three hand-written project cards in `src/data/features.ts` (Blazing Fast & Silky Smooth, Self-Hosted Weblate, Free & Open Source), the icon per catalog slug, and capabilities the app ships with no feature page (which the site cannot show at all). This skill is the judgment half of the feature-drift loop: `scripts/feature-drift-detect.sh` finds the releases since the last audit, and this skill decides what they mean for those three things, then advances the watermark.
+**Goal.** The site's feature cards are built from the app's feature catalog, so a new or reworded feature page in jellyrock/jellyrock reaches the site with no edit here. Three things stay outside the catalog and drift: the three hand-written project cards in `src/data/features.ts` (Blazing Fast & Silky Smooth, Self-Hosted Weblate, Free & Open Source), the icon per catalog slug (`src/data/feature-icons.json`), and capabilities the app ships with no feature page (which the site cannot show at all). This skill is the judgment half of the feature-drift loop: `scripts/feature-drift-detect.sh` finds the releases since the last audit, and this skill decides what they mean for those three things, then advances the watermark.
 
 **Inputs.** No arguments. The changelog delta from `./scripts/feature-drift-detect.sh digest`, the current catalog (the build copies it to `src/data/upstream/feature-catalog.json`), and the upstream user docs (`docs/user/*.md`, `docs/user/features/*.md`). Usually run because the watcher opened a "Feature audit needed" issue.
 
-**Outputs.** One PR on a branch from `main`: the watermark advanced to the latest upstream release, plus any edit to the project cards or `FEATURE_ICONS`. When the delta holds a user-facing capability with no feature page upstream, an issue on jellyrock/jellyrock proposing the page, linked from the PR. A PR body that lists what was changed, what was proposed upstream, and the notable delta entries deliberately skipped.
+**Outputs.** One PR on a branch from `main`: the watermark advanced to the latest upstream release, plus any edit to the project cards or `src/data/feature-icons.json`. When the delta holds a user-facing capability with no feature page upstream, an issue on jellyrock/jellyrock proposing the page, linked from the PR. A PR body that lists what was changed, what was proposed upstream, and the notable delta entries deliberately skipped.
 
 **Success criteria.**
 
 - The watermark equals the latest upstream release, even when nothing else changed.
 - Every claim in the three project cards is still true, checked against a source, not memory.
-- Every released catalog slug has an icon that exists in the installed tabler set, and `FEATURE_ICONS` holds no slug the catalog dropped (the build's warnings say both).
+- Every released catalog slug has an icon that exists in the installed tabler set, and `src/data/feature-icons.json` holds no slug the catalog dropped.
 - A capability with no feature page is proposed upstream, never added here as a card.
 - `npm run check` passes, and the PR closes the tracking issue.
 
@@ -48,7 +48,7 @@ allowed-tools: Read, Edit, Write, Grep, Glob, Bash(./scripts/feature-drift-detec
 ./scripts/feature-drift-detect.sh digest
 ```
 
-It prints the audited watermark, the latest upstream release, and the released changelog sections between them with dependency noise removed. Note both versions. If it says "In sync", report that and stop, unless the user asked for a re-check.
+It prints the audited watermark, the latest upstream release, any icons to fix, and the released changelog sections between them with dependency noise removed. Note both versions. If it says "In sync", report that and stop, unless the user asked for a re-check. When only icons need fixing, do Steps 2, 4 and 5: the watermark rewrite is then a no-op, so the PR carries just the icons.
 
 ### Step 2: Check the icons
 
@@ -56,7 +56,7 @@ It prints the audited watermark, the latest upstream release, and the released c
 ./scripts/feature-icons-check.sh
 ```
 
-It builds the site and prints each slug with no icon, and each icon whose slug the catalog dropped. Exit 2 means the build failed and nothing was checked: fix the build (usually the Node version) and run it again, never read that as a pass. For a missing icon, pick a `tabler:` name that fits the feature's pitch and check it exists before adding it to `FEATURE_ICONS`, or the build breaks:
+It builds the site and prints each slug with no icon, and each icon whose slug the catalog dropped. Exit 2 means the build failed and nothing was checked: fix the build (usually the Node version) and run it again, never read that as a pass. For a missing icon, pick a `tabler:` name that fits the feature's pitch and check it exists before adding it to `src/data/feature-icons.json`, or the build breaks:
 
 ```bash
 jq -e --arg k "{{icon-name}}" '.icons[$k]' node_modules/@iconify-json/tabler/icons.json >/dev/null && echo OK || echo MISSING
