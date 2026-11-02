@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 #
 # feature-drift-detect.sh — flag when the upstream JellyRock app ships releases
-# that the marketing site's feature list (src/data/features.ts) hasn't been
-# audited against yet.
+# that the site's hand-written feature claims (the project cards in
+# src/data/features.ts) haven't been audited against yet. Feature cards
+# themselves come from the app's feature catalog and need no audit.
 #
 # This is the *mechanical* half of the feature-audit loop: it does zero
 # judgement. It compares a stored watermark (the last upstream release we
@@ -153,9 +154,10 @@ cmd_sync_issue() {
     cat <<EOF
 $TRACKING_MARKER
 Upstream **${UPSTREAM_REPO}** has shipped release(s) newer than the last audited
-watermark. Run **\`/audit-features\`** to decide whether any of these warrant a
-new card or an edit in \`src/data/features.ts\`, then merge the PR it opens (which
-advances the watermark and closes this issue).
+watermark. Run **\`/audit-features\`** to check the site's hand-written feature
+claims and icons against them, then merge the PR it opens (which advances the
+watermark and closes this issue). New features reach the site through the app's
+feature catalog, with no audit.
 
 | | |
 | --- | --- |

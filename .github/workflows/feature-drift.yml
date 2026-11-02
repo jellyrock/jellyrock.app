@@ -4,8 +4,8 @@ name: Feature drift watch
 # audited upstream release (.audit/features-watermark.json) against the latest
 # jellyrock/jellyrock release. When upstream is ahead, it opens/updates a single
 # "Feature audit needed" tracking issue with the changelog delta; when back in
-# sync, it closes it. The judgement (is any of this website-worthy?) is the
-# human-run /audit-features skill — this job never edits features.ts.
+# sync, it closes it. The judgement (do the hand-written claims still hold?) is
+# the human-run /audit-features skill — this job never edits features.ts.
 #
 # Authenticates as the JellyRock GitHub App (consistent bot identity, and App
 # events can trigger downstream workflows where GITHUB_TOKEN events cannot).

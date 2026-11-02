@@ -1,12 +1,15 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
-import FeaturesWidget from '~/components/widgets/Features.astro';
-import { features } from '~/data/features';
+import FeatureSection from '~/components/widgets/FeatureSection.astro';
+import { siteFeatures } from '~/data/site-features';
 
 const metadata = {
   title: 'Features',
 };
+
+const { serverRange } = siteFeatures;
+const { languages } = siteFeatures.app;
 ---
 
 <Layout metadata={metadata}>
@@ -16,9 +19,10 @@ const metadata = {
     </Fragment>
 
     <Fragment slot="subtitle">
-      Everything JellyRock offers — built for stability, performance, and a great user experience.
+      Everything JellyRock does. It comes in <span data-catalog-text>{languages}</span> languages and works with{' '}
+      <span class="whitespace-nowrap" data-catalog-text>{`${serverRange}.`}</span>
     </Fragment>
   </HeroText>
 
-  <FeaturesWidget items={features} />
+  <FeatureSection id="all-features" items={siteFeatures.all} needs="detail" />
 </Layout>

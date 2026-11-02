@@ -24,7 +24,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check": "npm run check:astro && npm run check:eslint && npm run check:prettier",
+    "check": "npm run check:astro && npm run check:eslint && npm run check:prettier && npm run test:unit",
     "check:astro": "astro check",
     "check:eslint": "eslint .",
     "check:prettier": "prettier --check .",
@@ -32,6 +32,7 @@
     "fix:eslint": "eslint --fix .",
     "fix:prettier": "prettier -w .",
     "test": "scripts/playwright-docker.sh playwright test",
+    "test:unit": "node --experimental-strip-types --test 'tests/unit/*.test.ts'",
     "test:e2e": "playwright test --grep-invert @visual",
     "test:visual": "scripts/playwright-docker.sh playwright test --grep @visual",
     "test:visual:update": "scripts/playwright-docker.sh playwright test --grep @visual --update-snapshots"

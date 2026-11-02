@@ -1,0 +1,24 @@
+---
+// A titled section of feature cards (ui/FeatureGrid.astro).
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import Headline from '~/components/ui/Headline.astro';
+import FeatureGrid from '~/components/ui/FeatureGrid.astro';
+import type { FeatureCard } from '~/data/features';
+
+export interface Props {
+  id?: string;
+  tagline?: string;
+  title?: string;
+  subtitle?: string;
+  items: FeatureCard[];
+  needs?: 'short' | 'detail';
+}
+
+const { id, tagline, title, subtitle, items, needs } = Astro.props;
+---
+
+<WidgetWrapper id={id} containerClass="max-w-5xl">
+  <Headline title={title} subtitle={subtitle} tagline={tagline} />
+  <FeatureGrid items={items} needs={needs} />
+  <slot />
+</WidgetWrapper>
