@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 
 const REPO_URL = 'https://github.com/jellyrock/shared-ui.git';
 const CLONE_DIR = path.resolve('.shared-ui-repo');
@@ -39,30 +39,63 @@ export async function fetchSharedUi(): Promise<void> {
     return;
   }
 
-  // CI/prod: clone from GitHub and copy files. A copy from before testing/ existed
-  // counts as missing, so the browser tests never run against one without it.
-  const toCopy = ['nav.ts', 'tokens.css', 'components', 'testing'];
-  if (toCopy.every((name) => fs.existsSync(path.join(destDir, name)))) {
-    return; // already fetched
-  }
+  await copySharedUiRelease({ repoUrl: REPO_URL, ref: SHARED_UI_REF, destDir, cloneDir: CLONE_DIR });
+}
 
-  console.log('Fetching shared-ui from GitHub...');
-  if (!fs.existsSync(CLONE_DIR)) {
-    execSync(`git clone --branch ${SHARED_UI_REF} --depth 1 ${REPO_URL} ${CLONE_DIR}`, {
-      stdio: 'inherit',
-    });
-  }
+/** What a release copy holds: the build-time files, and the browser-test code in testing/. */
+const TO_COPY = ['nav.ts', 'tokens.css', 'components', 'testing'];
 
-  fs.rmSync(destDir, { recursive: true, force: true });
-  fs.mkdirSync(destDir, { recursive: true });
-  for (const name of toCopy) {
-    const src = path.join(CLONE_DIR, name);
-    const dest = path.join(destDir, name);
-    if (fs.existsSync(src)) {
-      fs.cpSync(src, dest, { recursive: true });
+/** Records which release the copy is, so a pin bump fetches the new one. */
+export const STAMP_FILE = '.fetched.json';
+
+/**
+ * Copy shared-ui release `ref` into `destDir`, unless it already holds that release. A copy of
+ * another release, one from before testing/ existed, or the symlink to a sibling checkout counts as
+ * missing. The scratch clone is made fresh each time, so a leftover one from an interrupted run is
+ * never used.
+ */
+export async function copySharedUiRelease(options: {
+  repoUrl: string;
+  ref: string;
+  destDir: string;
+  cloneDir: string;
+}): Promise<void> {
+  const { repoUrl, ref, destDir, cloneDir } = options;
+  const isCopy = fs.existsSync(destDir) && !fs.lstatSync(destDir).isSymbolicLink();
+  const complete = TO_COPY.every((name) => fs.existsSync(path.join(destDir, name)));
+  if (isCopy && complete && readRef(path.join(destDir, STAMP_FILE)) === ref) return;
+
+  console.log(`Fetching shared-ui ${ref} from GitHub...`);
+  fs.rmSync(cloneDir, { recursive: true, force: true });
+  try {
+    execFileSync(
+      'git',
+      ['-c', 'advice.detachedHead=false', 'clone', '--quiet', '--branch', ref, '--depth', '1', repoUrl, cloneDir],
+      {
+        stdio: 'inherit',
+      }
+    );
+
+    fs.rmSync(destDir, { recursive: true, force: true });
+    fs.mkdirSync(destDir, { recursive: true });
+    for (const name of TO_COPY) {
+      const src = path.join(cloneDir, name);
+      if (fs.existsSync(src)) {
+        fs.cpSync(src, path.join(destDir, name), { recursive: true });
+      }
     }
+    // Last, so an interrupted copy is fetched again.
+    fs.writeFileSync(path.join(destDir, STAMP_FILE), `${JSON.stringify({ ref }, null, 2)}\n`);
+  } finally {
+    fs.rmSync(cloneDir, { recursive: true, force: true });
   }
-
-  fs.rmSync(CLONE_DIR, { recursive: true, force: true });
   console.log('shared-ui ready.');
+}
+
+function readRef(file: string): string | null {
+  try {
+    return (JSON.parse(fs.readFileSync(file, 'utf8')) as { ref?: string }).ref ?? null;
+  } catch {
+    return null;
+  }
 }

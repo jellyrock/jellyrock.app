@@ -19,14 +19,14 @@ import { loadPluginCatalog } from './src/data/plugin-catalog';
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
 
 // Fetch JellyRock branding assets, the feature catalogs (the app's and the Companion plugin's) and
-// shared-ui from GitHub at build time. The catalogs are checked here, before any page builds, so an
-// unusable one fails in seconds.
+// shared-ui from GitHub at build time, or check the copies from an earlier build are still current
+// (README: Build settings). The catalogs are checked here, before any page builds, so an unusable
+// one fails in seconds.
 const jellyrockAssets: () => AstroIntegration = () => ({
   name: 'jellyrock-assets',
   hooks: {
     'astro:config:setup': async () => {
-      await fetchAssets();
-      await fetchPluginCatalog();
+      await Promise.all([fetchAssets(), fetchPluginCatalog()]);
       loadCatalog();
       loadPluginCatalog();
       await fetchSharedUi();
