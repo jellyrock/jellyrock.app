@@ -62,6 +62,53 @@ npm run fix              # eslint --fix + prettier --write
 npm test                 # browser tests, as CI runs them (needs Docker and a build)
 ```
 
+### Files fetched from upstream
+
+The build copies files from three repos and keeps the copies between builds.
+All of them are gitignored.
+
+| Copy                                                                                                | From                                                  | Kept current by                  |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | -------------------------------- |
+| `src/assets/images/jellyrock/` (screenshots, branding) and `src/data/upstream/feature-catalog.json` | jellyrock/jellyrock, `main`                           | checking upstream on every build |
+| `src/data/upstream/plugin-catalog.json`                                                             | jellyrock/jellyfin-plugin-jellyrock, `main`           | checking upstream on every build |
+| `src/shared-ui/`                                                                                    | jellyrock/shared-ui, the release `SHARED_UI_REF` pins | the pin, with no network check   |
+
+The upstream check is a clone that downloads no file contents, and git's hash
+of each copied path says whether it changed. It adds under a second to a build.
+When nothing changed, the build prints `JellyRock assets: up to date.` When
+something did, it replaces that copy, so files upstream deleted or renamed go
+too. What each copy holds is recorded beside it (`src/data/upstream/*.fetched.json`,
+`src/shared-ui/.fetched.json`). When upstream can't be reached, the build warns
+and uses the copy it has.
+
+To fetch everything again, delete the copies:
+
+```bash
+rm -rf src/assets/images/jellyrock src/data/upstream src/shared-ui
+```
+
+To preview screenshots before they are upstream, copy them into
+`src/assets/images/jellyrock/screenshots/en_US/` and build with
+`UPSTREAM_FROM_CACHE=1`. Without it, the next upstream change to the
+screenshots replaces the folder, and your files with it.
+
+### Build settings
+
+Environment variables the build and the tests read. A normal build needs none.
+
+| Variable                      | What it does                                                                                       | Set by                                                                                                       |
+| ----------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `UPSTREAM_FROM_CACHE=1`       | Builds from the upstream copies already fetched, without checking upstream. With no copy, fetches. | CI's check job, so all its builds use the same upstream content. You, to preview files copied in by hand.    |
+| `SHARED_UI_FROM_RELEASE=1`    | Uses the pinned shared-ui release even when `../shared-ui` exists.                                 | `scripts/shared-ui-bump.sh`, `scripts/feature-icons-check.sh`, and the command `npm test` prints when needed |
+| `FEATURE_CATALOG_PATH=<file>` | Builds from this app feature catalog instead of the fetched one.                                   | `scripts/build-visual.sh`, `scripts/check-catalog-builds.sh`                                                 |
+| `PLUGIN_CATALOG_PATH=<file>`  | Builds from this Companion plugin catalog instead of the fetched one.                              | `scripts/build-visual.sh`, `scripts/check-catalog-builds.sh`                                                 |
+| `FEATURE_BUILD_DATE=<date>`   | Decides which features count as new as of this date (any date `new Date()` reads) instead of now.  | `scripts/build-visual.sh`, from the test catalog's `_buildDate`                                              |
+| `DIST_DIR=<dir>`              | Runs the browser tests against this build instead of `dist/`.                                      | `npm run test:visual`, CI's browser-tests job                                                                |
+
+CI sets two more on its own: `CI` makes Playwright retry once, fail on a
+`test.only` and report to GitHub, and `GITHUB_ACTIONS` turns feature-catalog
+warnings into annotations on the run.
+
 ## Browser tests
 
 CI opens the built site in a real browser (Playwright, Chromium) at desktop and
@@ -130,8 +177,8 @@ git clone https://github.com/jellyrock/shared-ui.git ../shared-ui
 ```
 
 When `../shared-ui/` exists, the fetch script symlinks `src/shared-ui/` to it
-instead of cloning. Vite then picks up every save instantly. Remove the sibling
-(or `rm -rf src/shared-ui`) to go back to the clone-from-GitHub default.
+instead of cloning. Vite then picks up every save instantly. Remove the sibling,
+or build with `SHARED_UI_FROM_RELEASE=1`, to go back to the pinned release.
 
 > [!CAUTION]
 > The symlink points at your local working tree — you can ship a build
@@ -215,8 +262,9 @@ show today's features, run
 [`scripts/refresh-test-catalog.sh`](scripts/refresh-test-catalog.sh), then
 `npm run build:visual && npm run test:visual:update`.
 
-Locally, the build reuses the catalogs it fetched before. Delete
-`src/data/upstream/` to fetch the current ones. To build from another catalog,
+Locally, the build checks the catalogs it fetched before against upstream and
+fetches them again when they changed
+([Files fetched from upstream](#files-fetched-from-upstream)). To build from another catalog,
 such as an edited copy, set `FEATURE_CATALOG_PATH` (the app's) or
 `PLUGIN_CATALOG_PATH` (the plugin's).
 [`scripts/check-catalog-builds.sh`](scripts/check-catalog-builds.sh) does that
@@ -225,16 +273,16 @@ either kind can't reach one.
 
 ## Updating content
 
-| Task                                      | File(s)                                                                                                                                                                                                                |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Edit hero, install steps, CTAs            | [`src/pages/index.astro`](src/pages/index.astro), [`src/pages/install.astro`](src/pages/install.astro)                                                                                                                 |
-| Edit feature cards                        | The feature page in jellyrock/jellyrock; icons, homepage pins and the hand-written cards in [`src/data/features.ts`](src/data/features.ts). See [Feature cards](#feature-cards)                                        |
-| Add/replace screenshots                   | Drop `.png` in [`src/assets/images/jellyrock/screenshots/`](src/assets/images/jellyrock/screenshots/). They are auto-discovered via `import.meta.glob` in [`src/pages/screenshots.astro`](src/pages/screenshots.astro) |
-| Change screenshot sort order              | Filenames are sorted alphabetically by glob. Prefix with `01-`, `02-`, ... to force order, or sort in code — see [`src/pages/screenshots.astro:10`](src/pages/screenshots.astro#L10)                                   |
-| Update donate / contact / privacy / terms | [`src/pages/donate.astro`](src/pages/donate.astro), [`src/pages/contact.astro`](src/pages/contact.astro), [`src/pages/privacy.md`](src/pages/privacy.md), [`src/pages/terms.md`](src/pages/terms.md)                   |
-| Swap Umami website ID                     | [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro)                                                                                                                                       |
-| Change header/footer links                | Edit in [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui) (affects all sites)                                                                                                                            |
-| Update branding assets                    | [`src/assets/images/jellyrock/branding/`](src/assets/images/jellyrock/branding/)                                                                                                                                       |
+| Task                                      | File(s)                                                                                                                                                                                              |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Edit hero, install steps, CTAs            | [`src/pages/index.astro`](src/pages/index.astro), [`src/pages/install.astro`](src/pages/install.astro)                                                                                               |
+| Edit feature cards                        | The feature page in jellyrock/jellyrock; icons, homepage pins and the hand-written cards in [`src/data/features.ts`](src/data/features.ts). See [Feature cards](#feature-cards)                      |
+| Add/replace screenshots                   | In jellyrock/jellyrock's `docs/screenshots/`, which the build copies ([Files fetched from upstream](#files-fetched-from-upstream)). To preview one first, see that section                           |
+| Change screenshot sort order              | Filenames are sorted alphabetically by glob. Prefix with `01-`, `02-`, ... to force order, or sort in code — see [`src/pages/screenshots.astro:10`](src/pages/screenshots.astro#L10)                 |
+| Update donate / contact / privacy / terms | [`src/pages/donate.astro`](src/pages/donate.astro), [`src/pages/contact.astro`](src/pages/contact.astro), [`src/pages/privacy.md`](src/pages/privacy.md), [`src/pages/terms.md`](src/pages/terms.md) |
+| Swap Umami website ID                     | [`src/components/common/Analytics.astro`](src/components/common/Analytics.astro)                                                                                                                     |
+| Change header/footer links                | Edit in [`jellyrock/shared-ui`](https://github.com/jellyrock/shared-ui) (affects all sites)                                                                                                          |
+| Update branding assets                    | In jellyrock/jellyrock's `resources/branding/`, which the build copies ([Files fetched from upstream](#files-fetched-from-upstream))                                                                 |
 
 ### Adding short videos (future)
 

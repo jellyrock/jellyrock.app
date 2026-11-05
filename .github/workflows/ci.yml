@@ -18,6 +18,10 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # The first build fetches the upstream files; every later build in the job uses that copy
+    # rather than checking upstream again, so they all build from the same upstream content.
+    env:
+      UPSTREAM_FROM_CACHE: '1'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
