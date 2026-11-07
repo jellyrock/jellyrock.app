@@ -2,3 +2,12 @@ dist
 node_modules
 .github
 .changeset
+
+# Shared agent skills and rules, the cursor journal and the markdownlint config come from an
+# upstream source and stay byte-identical to it, so Prettier leaves them alone.
+# The repo's own skills stay checked.
+.claude/skills/*
+!.claude/skills/audit-features/
+.claude/rules/
+docs/cursor.md
+.markdownlint-cli2.jsonc
