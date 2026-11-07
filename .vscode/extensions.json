@@ -3,6 +3,7 @@
     "astro-build.astro-vscode",
     "bradlc.vscode-tailwindcss",
     "dbaeumer.vscode-eslint",
+    "davidanson.vscode-markdownlint",
     "esbenp.prettier-vscode",
     "unifiedjs.vscode-mdx"
   ],
