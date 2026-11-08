@@ -15,9 +15,14 @@ const metadata = {
       Support <span class="text-accent">JellyRock</span>
     </Fragment>
 
+    <!-- prettier-ignore -->
     <Fragment slot="subtitle">
-      Hey, I'm Charles 👋 I build JellyRock on my own, in my spare time. When someone sponsors it, it makes my day. I
-      appreciate every single one of you.
+      Hiya, I'm Charlie 👋 JellyRock is an open-source Jellyfin client for Roku. I build it on my own, in my spare time:
+      the <a href="/" class="text-accent underline">app</a>, its
+      <a href="/companion-plugin/" class="text-accent underline">companion server plugin</a> and the
+      <a href="https://docs.jellyrock.app" target="_blank" class="text-accent underline">docs</a>. My focus is making it
+      stable and fast, playing your files in their original quality whenever your Roku can, and adding the features
+      people ask for most, without making it harder to use.
     </Fragment>
   </HeroText>
 
@@ -33,15 +38,16 @@ const metadata = {
       </div>
 
       <p class="mt-8" style="color: var(--jr-text-secondary)">
-        The money goes back into the project: the Roku devices I test on, the domain and email, and the AI coding tools
-        that help me get more done in the time I have.
+        Sponsorships go straight back into the project: the Roku devices I test on, the domain and email, and the AI
+        coding tools that help me get more done in the time I have. And honestly, it's really encouraging to know people
+        like it that much.
       </p>
     </div>
   </section>
 
   <Features2
     title="Other ways to help"
-    subtitle="Not able to give? Totally fine. There are lots of other ways to help."
+    subtitle="Not able to give? These help just as much."
     columns={2}
     items={[
       {
@@ -56,6 +62,12 @@ const metadata = {
         icon: 'tabler:star',
       },
       {
+        title: 'Rate JellyRock on Roku',
+        description:
+          'Rate it on the <a href="https://channelstore.roku.com/details/232f9e82db11ce628e3fe7e01382a330:a85d6e9e520567806e8dae1c0cabadd5/jellyrock" target="_blank" class="text-accent underline">Roku Channel Store</a> website: sign in to your Roku account, then click the stars at the top of the page. You need JellyRock installed, and it can\'t be done from the TV.',
+        icon: 'tabler:thumb-up',
+      },
+      {
         title: 'Report a bug or suggest a feature',
         description:
           '<a href="https://github.com/jellyrock/jellyrock/issues/new/choose" target="_blank" class="text-accent underline">Open an issue on GitHub</a>',
@@ -68,16 +80,10 @@ const metadata = {
         icon: 'tabler:language',
       },
       {
-        title: 'Answer questions',
+        title: 'Contribute code or docs',
         description:
-          'Help other people in <a href="https://github.com/jellyrock/jellyrock/discussions" target="_blank" class="text-accent underline">GitHub Discussions</a>.',
-        icon: 'tabler:messages',
-      },
-      {
-        title: 'Improve the docs',
-        description:
-          'Every page on <a href="https://docs.jellyrock.app/" target="_blank" class="text-accent underline">docs.jellyrock.app</a> has an "Edit page" link.',
-        icon: 'tabler:file-text',
+          'Start with the <a href="https://github.com/jellyrock/.github/blob/main/CONTRIBUTING.md" target="_blank" class="text-accent underline">contributing guide</a>.',
+        icon: 'tabler:git-pull-request',
       },
     ]}
   />
@@ -88,7 +94,7 @@ const metadata = {
         Donations go straight to me through Buy Me a Coffee or GitHub Sponsors. JellyRock itself doesn't collect or hold
         any money.
       </p>
-      <p class="mt-4">Thanks for using JellyRock! I hope it's a pleasure to use.</p>
+      <p class="mt-4">Thanks for using JellyRock! I hope you enjoy it as much as I do.</p>
     </div>
   </section>
 </Layout>
