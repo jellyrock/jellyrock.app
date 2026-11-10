@@ -77,4 +77,4 @@ Write the latest tag from Step 1 and today's date (`date +%F`) to `.audit/featur
 
 ### Step 5: Check and open the PR
 
-Run `npm run check`; on failure run `npm run fix` and check again. Then `npm run build && npm test` (needs Docker). The screenshot tests don't show the project cards, so no baseline should change; if one does, find out why before refreshing it. Then branch, commit, push and open the PR. Its body lists the changes, the upstream issues opened, the notable entries skipped, and `Closes #{{tracking-issue}}`. On a no-op audit the PR says "No changes needed for v{{watermark}}..v{{latest}}".
+Run `npm run check`; on failure run `npm run fix` and check again. Then `npm run build && npm run build:visual && npm test` (needs Docker). The screenshot tests don't show the project cards, so no baseline should change; if one does, find out why before refreshing it. Then branch, commit, push and open the PR. Its body lists the changes, the upstream issues opened, the notable entries skipped, and `Closes #{{tracking-issue}}`. On a no-op audit the PR says "No changes needed for v{{watermark}}..v{{latest}}".

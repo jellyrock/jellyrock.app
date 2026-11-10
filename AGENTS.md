@@ -13,10 +13,10 @@ Do not bypass this. A failing `check` means a failing CI — don't push and hope
 
 ## Browser tests
 
-CI also runs Playwright browser tests on the built site (README: Browser tests). Before pushing a change that can affect what a page renders, run `npm run build && npm test` (needs Docker).
+CI also runs Playwright browser tests on the built site (README: Browser tests). Before pushing a change that can affect what a page renders, run `npm run build && npm run build:visual && npm test` (needs Docker).
 
-- A screenshot test that fails after a **deliberate** visual change: confirm the diff is what was intended, then `npm run test:visual:update` and commit the PNGs. Never refresh baselines to make an unexplained diff go away.
-- Never generate screenshot baselines with a local browser; only `npm run test:visual:update` (the CI image) produces matching pixels.
+- A screenshot test that fails after a **deliberate** visual change: confirm the diff is what was intended, then `npm run build:visual && npm run test:visual:update` and commit the PNGs. Never refresh baselines to make an unexplained diff go away.
+- Never generate screenshot baselines with a local browser; only `npm run build:visual && npm run test:visual:update` (the CI image) produces matching pixels.
 - The site's CSP is `script-src 'self'`: no `is:inline` scripts and no third-party script, style or font origins. The tests fail on either.
 
 ## Repo facts
@@ -43,8 +43,8 @@ none
 
 - `npm ci`: once in a fresh clone or worktree, before any command below.
 - `npm run check`: the floor before every commit (astro check, eslint, `prettier --check`, unit tests). CI runs the same script. When it fails, run `npm run fix`, then `npm run check` again.
-- `npm run build && npm test`: the browser tests (needs Docker). Run them after a change that can affect what a page renders.
-- `npm run test:visual:update`: only after a deliberate visual change whose diff you confirmed. Never generate baselines with a local browser.
+- `npm run build && npm run build:visual && npm test`: the browser tests (needs Docker). Run them after a change that can affect what a page renders.
+- `npm run build:visual && npm run test:visual:update`: only after a deliberate visual change whose diff you confirmed. Never generate baselines with a local browser.
 - Never run `prettier -w` on the shared skills, rules, `docs/cursor.md` or `.markdownlint-cli2.jsonc`: `.prettierignore` keeps them byte-identical to their upstream copies.
 
 ### Plan path
