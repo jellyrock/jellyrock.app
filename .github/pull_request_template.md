@@ -15,9 +15,10 @@
 
 ## Testing
 
-<!-- Required. What you ran and what it showed. `npm run check` always; `npm run build && npm test` (needs Docker)
-     when a page can render differently. After a deliberate visual change, say which screenshot baselines you refreshed with
-     `npm run test:visual:update` and why. When nothing ran, write "Not tested" and why. -->
+<!-- Required. What you ran and what it showed. `npm run check` always;
+     `npm run build && npm run build:visual && npm test` (needs Docker) when a page can render differently.
+     After a deliberate visual change, say which screenshot baselines you refreshed with
+     `npm run build:visual && npm run test:visual:update` and why. When nothing ran, write "Not tested" and why. -->
 
 ## Issues
 
