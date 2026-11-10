@@ -2,7 +2,7 @@
 name: issue-triage
 model: opus
 effort: high
-description: "Investigate one GitHub issue and act on it the /snag way. Fetches the issue and its comments, first checks it is still true (everything it names still exists), reads it through the repo's issue forms, classifies it (bug, feature, enhancement, or a design decision), checks whether it is real, reproducible and not already fixed, maps it to an area, reproduces it and finds the root cause, then shows one decision screen; the chosen fix is built test-first and committed on a fix branch, never pushed. Anything posted on the issue is drafted and shown first. Use when you have an issue number you want to act on."
+description: "Investigate one GitHub issue and act on it the /snag way. Fetches the issue and its comments, first checks it is still true (everything it names still exists), reads it through the repo's issue forms, classifies it (bug, feature, enhancement, or a design decision), checks whether it is real, reproducible and not already fixed, maps it to an area, reproduces it and finds the root cause, then shows one decision screen; the chosen fix is built test-first and committed on a fix branch, never pushed. Anything posted on the issue is drafted and shown first. Use when you have an issue number you want to act on. Not for a 'Feature audit needed' issue from the Feature drift watch: that is /audit-features."
 ---
 
 # /issue-triage: investigate one GitHub issue
