@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a bug in the JellyRock app
+    url: https://github.com/jellyrock/jellyrock/issues/new/choose
+    about: Use this for a problem in the Roku app itself. These forms are only for the jellyrock.app website.
+  - name: Ask a question
+    url: https://github.com/jellyrock/jellyrock/discussions
+    about: Questions about installing or using JellyRock go to its GitHub Discussions.
+  - name: Chat with the community
+    url: https://matrix.to/#/#jellyrock-app:matrix.org
+    about: Real-time help and conversation in the JellyRock Matrix room.
