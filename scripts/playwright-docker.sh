@@ -10,7 +10,8 @@ cd "$(dirname "$0")/.."
 image=$(grep -oE 'mcr\.microsoft\.com/playwright:v[0-9.]+-noble@sha256:[0-9a-f]{64}' .github/workflows/ci.yml | head -1)
 [[ -n $image ]] || { echo "No Playwright image found in .github/workflows/ci.yml" >&2; exit 1; }
 dist=${DIST_DIR:-dist}
-[[ -f $dist/index.html ]] || { echo "$dist/ is missing: run 'npm run build' first" >&2; exit 1; }
+build=build; [[ $dist == dist-visual ]] && build=build:visual
+[[ -f $dist/index.html ]] || { echo "$dist/ is missing: run 'npm run $build' first" >&2; exit 1; }
 command -v docker >/dev/null || { echo "Docker is required for screenshot tests" >&2; exit 1; }
 
 # A linked ../shared-ui is your local checkout, not the release this repo pins, so its header and

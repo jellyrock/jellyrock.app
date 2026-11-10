@@ -7,6 +7,11 @@ description: "Diagnose a failed CI workflow run and fix it the /snag way. A test
 
 # /ci-triage: diagnose a failed CI run
 
+## This repo
+
+- **Local commands** (Step 5), after `npm ci`: "Run checks" is `npm run check` (its `sub-check:` line names the failing script; `npm run fix` fixes lint and format). "Build site" is `npm run build`, "Build from test feature catalogs" is `scripts/check-catalog-builds.sh`, "Build for the screenshot tests" is `npm run build:visual`. The browser tests run in CI's Playwright image through `scripts/playwright-docker.sh` (needs Docker): the functional tests are `npm run build` then `scripts/playwright-docker.sh playwright test --grep-invert @visual`, the screenshot tests `npm run build:visual && npm run test:visual`. A failed run's **playwright-report** artifact shows each failure, and each screenshot diff.
+- **Deploy steps** (the Deploy Homepage workflow runs CI's jobs as `gates`, then deploys): "Verify the live site serves this build" runs locally as `scripts/verify-live.sh`; "Set up SSH" and "Deploy to VPS via rsync" need the deploy secrets, so read their log.
+
 ## Contract
 
 **Goal.** Take a failed CI run from red to a chosen, verified fix in one session. A tested script does the mechanical read (fetch the run, find every failed job and step, cut each job's log to the region around its errors, classify each step against this repo's `gates.tsv`), so the session's effort goes to the diagnosis: is it transient, does it reproduce locally, what is the root cause. From there it follows `/snag`'s method: a decision screen with the evidence and at least two candidate fixes, the user's pick, the fix built test-first and committed, never pushed.

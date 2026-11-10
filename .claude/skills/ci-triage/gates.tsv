@@ -14,8 +14,17 @@
 #                    finding: rotate the credential first; a security baseline: never extend it
 #                    just to turn the gate green).
 #
-# A step no line matches is reported unknown, with a request to add its line here.
-# Examples (remove the leading # and adapt):
-#Run lint suite	lint-fail	[0-9]+ check\(s\) failed:	reproduce locally with the lint command in /ci-triage's ## This repo
-#Gitleaks scan	secret-leak	-	rotate the credential first; never delete, allowlist or hide the finding
-#Install*	toolchain-fail	-	setup, not this repo's code: check upstream, and re-run before changing anything
+
+Checkout	toolchain-fail	-	setup, not this repo's code: re-run before changing anything
+Setup *	toolchain-fail	-	setup, not this repo's code: re-run before changing anything
+Upload *	toolchain-fail	-	setup, not this repo's code: re-run before changing anything
+Download *	toolchain-fail	-	setup, not this repo's code: re-run before changing anything
+Install dependencies	install-fail	-	read the first "npm error code" line in the full log, not the usage text after it: EUSAGE means package-lock.json is out of step with package.json
+Run checks*	lint-fail	> [^ ]+@[^ ]+
+Build *	build-fail	-
+Run screenshot tests	test-fail	-	confirm the diff is a deliberate visual change before refreshing baselines; never refresh them to make an unexplained diff go away
+Run functional*	test-fail	-
+Set up SSH	deploy-fail	-
+Deploy to VPS*	deploy-fail	-
+Verify the live site*	deploy-fail	-
+Notify Gotify	notify-fail	-

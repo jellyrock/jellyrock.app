@@ -7,6 +7,10 @@ description: Execute a procedural implementation plan on the Sonnet model. Runs 
 
 # /sonnet: execute a procedural plan on Sonnet
 
+## This repo
+
+- **A pull request replaces the push.** Every change goes on a branch and opens through `/pr`, never a push to `main`: a push to `main` deploys jellyrock.app (`.github/workflows/deploy.yml`), and branch protection does not stop an admin's push.
+
 ## Contract
 
 **Goal.** Execute a clear-spec implementation plan carefully, on the Sonnet model. There are two ways in. The user types `/sonnet {{plan-path}}`: the `model: sonnet` pin applies only then (invoked through the Skill tool, the skill would run on the caller's model). Or a parent (usually `/focus`, right after it saves its plan, where the user's choices are its fork questions and there is no separate approval) starts a sub-agent with its model set to Sonnet and these steps as its task, and supervises it: the parent answers what the plan already settles, brings everything else to the user, and reviews the result before the user sees it. Either way the plan is the spec.

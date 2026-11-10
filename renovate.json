@@ -1,6 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>jellyrock/.github//renovate/default"],
+  "npm": {
+    "description": "npm 12 refuses its own fetch of a package that ships bundleDependencies when it writes the lock file (npm/cli#9800), so every tailwindcss bump failed its lock update (#178). allow-remote=all, npm 11's default, applies to Renovate's npm runs only; CI and local installs keep npm 12's stricter default. Remove it once the npm version packageManager pins includes a fix (npm/cli#9819).",
+    "npmrc": "allow-remote=all"
+  },
   "customManagers": [
     {
       "customType": "regex",
