@@ -26,6 +26,12 @@ Not now: it waits on npm/cli#9819, or another fix for #9800, shipping in an npm 
 
 Fix: delete the `npm` block from `renovate.json`, then confirm the next tailwind bump's lock update passes without it (no "Artifact update problem" comment, CI green).
 
+### Tooling
+
+#### Remove scripts/catchup-state.sh once the shared /catchup reader reads GitHub state `[fid: catchup-own-reader-removal]` `[captured 2026-11-10]`
+
+This repo's `/catchup` reads failed CI runs (`ci-failing`) and open "Feature audit needed" issues (`audit-needed`) through its own reader, `scripts/catchup-state.sh`, named by the `reader=` line in `.claude/skills/catchup/catchup.conf` (added in #192). A proposal upstream, sent 2026-11-10, would have the shared `/catchup` reader read this GitHub state for every repo. When that lands and a sync brings it here, delete `scripts/catchup-state.sh` and the `reader=` and class lines in `catchup.conf`, then run `/catchup` and confirm it still lists `ci-failing` and `audit-needed` (with #186 closed, open a test issue or wait for the next watcher issue). Not now: the shared reader does not exist yet.
+
 ## Batch jobs
 
 Nothing currently running. (Long-running ingest, restores, migrations, or builds land here while in flight so `/catchup` can surface them.)
