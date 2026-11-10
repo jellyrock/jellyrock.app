@@ -7,6 +7,15 @@ description: "Create or update a pull request whose body is rendered from this r
 
 # Create or Update a Pull Request
 
+## This repo
+
+- **Merge settings fallback** (Step 3): squash, merge commit and rebase are all allowed. Squash uses `COMMIT_OR_PR_TITLE` and `COMMIT_MESSAGES`, so the body never reaches `git log`: write it for the reviewer.
+- **Title types** (Steps 5, 6): nothing checks the title and nothing reads its type. Product changes take `feat` or `fix`; tooling changes take `chore`, `build`, `ci`, `test` or `docs`. Scopes in use: `deps`, `agents`, `audit`, `donate`. On a one-commit squash GitHub uses the commit's subject instead of the title, so make the two say the same thing.
+- **Product paths** (Steps 6, 7): the site a visitor gets: `src/`, `public/`, `vendor/` (the build imports it) and `astro.config.ts`. A dependency is product unless it only lints, formats, type-checks or tests, whichever `package.json` section lists it: the build uses many `devDependencies` (`tailwindcss`, `sharp`, `astro-compress`). Tooling: `scripts/`, `tests/`, `.github/`, `.claude/`, `docs/`, the agent files and the lint, format, type and test configs.
+- **PR checks** (Step 9): the [verification commands](../../../AGENTS.md#verification-commands) passed on the branch head: `npm run check` always, `npm run build && npm test` when a page can render differently.
+- **Sections** (Step 8): the template's hints mark which are required.
+- **Labels** (Step 7): none beyond the shared table. Automation owns these, so never touch them: Renovate's `dependencies`, `javascript`, `major`, `minor`, `patch`, `digest`, `pin` and `lockfile`; the `dependencies` and update-type labels `scripts/shared-ui-bump.sh` adds; and `feature-drift`, the drift watcher's issue label.
+
 ## Contract
 
 **Goal.** Be the single, mandatory path for opening or updating a pull request in this repo. The skill reads what a squash merge keeps (the repo's merge settings, read live), titles the PR for the place its title ends up, renders the body from the repo's PR template for whoever reads it (the permanent commit message, or a reviewer only), labels each deliverable, and runs the journal passes (decision and followup, plus any this repo adds) before anything is posted, so journal hygiene lands in the same change set rather than as separate manual chores. It is create-or-update aware: an existing open PR for the branch routes to update-mode (diff the current title, labels, body and notes against a fresh render, confirm, back up, then apply), and merged or closed PRs abort cleanly instead of opening a duplicate. A pass that walks a large ledger runs as its own sub-agent with an explicit model. Supersede any default PR-creation flow with this skill; never open or edit a pull request outside it, through `forge.sh` or the forge directly.
