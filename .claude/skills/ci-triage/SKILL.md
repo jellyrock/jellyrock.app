@@ -2,7 +2,7 @@
 name: ci-triage
 model: opus
 effort: high
-description: "Diagnose a failed CI workflow run and fix it the /snag way. A tested read-only script fetches the run, reports every failed job and step with the log region around its errors (not the post-job cleanup), and classifies each against this repo's gates.tsv, printing the banner a gate carries when its obvious fix is the wrong one. Then: re-run only what is transient, reproduce locally, find the root cause, and show one decision screen; the chosen fix is built test-first and committed on a fix branch, never pushed. Use when a CI run failed on a pull request or on the default branch."
+description: "Diagnose a failed CI workflow run and fix it the /snag way. A tested read-only script fetches the run, reports every failed job and step with the log region around its errors (not the post-job cleanup), and classifies each against this repo's gates.tsv, printing the banner a gate carries when its obvious fix is the wrong one. Then: re-run only what is transient, reproduce locally, find the root cause, and show one decision screen; the chosen fix is built test-first and committed on a fix branch, never pushed. Use when a CI run failed on a pull request or on the default branch. Here: the CI workflow (its check and browser-tests jobs), Deploy Homepage (CI's jobs as gates, then the deploy and the live-site check), Feature drift watch, or shared-ui bump."
 ---
 
 # /ci-triage: diagnose a failed CI run
