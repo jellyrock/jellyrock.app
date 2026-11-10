@@ -1,0 +1,64 @@
+name: Bug report
+description: Report a problem with the jellyrock.app website
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. This form is for the website. For a problem in the Roku app, use the JellyRock app's issue tracker instead.
+
+  - type: input
+    id: page
+    attributes:
+      label: Which page?
+      description: The address of the page where the problem happens.
+      placeholder: https://jellyrock.app/install/
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What you saw and what you expected instead.
+      placeholder: The screenshot gallery shows empty boxes. I expected the app screenshots.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps that reliably reproduce the bug.
+      placeholder: |
+        1. Open the Screenshots page
+        2. Pick a language other than English
+        3. Bug occurs
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      description: The browser and its version, and the device and operating system.
+      placeholder: Firefox 140 on Windows 11, or Safari on an iPhone with iOS 26
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots (optional)
+      description: Drag and drop images here.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional context (optional)
+      description: Anything else that might help, such as browser console errors or whether it happens in another browser.
+    validations:
+      required: false

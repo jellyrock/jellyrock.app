@@ -1,0 +1,42 @@
+name: Enhancement request
+description: Suggest an improvement to something the jellyrock.app website already has
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this to refine something the website already has. For something new, use the Feature request form instead. For the Roku app, use the JellyRock app's issue tracker.
+
+  - type: input
+    id: page
+    attributes:
+      label: Which page?
+      description: The address of the page you want to improve.
+      placeholder: https://jellyrock.app/features/
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_change
+    attributes:
+      label: Proposed change
+      description: What should be different about how it looks or behaves?
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Why is this better?
+      description: What does the change improve for visitors?
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional context (optional)
+      description: Links, screenshots or anything else that helps.
+    validations:
+      required: false
