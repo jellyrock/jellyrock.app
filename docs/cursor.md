@@ -32,6 +32,4 @@ Nothing currently running. (Long-running ingest, restores, migrations, or builds
 
 ## Recurring cadences
 
-| Cadence | Last run | Next due | Notes |
-|---|---|---|---|
-| <cadence-name> | YYYY-MM-DD | YYYY-MM-DD | <what it is + which skill/command runs it> |
+None. Deploys, the Feature drift watch and Renovate run on their own schedules. The feature audit starts from the watcher's "Feature audit needed" issue, which `/catchup` shows.
