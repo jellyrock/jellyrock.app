@@ -31,6 +31,7 @@ set -euo pipefail
 UPSTREAM_REPO="${UPSTREAM_REPO:-jellyrock/jellyrock}"
 WATERMARK_FILE="${WATERMARK_FILE:-.audit/features-watermark.json}"
 ICONS_FILE="${ICONS_FILE:-src/data/feature-icons.json}"
+# .claude/skills/catchup/catchup.conf watches this label too (watch.audit-needed): rename both together.
 TRACKING_LABEL="${TRACKING_LABEL:-feature-drift}"
 # Marker embedded in the tracking issue body so we can find it unambiguously
 # even if the label is ever removed by hand.

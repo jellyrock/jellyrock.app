@@ -4,7 +4,7 @@ Live state that survives between Claude Code sessions: in-flight non-project wor
 
 Tracked projects are kept outside this repo, on the maintainer's machine (`/start-project` finds where); they have their own PLANs, statuses, and lifecycle skills (`/start-project` / `/resume-project` / `/end-session`). This cursor doc is for everything else: ad-hoc work between projects, followups captured via `/log followup` for next session, and the cadences that aren't crontabbed but still need human attention.
 
-**Last updated**: 2026-11-10
+**Last updated**: 2026-11-12
 
 ## In-flight non-project work
 
@@ -25,12 +25,6 @@ None open.
 Not now: it waits on npm/cli#9819, or another fix for #9800, shipping in an npm release that `packageManager` pins. Check the npm changelog for it on the re-check date.
 
 Fix: delete the `npm` block from `renovate.json`, then confirm the next tailwind bump's lock update passes without it (no "Artifact update problem" comment, CI green).
-
-### Tooling
-
-#### Remove scripts/catchup-state.sh once the shared /catchup reader reads GitHub state `[fid: catchup-own-reader-removal]` `[captured 2026-11-10]`
-
-This repo's `/catchup` reads failed CI runs (`ci-failing`) and open "Feature audit needed" issues (`audit-needed`) through its own reader, `scripts/catchup-state.sh`, named by the `reader=` line in `.claude/skills/catchup/catchup.conf` (added in #192). A proposal upstream, sent 2026-11-10, would have the shared `/catchup` reader read this GitHub state for every repo. When that lands and a sync brings it here, delete `scripts/catchup-state.sh` and the `reader=` and class lines in `catchup.conf`, then run `/catchup` and confirm it still lists `ci-failing` and `audit-needed` (with #186 closed, open a test issue or wait for the next watcher issue). Not now: the shared reader does not exist yet.
 
 ## Batch jobs
 
