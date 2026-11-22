@@ -69,7 +69,7 @@
     "prettier-plugin-astro": "1.1.2",
     "reading-time": "1.5.0",
     "sharp": "0.35.5",
-    "tailwind-merge": "3.7.0",
+    "tailwind-merge": "3.7.1",
     "tailwindcss": "4.3.5",
     "typescript": "6.0.3",
     "typescript-eslint": "8.73.0",
