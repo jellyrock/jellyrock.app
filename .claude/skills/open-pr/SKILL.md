@@ -168,7 +168,16 @@ bash .claude/skills/open-pr/pr-title.sh amend <<'OPEN_PR_TITLE_END'
 OPEN_PR_TITLE_END
 ```
 
-When the line under `=== what lands` says a squash merge keeps this branch's one commit's subject, and that subject fails, offer no push: the push would send the commit that fails, and amending it afterward needs a force-push. End the draft with the command and "Reply `edit: <text>` to change the draft, such as adding or rewording why you made the change."
+Then let the script decide the push; never decide it from the lines yourself. `{{subject}}` is the number on the `SUBJECT exit` line, or, when no script checks titles, `0` when the commit's subject follows the rule and `1` when it does not; on a branch with more than one commit, use `0`:
+
+```sh
+IFS= read -r base <<'OPEN_PR_BASE_END'
+{{base}}
+OPEN_PR_BASE_END
+bash .claude/skills/open-pr/pr-title.sh push "$base" {{repo}} {{subject}}
+```
+
+It prints one line. On `PUSH hold`, offer no push and give no reason beyond the one that line states: end the draft with the command and "Reply `edit: <text>` to change the draft, such as adding or rewording why you made the change." On `PUSH offer`, follow Step 7's push question.
 
 Never amend.
 

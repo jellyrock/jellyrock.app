@@ -58,10 +58,18 @@ search() {
 # command_line <text>: a command for the user to run, as inline code on its own line
 command_line() { local tick='`'; printf '\n%s%s%s\n\n' "$tick" "$1" "$tick"; }
 
-# token_remedy: how a signed-in user whose sign-in this session cannot read goes on
+# token_remedy: how a signed-in user whose sign-in this session cannot read goes on. The command that
+# starts a session comes from the harness (harness.sh launch); with no answer, the advice names none.
 token_remedy() {
-  echo "Start the session again with the token in its environment, which lets every command in that session read it:"
-  command_line "GH_TOKEN=\"\$(gh auth token)\" claude"
+  local hs cmd=""
+  hs="$(git config --type=path --get harness.script 2>/dev/null)" || hs=""
+  [ -f "$hs" ] && cmd="$(bash "$hs" launch </dev/null 2>/dev/null | awk -F'\t' '$1 == "command" { print $2 }')"
+  if [ -n "$cmd" ]; then
+    echo "Start the session again with the token in its environment, which lets every command in that session read it:"
+    command_line "GH_TOKEN=\"\$(gh auth token)\" $cmd"
+  else
+    echo "Start the session again with \`GH_TOKEN=\"\$(gh auth token)\"\` in its environment, which lets every command in that session read it."
+  fi
   echo "Or run this in a session without the sandbox."
 }
 

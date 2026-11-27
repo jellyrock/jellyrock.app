@@ -17,6 +17,10 @@
 # then one line says the settings could not be read. Those lines carry no label, since
 # the draft copies them word for word for the contributor to read. NOTE lines then say to copy them
 # and how a title is checked.
+# push says whether /open-pr may offer the push, from the merge settings read as lands reads them, the
+# commits since <base> and the `SUBJECT exit` number that check printed. It prints one line: PUSH hold
+# when a squash merge keeps this branch's one commit's subject and that subject fails, or when the settings
+# cannot be read and it fails, and PUSH offer otherwise. The model never works this out from the lines.
 # check reads the draft on standard input, in issue-link.sh's format: a line `=== title` and the
 # title, then a line `=== body` and the body, which every draft needs since the scan reads it too.
 # In the checker's command the word @title becomes the title, @body a file holding the body and
@@ -31,17 +35,19 @@
 # Usage: pr-title.sh changes
 #        pr-title.sh upstream <remote>
 #        pr-title.sh gather <base> <owner/name>
+#        pr-title.sh push <base> <owner/name> <subject exit>
 #        pr-title.sh check <checker command, with @title and optionally @body and @branch> <<'OPEN_PR_DRAFT_END'
 #        pr-title.sh amend <<'OPEN_PR_TITLE_END'
 # Prints the checker's output, then `TITLE exit <n>`, `SUBJECT: <subject>` and `SUBJECT exit <n>`, then
 # the scan's `HIT` and `EMPTY` lines as it prints them and `SCAN exit <n>`.
+# push prints one line, `PUSH hold: <reason>` or `PUSH offer`.
 # Exit: 0 the checks ran (read their exit lines), 2 a usage or draft error.
 # amend reads the title as the one line on standard input and prints the amend command with the title
 # quoted for the shell, so the title is never quoted by hand.
 set -uo pipefail
 
 die() { printf 'pr-title: %s\n' "$1" >&2; exit 2; }
-usage="usage: pr-title.sh changes | upstream <remote> | gather <base> <owner/name> | check <checker command with @title> | amend"
+usage="usage: pr-title.sh changes | upstream <remote> | gather <base> <owner/name> | push <base> <owner/name> <subject exit> | check <checker command with @title> | amend"
 
 # is_masked <path>: a character device itself, never a link to one
 is_masked() { [ -c "$1" ] && [ ! -L "$1" ]; }
@@ -105,13 +111,21 @@ unpushed() {
   done < <(git remote)
 }
 
-# lands <base> <owner/name>: what lands, each line a whole sentence to copy
-lands() {
-  local base="$1" got='' title='' message='' squash='' rebase='' merge='' known='' try='' read_ok=''
+# read_settings <owner/name>: sets the caller's got to the merge settings on one line, and read_ok to 1
+# when the read worked, after up to 3 tries. lands and push both read through it, so they never disagree.
+read_settings() {
+  local try
+  got='' read_ok=''
   for try in 1 2 3; do
-    if got="$(gh api "repos/$2" --jq '[.squash_merge_commit_title, .squash_merge_commit_message, .allow_squash_merge, .allow_rebase_merge, .allow_merge_commit] | map(tostring) | join(" ")' </dev/null 2>/dev/null)"; then read_ok=1; break; fi
+    if got="$(gh api "repos/$1" --jq '[.squash_merge_commit_title, .squash_merge_commit_message, .allow_squash_merge, .allow_rebase_merge, .allow_merge_commit] | map(tostring) | join(" ")' </dev/null 2>/dev/null)"; then read_ok=1; break; fi
     [ "$try" = 3 ] || sleep 1
   done
+}
+
+# lands <base> <owner/name>: what lands, each line a whole sentence to copy
+lands() {
+  local base="$1" got='' title='' message='' squash='' rebase='' merge='' known='' read_ok=''
+  read_settings "$2"
   echo "=== what lands"
   if [ -z "$read_ok" ]; then echo "Could not read the merge settings: the PR template's comments say what lands."; return 0; fi
   read -r title message squash rebase merge <<<"$got"
@@ -135,6 +149,27 @@ lands() {
   if [ "$rebase" = true ]; then known=1; echo "If rebase-merged, each commit keeps its own subject and message."; fi
   if [ "$merge" = true ]; then known=1; echo "If merged with a merge commit, each commit keeps its own subject and message."; fi
   [ -n "$known" ] || echo "Not known to your account: the PR template's comments say what lands."
+}
+
+# push <base> <owner/name> <subject exit>: one line, PUSH hold or PUSH offer
+push() {
+  [ "$#" -eq 3 ] || die "$usage"
+  local base="$1" repo="$2" rc="$3" got='' title='' message='' squash='' read_ok=''
+  [[ "$repo" =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]] || die "the repository is owner/name"
+  [[ "$rc" =~ ^[0-9]+$ ]] || die "the subject exit is a non-negative number: $usage"
+  git rev-parse -q --verify --end-of-options "$base^{commit}" >/dev/null || die "the base is not a commit here: $base"
+  if [ "$rc" -eq 0 ]; then echo "PUSH offer"; return 0; fi
+  read_settings "$repo"
+  if [ -z "$read_ok" ]; then
+    echo "PUSH hold: the merge settings could not be read, so it is not known whether a failing commit subject lands."
+    return 0
+  fi
+  read -r title message squash _ <<<"$got"
+  if [ "$squash" != false ] && [ "$title" = COMMIT_OR_PR_TITLE ] && [ "$(git rev-list --count "$base..HEAD")" -eq 1 ]; then
+    echo "PUSH hold: a squash merge keeps this branch's one commit's subject, and that subject fails the title rule."
+  else
+    echo "PUSH offer"
+  fi
 }
 
 gather() {
@@ -244,6 +279,7 @@ case "${1:-}" in
   changes) shift; changes "$@" ;;
   upstream) shift; upstream "$@" ;;
   gather) shift; gather "$@" ;;
+  push) shift; push "$@" ;;
   check) shift; check "$@" ;;
   amend) shift; amend "$@" ;;
   *) die "$usage" ;;
